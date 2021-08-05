@@ -2,30 +2,32 @@ import React, {useEffect, useState} from 'react';
 import {
   TouchableOpacity,
   KeyboardAvoidingView,
-  Image,  
+  Image,
   View,
   Text,
   SafeAreaView,
   ScrollView,
-  Dimensions  
+  Dimensions
 } from 'react-native';
 
 import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import ReactNativeBiometrics from 'react-native-biometrics';
 
 import LOGOSVG from 'AnRNApp/Image/aprilconnect_horinzontallogo.svg';
 import AESEncryption from './../Components/AESEncryption';
 
 const ProfileScreen = props => {
 
-  const [userEmail, setUserEmail] = useState('');  
+  const [userEmail, setUserEmail] = useState('');
+  const [biometricKeysExist, setBiometricKeysExist] = useState(false);
 
-  useEffect(() => {
+  useEffect(async () => {
     if(AsyncStorage.getItem('user_id')){
 
       AsyncStorage.getItem('user_id').then(
         (value) => {
-          
+
           AESEncryption("decrypt",value).then((respp)=>{
             // console.log("Check session: " + JSON.parse(respp).data);
             if(JSON.parse(respp).data){
@@ -37,6 +39,8 @@ const ProfileScreen = props => {
           });// End of encryption/decryption
         },
       );
+      const {keysExist} = await ReactNativeBiometrics.biometricKeysExist();
+      setBiometricKeysExist(keysExist);
     }
     else {
       props.navigation.navigate('SplashStack');
@@ -52,22 +56,22 @@ const ProfileScreen = props => {
   const widthMultiplier = width / 550;
 
   const handleLogout = () => {
-    AsyncStorage.clear();
+    AsyncStorage.removeItem('user_id');
     setUserEmail("");
     props.navigation.navigate('LoginStack');
     return;
   }
 
   return (
-    <SafeAreaView 
-      style={{    
+    <SafeAreaView
+      style={{
         flex: 1,
         backgroundColor: '#fdfdfd',
       }}
     >
       <ScrollView>
       <KeyboardAvoidingView enabled>
-      <View>    
+      <View>
         <Image
           source={require('AnRNApp/Image/bar.png')}
           style={{
@@ -102,18 +106,18 @@ const ProfileScreen = props => {
           </Text>
           </View>
       </View>
-      <TouchableOpacity  
+      <TouchableOpacity
         style={{
           height:25,
           width:'100%',
           right:2,
           left:2,
           marginTop:30,
-          flexDirection:'row', 
-          borderStyle:'solid', 
-          borderWidth:0, 
-          borderColor:'#dbd4d4', 
-          borderBottomWidth:1, 
+          flexDirection:'row',
+          borderStyle:'solid',
+          borderWidth:0,
+          borderColor:'#dbd4d4',
+          borderBottomWidth:1,
           paddingBottom:10,
         }}
         onPress={goToChangePassword.bind(this)}
@@ -125,33 +129,64 @@ const ProfileScreen = props => {
           <Icon raised name="menu-right" size={21} />
         </View>
       </TouchableOpacity>
-      <TouchableOpacity  
+      <TouchableOpacity
+      style={{
+        height:25,
+        width:'100%',
+        right:2,
+        left:2,
+        marginTop:30,
+        flexDirection:'row',
+        borderStyle:'solid',
+        borderWidth:0,
+        borderColor:'#dbd4d4',
+        borderBottomWidth:1,
+        paddingBottom:10,
+      }}
+      onPress={()=>{
+        props.navigation.navigate('BiometricAuthentication');
+      }}
+      >
+        <View style={{left:0, position:'absolute',marginLeft:15,marginTop:0,marginBottom:20,flex:2,flexDirection:'row'}}>
+          <Text>Biometric Authentication</Text>
+          {
+            biometricKeysExist ? <></> :
+            <View style={{marginLeft:10,marginTop:-8,height:28,width:28,borderRadius:28,backgroundColor:'#FF3A3A',justifyContent:'center'}}>
+              <Text style={{fontFamily:'HelveticaNeue-Bold',fontSize:17,lineHeight:24,textAlign:'center',color:'#fff'}}>!</Text>
+            </View>
+          }
+        </View>
+        <View style={{right:0, marginBottom:8, position:'absolute', marginRight:20}}>
+          <Icon raised name="menu-right" size={21} />
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity
         style={{
           height:25,
-          width:'100%', 
+          width:'100%',
           right:2,
-          left:2, 
-          marginTop:30, 
-          flexDirection:'row', 
-          borderStyle:'solid', 
-          borderWidth:0, 
-          borderColor:'#dbd4d4', 
+          left:2,
+          marginTop:30,
+          flexDirection:'row',
+          borderStyle:'solid',
+          borderWidth:0,
+          borderColor:'#dbd4d4',
           borderBottomWidth:1,
-          backgroundColor:'#FDFDFD',           
+          backgroundColor:'#FDFDFD',
           paddingBottom:10,
         }}
         onPress={handleLogout.bind(this)}
       >
         <View style={{
-          left:0, 
-          position:'absolute', 
-          marginLeft:15,               
+          left:0,
+          position:'absolute',
+          marginLeft:15,
         }}>
           <Text style={{color:'#c19292', fontWeight:'bold'}}>Sign Out</Text>
         </View>
-      </TouchableOpacity>         
+      </TouchableOpacity>
       </KeyboardAvoidingView>
-      </ScrollView>            
+      </ScrollView>
     </SafeAreaView>
   );
 };

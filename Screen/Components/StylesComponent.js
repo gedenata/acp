@@ -18,16 +18,16 @@ const StylesComponent = StyleSheet.create({
       marginLeft: 35,
       marginRight: 45,
       margin: 2,
-    },  
+    },
     originalLabelStyle: {
       color: '#000000',
       textAlign: 'center',
       fontWeight: 'bold',
       fontSize: 13,
-    },    
+    },
     searchIcon: {
       padding: 10,
-    },  
+    },
     buttonStyle: {
       fontFamily:'sans-serif-light',
       backgroundColor: '#2E8B57',
@@ -59,8 +59,8 @@ const StylesComponent = StyleSheet.create({
       marginTop:5,
       borderWidth: 1,
       borderRadius: 10,
-      borderColor: '#685640',    
-    },  
+      borderColor: '#685640',
+    },
     inputStyle: {
       flex: 1,
       color: 'black',
@@ -74,7 +74,7 @@ const StylesComponent = StyleSheet.create({
       textAlign: 'center',
       fontWeight: 'normal',
       fontSize: 13,
-    },  
+    },
     registerTextStyle: {
       color: '#000000',
       textAlign: 'center',
@@ -85,6 +85,25 @@ const StylesComponent = StyleSheet.create({
       color: 'red',
       textAlign: 'center',
       fontSize: 14,
+    },
+    buttonInvertStyle: {
+      fontFamily:'sans-serif-light',
+      backgroundColor: '#fff',
+      fontWeight: 'bold',
+      borderWidth:2,
+      borderColor: '#228B22',
+      height: 42,
+      alignItems: 'center',
+      borderRadius: 40,
+      marginLeft: 35,
+      marginRight: 35,
+      marginTop: 0,
+      marginBottom: 20,
+    },
+    buttonTextInvertStyle: {
+      color: '#228B22',
+      paddingVertical: 10,
+      fontSize: 16,
     },
   });
 

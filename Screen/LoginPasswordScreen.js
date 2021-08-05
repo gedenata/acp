@@ -1,5 +1,5 @@
 //Import React and Hook we needed
-import React, { useState, createRef } from 'react';
+import React, { useState, useEffect, createRef } from 'react';
 import {API_URL} from '@env';
 // Import all required component
 import {
@@ -19,8 +19,9 @@ import AESEncryption from './Components/AESEncryption';
 import styles from './Components/StylesComponent';
 import LOGOSVG from 'AnRNApp/Image/svg_logo/aprilconnect_verticallogo-coloured.svg';
 import DeviceInfo from 'react-native-device-info';
+import ReactNativeBiometrics from 'react-native-biometrics';
 
-const LoginPasswordScreen = props => { 
+const LoginPasswordScreen = props => {
 
   let [userPassword, setUserPassword] = useState('');
   let [loading, setLoading] = useState(false);
@@ -28,9 +29,41 @@ const LoginPasswordScreen = props => {
   let [encryptedTextValue, setEncryptedText] = useState('');
   let [userEmail, setUserEmail] = useState('');
   let [secureTextEntryStatus, setSecureTextEntryStatus] = useState(true);
-  const [userAgent, setUserAgent] = useState('')  
+  const [userAgent, setUserAgent] = useState('');
+  const [biometricSensorAvailable, setBiometricSensorAvailable] = useState(false);
+  const [biometricsNotSupported, setBiometricsNotSupported] = useState(false);
+  const [biometricKeysExist, setBiometricKeysExist] = useState(false);
+  const [showBiometrics, setShowBiometrics] = useState(false);
 
   const passwordInputRef = createRef();
+
+  useEffect(async () => {
+    const {
+      available,
+      biometryType,
+    } = await ReactNativeBiometrics.isSensorAvailable();
+    setBiometricSensorAvailable(available);
+    if (available && biometryType === ReactNativeBiometrics.TouchID) {
+    } else if (available && biometryType === ReactNativeBiometrics.FaceID) {
+    } else if (available && biometryType === ReactNativeBiometrics.Biometrics) {
+    } else {
+      setBiometricsNotSupported(true);
+    }
+    const {keysExist} = await ReactNativeBiometrics.biometricKeysExist();
+    setBiometricKeysExist(keysExist);
+  }, []);
+
+  useEffect(() => {
+    if (
+      // // biometricSensorAvailable &&
+      !biometricKeysExist
+      // // && !biometricsNotSupported
+    ) {
+      setShowBiometrics(true);
+    } else {
+      setShowBiometrics(false);
+    }
+  }, [biometricSensorAvailable, biometricsNotSupported, biometricKeysExist]);
 
   AsyncStorage.getItem('user_id').then(
     (value) =>
@@ -46,7 +79,7 @@ const LoginPasswordScreen = props => {
   const getDataAsync = async () => {
     let deviceJSON = {};
     try {
-      deviceJSON.userAgent = await DeviceInfo.getUserAgent(); 
+      deviceJSON.userAgent = await DeviceInfo.getUserAgent();
       setUserAgent(deviceJSON.userAgent);
       try {
         deviceJSON.deviceToken = await DeviceInfo.getDeviceToken();
@@ -56,7 +89,7 @@ const LoginPasswordScreen = props => {
     } catch (e) {
       // console.log('Trouble getting device info ', e);
     }
-  };    
+  };
 
   const handleSecureTextEntry = () => {
     if(secureTextEntryStatus){ setSecureTextEntryStatus(false) }
@@ -68,7 +101,7 @@ const LoginPasswordScreen = props => {
 
     // console.log("ya : " + encryptedTextValue + "::" + userEmail);
     // return false;
-    
+
     setLoading(true);
     var dataToSend = { EncryptText: encryptedTextValue, Password: userPassword };
     var formBody = [];
@@ -93,10 +126,10 @@ const LoginPasswordScreen = props => {
 
         AESEncryption("encrypt", JSON.stringify(response)).then((resp)=>{
           AsyncStorage.setItem(
-            'user_id', 
+            'user_id',
             resp
           );
-          props.navigation.navigate('CreatePassword');                              
+          props.navigation.navigate('CreatePassword');
 		});// End of encryption/decryption
 
 
@@ -118,7 +151,7 @@ const LoginPasswordScreen = props => {
 
           if(statusCode != 200){
             setErrortext('Please check your password');
-            AsyncStorage.clear();
+            AsyncStorage.removeItem('user_id');
           }else{
             if(data.Token)
             {
@@ -127,14 +160,18 @@ const LoginPasswordScreen = props => {
 
               AESEncryption("encrypt", JSON.stringify(responseJson)).then((resp) => {
                 AsyncStorage.setItem(
-                  'user_id', 
+                  'user_id',
                   resp
                 );
-                props.navigation.navigate('LoadingStack');
+                if(showBiometrics){
+                  props.navigation.navigate('SetupBiometrics');
+                } else {
+                  props.navigation.navigate('LoadingStack');
+                }
               });
 
             }else{
-              AsyncStorage.clear();
+              AsyncStorage.removeItem('user_id');
             }
           }
         }
@@ -170,7 +207,7 @@ const LoginPasswordScreen = props => {
                       style={styles.originalLabelStyle}>
                       PASSWORD
                   </Text>
-                </View>                                
+                </View>
                 <View style={styles.SectionStyle}>
                   <Icon raised name="lock" size={20} color="#000" style={styles.searchIcon} />
                   <TextInput
@@ -204,7 +241,7 @@ const LoginPasswordScreen = props => {
               </KeyboardAvoidingView>
             </View>
           </ScrollView>
-        </View>       
+        </View>
     </View>
   );
 };

@@ -10,6 +10,7 @@ import { NavigationContainer} from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useIsFocused } from '@react-navigation/native';
+import ReactNativeBiometrics from 'react-native-biometrics';
 
 import SplashScreen from './Screen/SplashScreen';
 import LoginScreen from './Screen/LoginScreen';
@@ -40,6 +41,8 @@ import SurveyQuestionScreen from './Screen/pages/SurveyQuestionScreen';
 import RewardsScreen from './Screen/pages/RewardsScreen';
 import MarketUpdateScreen from './Screen/pages/MarketUpdateScreen';
 import MarketUpdateDetailScreen from './Screen/pages/MarketUpdateDetailScreen';
+import SetupBiometricsScreen from './Screen/pages/SetupBiometricsScreen';
+import BiometricAuthenticationScreen from './Screen/pages/BiometricAuthenticationScreen';
 
 import AESEncryption from './Screen/Components/AESEncryption';
 
@@ -53,8 +56,11 @@ const Tab = createBottomTabNavigator();
 
 const App = () => {
   const [ numberOfRemindedSurvey, setNumberOfRemindedSurvey ] = useState(-1);
+  const [biometricKeyExists, setBiometricKeyExists] = useState(false);
 
-  const checkUpdate = () => {
+  const checkUpdate = async () => {
+    const {keysExist} = await ReactNativeBiometrics.biometricKeysExist();
+    setBiometricKeyExists(keysExist);
     AsyncStorage.getItem('user_id').then(
       (value) =>
       {
@@ -73,7 +79,7 @@ const App = () => {
           let url = `${API_URL}/WebApi1/access/api/marketsurveyqna`;
           fetch(url, {
             method: 'POST',
-            body: formBody, 
+            body: formBody,
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
             },
@@ -82,7 +88,7 @@ const App = () => {
           .then(json => {
             setNumberOfRemindedSurvey(json.length);
           });
-        });        
+        });
       }
     );
   }
@@ -110,9 +116,9 @@ const App = () => {
       >
         <Stack.Screen
           name="LoginScreen"
-          component={LoginScreen}/>      
+          component={LoginScreen}/>
       </Stack.Navigator>
-    );  
+    );
   }
 
   function LoginNextStack() {
@@ -126,24 +132,27 @@ const App = () => {
           component={LoginScreenNext}/>
         <Stack.Screen
           name="CreatePassword"
-          component={CreatePasswordScreen}/>        
+          component={CreatePasswordScreen}/>
         <Stack.Screen
           name="LoginPassword"
-          component={LoginPasswordScreen}/>        
+          component={LoginPasswordScreen}/>
+        <Stack.Screen
+          name="SetupBiometrics"
+          component={SetupBiometricsScreen}/>
       </Stack.Navigator>
     );
   }
- 
+
   function TnCStack() {
     return (
       <Stack.Navigator
         initialRouteName="More"
         screenOptions={{
-          headerShown:false        
-        }}>        
+          headerShown:false
+        }}>
         <Stack.Screen
           name="TnCScreen"
-          component={TnCScreen}/>      
+          component={TnCScreen}/>
         <Stack.Screen
           name="LoginPassword"
           component={LoginPasswordScreen}/>
@@ -162,14 +171,14 @@ const App = () => {
       <Stack.Navigator
         initialRouteName="More"
         screenOptions={{
-          headerShown:false        
+          headerShown:false
         }}>
         <Stack.Screen
           name="LoginPasswordScreen"
-          component={LoginPasswordScreen}/>   
+          component={LoginPasswordScreen}/>
         <Stack.Screen
           name="CreatePassword"
-          component={CreatePasswordScreen}/>             
+          component={CreatePasswordScreen}/>
       </Stack.Navigator>
     );
   }
@@ -179,11 +188,11 @@ const App = () => {
       <Stack.Navigator
         initialRouteName="More"
         screenOptions={{
-          headerShown:false        
+          headerShown:false
         }}>
         <Stack.Screen
           name="LoadingScreen"
-          component={LoadingScreen}/>      
+          component={LoadingScreen}/>
       </Stack.Navigator>
     );
   }
@@ -207,7 +216,7 @@ const App = () => {
                     size={size}
                   />
                 ),
-              }}  
+              }}
             />
             <Tab.Screen
               name="SearchStack"
@@ -221,7 +230,7 @@ const App = () => {
                     size={size}
                   />
                 ),
-              }}  
+              }}
             />
             <Tab.Screen
               name="ProfileStack"
@@ -229,14 +238,24 @@ const App = () => {
               options={{
                 tabBarLabel: 'Profile',
                 tabBarIcon: ({ color, size }) => (
-                  <MaterialIcons
-                    name="account-circle"
-                    color={color}
-                    size={size}
-                  />
+                  <View>
+                    {biometricKeyExists ? <></> :
+                      <Entypo
+                        name='dot-single'
+                        color='#FF3A3A'
+                        size={25}
+                        style={{position:'absolute', right:-10, top:-10}}
+                      />
+                    }
+                    <MaterialIcons
+                      name="account-circle"
+                      color={color}
+                      size={size}
+                    />
+                  </View>
                 ),
-              }}  
-            />               
+              }}
+            />
             <Tab.Screen
               name="MoreStack"
               component={MoreStack}
@@ -245,7 +264,7 @@ const App = () => {
                 tabBarIcon: ({ color, size }) => (
                   <View>
                     {
-                    numberOfRemindedSurvey > 0 ? 
+                    numberOfRemindedSurvey > 0 ?
                       <Entypo
                         name="dot-single"
                         color="#FF3A3A"
@@ -262,17 +281,17 @@ const App = () => {
                     />
                   </View>
                 ),
-              }} 
+              }}
             />
-          </Tab.Navigator>     
+          </Tab.Navigator>
     );
   }
 
-  function HomeStack() 
+  function HomeStack()
   {
     let isFocused = useIsFocused();
-    if(isFocused){ 
-      checkUpdate(); 
+    if(isFocused){
+      checkUpdate();
       return (
           <Stack.Navigator
             initialRouteName="Home"
@@ -283,9 +302,9 @@ const App = () => {
               name="Home"
               component={HomeScreen}/>
             <Stack.Screen
-              name="AllOrders"       
+              name="AllOrders"
               component={AllOrdersScreen}
-              options={ ({navigation,route}) => ({ 
+              options={ ({navigation,route}) => ({
                 title: 'My Orders' ,
                 headerShown:true,
                 headerLeft: (props) => (
@@ -295,7 +314,7 @@ const App = () => {
                     style={{marginLeft:5}}
                     onPress={() => navigation.navigate('Home')}
                     color="#000000"
-                  />              
+                  />
                 )
               })}/>
             <Stack.Screen
@@ -303,12 +322,12 @@ const App = () => {
               component={DetailsScreen}/>
             <Stack.Screen
               name="DetailsNext"
-              component={DetailsScreenNext}/>          
+              component={DetailsScreenNext}/>
             <Stack.Screen
               name="SurveyQuestion"
               component={SurveyQuestionScreen} />
           </Stack.Navigator>
-      );      
+      );
     }else{
       return (<></>)
     }
@@ -337,9 +356,9 @@ const App = () => {
           component={DetailsScreenNext}
         />
         <Stack.Screen
-          name="SearchResult"       
+          name="SearchResult"
           component={SearchOrdersResultScreen}
-          options={{ 
+          options={{
             title: 'Search Results' ,
             headerShown:true
           }}
@@ -347,7 +366,7 @@ const App = () => {
         <Stack.Screen
           name="SearchResultETAProductDesc"
           component={SearchOrdersResultETAProductDescScreen}
-          options={{ 
+          options={{
             title: 'Search Results' ,
             headerShown:true
           }}
@@ -389,7 +408,7 @@ const App = () => {
         <Stack.Screen
           name="ProductCatalogueSearch"
           component={ProductCatalogueSearchScreen}
-        />      
+        />
         <Stack.Screen
           name="CustomerFeedback"
           component={CustomerFeedbackScreen}
@@ -405,7 +424,7 @@ const App = () => {
         <Stack.Screen
           name="MarketUpdateDetail"
           component={MarketUpdateDetailScreen}
-        />    
+        />
         <Stack.Screen
           name="SurveyQuestion"
           component={SurveyQuestionScreen}
@@ -421,7 +440,7 @@ const App = () => {
         <Stack.Screen
           name="PhaseTwo"
           component={PhaseTwoScreen}
-        />                  
+        />
       </Stack.Navigator>
     );
   }
@@ -438,6 +457,10 @@ const App = () => {
         <Stack.Screen
           name="ChangePassword"
           component={ChangePasswordScreen}
+        />
+        <Stack.Screen
+          name="BiometricAuthentication"
+          component={BiometricAuthenticationScreen}
         />
         <Stack.Screen
           name="Profile"
@@ -464,7 +487,7 @@ const App = () => {
         <RootStack.Screen name="LoginPasswordStack" component={LoginPasswordStack} options={{headerShown:false}} />
         <RootStack.Screen name="LoadingStack" component={LoadingStack} options={{headerShown:false}} />
         <RootStack.Screen name="DrawerNavigationRoutesStack" component={DrawerNavigationRoutesStack} options={{headerShown:false}} />
-        <RootStack.Screen name="TnCStack" component={TnCStack} options={{headerShown:false}} />        
+        <RootStack.Screen name="TnCStack" component={TnCStack} options={{headerShown:false}} />
       </RootStack.Navigator>
     </NavigationContainer>
   );
