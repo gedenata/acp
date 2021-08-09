@@ -139,19 +139,20 @@ const RewardsScreen = ({route, navigation}) =>
       let testMessage = "";
       let counter = 0;
 
-      while(position >= 0){
+      while(position >= 0)
+      {
         extractedLength = messageTemp.indexOf('[') >= 0 ? messageTemp.indexOf('[') : messageTemp.length;
 
         if(extractedLength == 0)
         {
           extractedLength = messageTemp.indexOf(']') >= 0 ? messageTemp.indexOf(']') - 1 : messageTemp.length;
-          testMessage = messageTemp.substring(position-1,extractedLength);          
+          testMessage = messageTemp.substring(1,extractedLength);
           elements.push(
             <View style={{marginLeft:20,marginRight:20}} key={counter}>
               <Text style={{alignSelf:'center', alignItems:'center', textAlign:'center', fontFamily:'HelveticaNeue-Bold', color:'#ac828b' }}>{testMessage}</Text>
             </View>           
-          );          
-          position = -1;          
+          );
+          position = -1;
         }
         else
         {
