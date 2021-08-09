@@ -11,7 +11,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
-  FlatList
+  FlatList,
+  Platform
 } from 'react-native';
 import {ACCESS_API} from '@env';
 import Loader from './../Components/loader';
@@ -492,7 +493,7 @@ const RewardsScreen = ({route, navigation}) =>
             ]
           }}
         />
-        <View style={{ alignItems: 'center', position:'absolute', top:10, left:0, right:0 }}>
+        <View style={{ alignItems: 'center', position:'absolute', top:(Platform.OS === 'ios') ? 50 : 10, left:0, right:0 }}>
             <TouchableOpacity style={{position:'absolute',left:0,marginLeft:10,marginTop:4,}} onPress={goBackToPage}>
               <Icon raised name="arrow-left" size={30} color="#FDFDFD"/>
             </TouchableOpacity>
