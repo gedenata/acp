@@ -151,7 +151,7 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
       setLoading(true);
       closeModal();
       const response = await removeBiometricKey(tokenValue);
-      console.log('biometric remove response', response.status);
+      // // console.log('biometric remove response', response.status);
       if (response && response.status === 200) {
         await ReactNativeBiometrics.deleteKeys();
         setBiometricKeysExist(false);

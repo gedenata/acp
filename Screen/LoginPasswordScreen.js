@@ -34,6 +34,7 @@ const LoginPasswordScreen = props => {
   const [biometricsNotSupported, setBiometricsNotSupported] = useState(false);
   const [biometricKeysExist, setBiometricKeysExist] = useState(false);
   const [showBiometrics, setShowBiometrics] = useState(false);
+  const [skipBiometrics, setSkipBiometrics] = useState(false);
 
   const passwordInputRef = createRef();
 
@@ -51,6 +52,8 @@ const LoginPasswordScreen = props => {
     }
     const {keysExist} = await ReactNativeBiometrics.biometricKeysExist();
     setBiometricKeysExist(keysExist);
+    const skip_biometrics = await AsyncStorage.getItem('skip_biometrics');
+    setSkipBiometrics(skip_biometrics === 'true');
   }, []);
 
   useEffect(() => {
@@ -58,12 +61,15 @@ const LoginPasswordScreen = props => {
       // // biometricSensorAvailable &&
       !biometricKeysExist
       // // && !biometricsNotSupported
+      && !skipBiometrics
     ) {
       setShowBiometrics(true);
     } else {
       setShowBiometrics(false);
     }
-  }, [biometricSensorAvailable, biometricsNotSupported, biometricKeysExist]);
+  }, [
+    // // biometricSensorAvailable, biometricsNotSupported,
+    biometricKeysExist, skipBiometrics]);
 
   AsyncStorage.getItem('user_id').then(
     (value) =>

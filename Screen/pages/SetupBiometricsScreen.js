@@ -21,7 +21,7 @@ import {showMessage, postBiometricKey} from './../Components/biometricUtils';
 
 const SetupBiometricsScreen = ({route, navigation}) => {
   const [loading, setLoading] = useState(false);
-  const [isRegistrationFlow, setisRegistrationFlow] = useState(false);
+  const [isRegistrationFlow, setIsRegistrationFlow] = useState(false);
   const [tokenValue, setTokenValue] = useState('');
   const [touchIdAvailable, setTouchIdAvailable] = useState(false);
   const [faceIdAvailable, setFaceIdAvailable] = useState(false);
@@ -122,6 +122,7 @@ const SetupBiometricsScreen = ({route, navigation}) => {
     if (isRegistrationFlow) {
       navigation.navigate('LoginStack');
     } else {
+      AsyncStorage.setItem('skip_biometrics', 'true');
       navigation.navigate('LoadingStack');
     }
   };

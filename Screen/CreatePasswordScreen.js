@@ -82,7 +82,7 @@ const CreatePasswordScreen = props => {
           if(response.status == 200){
             setLoading(false);
             ToastAndroid.show("Password Successfully Updated", ToastAndroid.SHORT);
-            props.navigation.navigate('SetupBiometrics', {RegistrationFlow: true});
+            props.navigation.navigate('LoginStack');
           }
           else
           {
