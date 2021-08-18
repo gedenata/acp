@@ -377,7 +377,7 @@ const RewardsScreen = ({route, navigation}) =>
                 <Text style={{color:(item.Status == "" || item.Status == "Current Status" ? '#000000' : '#75787C') ,marginTop:4, fontSize:14, fontWeight:'bold', textAlign:'left',paddingLeft:12}}>{item.Status}</Text>
               </View>
               <View style={{flex:1}}>
-                <Text style={{color:(item.Status == "" ? "#000000" : item.TotalAchievement < item.TotalTarget ? '#FFAE34' : '#00854F'),marginTop:4, fontSize:14, fontWeight:'bold', textAlign:'right',paddingRight:20}}>{item.TotalTarget <= 0 ? 0 : (parseFloat((item.TotalAchievement/item.TotalTarget)*100).toFixed(2) > 100 ? 100 : parseFloat((item.TotalAchievement/item.TotalTarget)*100).toFixed(2))}%</Text>
+                <Text style={{color:(item.Status == "" ? "#000000" : item.TotalAchievement < item.TotalTarget ? '#FFAE34' : '#00854F'),marginTop:4, fontSize:14, fontWeight:'bold', textAlign:'right',paddingRight:20}}>{item.TotalTarget <= 0 ? 0 : parseFloat((item.TotalAchievement/item.TotalTarget)*100).toFixed(2)}%</Text>
               </View>
             </View>              
           </TouchableOpacity>                     
