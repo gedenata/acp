@@ -21,6 +21,7 @@ const ProfileScreen = props => {
 
   const [userEmail, setUserEmail] = useState('');
   const [biometricKeysExist, setBiometricKeysExist] = useState(false);
+  const [skipBiometrics, setSkipBiometrics] = useState(false);
 
   useEffect(async () => {
     if(AsyncStorage.getItem('user_id')){
@@ -41,6 +42,8 @@ const ProfileScreen = props => {
       );
       const {keysExist} = await ReactNativeBiometrics.biometricKeysExist();
       setBiometricKeysExist(keysExist);
+      const skip_biometrics = await AsyncStorage.getItem('skip_biometrics');
+      setSkipBiometrics(skip_biometrics === 'true');
     }
     else {
       props.navigation.navigate('SplashStack');
@@ -150,7 +153,7 @@ const ProfileScreen = props => {
         <View style={{left:0, position:'absolute',marginLeft:15,marginTop:0,marginBottom:20,flex:2,flexDirection:'row'}}>
           <Text>Biometric Authentication</Text>
           {
-            biometricKeysExist ? <></> :
+            biometricKeysExist || skipBiometrics ? <></> :
             <View style={{marginLeft:10,marginTop:-8,height:28,width:28,borderRadius:28,backgroundColor:'#FF3A3A',justifyContent:'center'}}>
               <Text style={{fontFamily:'HelveticaNeue-Bold',fontSize:17,lineHeight:24,textAlign:'center',color:'#fff'}}>!</Text>
             </View>

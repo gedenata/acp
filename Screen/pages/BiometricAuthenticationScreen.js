@@ -1,4 +1,4 @@
-import React, {useState, useEffect, createRef} from 'react';
+import React, {useState, useEffect, useCallback, createRef} from 'react';
 import {
   TouchableOpacity,
   StyleSheet,
@@ -9,6 +9,7 @@ import {
   Dimensions,
   ScrollView,
   ToastAndroid,
+  Linking,
   Platform,
 } from 'react-native';
 
@@ -23,6 +24,7 @@ import AESEncryption from './../Components/AESEncryption';
 import Loader from './../Components/loader';
 import FINGERPRINTSVG from 'AnRNApp/Image/svg_logo/Fingerprint.svg';
 import FACEIDSVG from 'AnRNApp/Image/svg_logo/Faceid.svg';
+import BIOMETRICSVG from 'AnRNApp/Image/svg_logo/biometric-icon.svg';
 import {
   showMessage,
   postBiometricKey,
@@ -40,6 +42,8 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
   const [fingerprintAvailable, setFingerprintAvailable] = useState(false);
   const [biometricsNotSupported, setBiometricsNotSupported] = useState(false);
   const [biometricKeysExist, setBiometricKeysExist] = useState(false);
+  const [biometricNotSetup, setBiometricNotSetup] = useState(false);
+  const [deviceNotSupported, setDeviceNotSupported] = useState(false);
 
   const modalizeRef = createRef();
   const biometricFailedMessage = 'Biometric linking failed, please try again.';
@@ -78,11 +82,17 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
       ? 'Touch ID'
       : faceIdAvailable
       ? 'Face ID'
-      : 'fingerprint';
+      : 'biometric authentication';
   };
 
   const GetBiometricsIcon = () => {
-    return faceIdAvailable ? <FACEIDSVG /> : <FINGERPRINTSVG />;
+    return faceIdAvailable ? (
+      <FACEIDSVG />
+    ) : touchIdAvailable ? (
+      <FINGERPRINTSVG />
+    ) : (
+      <BIOMETRICSVG />
+    );
   };
 
   const sendBiometricKey = async (publicKey) => {
@@ -124,15 +134,44 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
       }
     } catch (err) {
       if (err.message === 'No fingerprints enrolled.') {
-        showMessage(
-          `No ${getBiometricsType()} enabled on device.`,
-          ToastAndroid.SHORT,
-        );
+        setBiometricNotSetup(true);
+      } else if (err.message === 'Error generating public private keys') {
+        AsyncStorage.setItem('skip_biometrics', 'true');
+        setDeviceNotSupported(true);
       } else {
         showMessage(biometricFailedMessage, ToastAndroid.SHORT);
         console.error('Biometric authentication error: ', err.message);
       }
     }
+  };
+
+  const OpenSettingsButton = ({children}) => {
+    const handlePress = useCallback(async () => {
+      setBiometricNotSetup(false);
+      if (Platform.OS === 'android') {
+        await Linking.sendIntent('android.settings.SECURITY_SETTINGS');
+      } else {
+        await Linking.openURL('App-Prefs:root=TOUCHID_PASSCODE');
+      }
+    }, []);
+
+    return (
+      <TouchableOpacity
+        style={{
+          ...styles.buttonStyle,
+          marginTop: 300,
+        }}
+        activeOpacity={0.5}
+        onPress={handlePress}>
+        <Text
+          style={{
+            ...styles.buttonTextStyle,
+            textTransform: 'uppercase',
+          }}>
+          {children}
+        </Text>
+      </TouchableOpacity>
+    );
   };
 
   const closeModal = () => {
@@ -240,68 +279,82 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
                 width: '100%',
                 marginLeft: 20,
                 marginTop: 40,
+                minHeight: 50
               }}>
-              Setup your {getBiometricsType()} for easier faster and more,{'\n'}
-              secure log in.
+              {biometricNotSetup
+                ? `Sorry, you haven't set up your ${getBiometricsType()}\non your device.`
+                : deviceNotSupported
+                ? `Sorry, your device does not support ${getBiometricsType()}.`
+                : `Setup your ${getBiometricsType()} for easier, faster and more\nsecure log in.`}
             </Text>
           </View>
-          <View
-            style={{
-              left: 0,
-              right: 0,
-              marginLeft: 35,
-              marginRight: 35,
-              textAlign: 'justify',
-              marginTop: 30,
-              marginBottom: 1,
-              flexDirection: 'row',
-            }}>
-            <Icon
-              raised
-              name={biometricKeysExist ? 'check-circle-o' : 'times-circle-o'}
-              size={24}
-              color={biometricKeysExist ? '#2E8B57' : '#afa3a3'}
-              style={styles.checkIcon}
-            />
-            <Text
+          {deviceNotSupported ? (
+            <></>
+          ) : (
+            <View
               style={{
-                color: biometricKeysExist ? '#2E8B57' : '#000000',
-                fontWeight: 'normal',
-                fontSize: 12,
-                textAlign: 'left',
-                lineHeight: 20,
-                textTransform: 'capitalize',
-                marginRight: 5,
+                left: 0,
+                right: 0,
+                marginLeft: 35,
+                marginRight: 35,
+                textAlign: 'justify',
+                marginTop: 30,
+                marginBottom: 1,
+                flexDirection: 'row',
               }}>
-              {getBiometricsType()}
-            </Text>
-            <Text
-              style={{
-                color: biometricKeysExist ? '#2E8B57' : '#000000',
-                fontWeight: 'normal',
-                fontSize: 12,
-                textAlign: 'left',
-                lineHeight: 20,
-              }}>
-              has {biometricKeysExist ? '' : 'not'} been set up
-            </Text>
-          </View>
-          {!biometricKeysExist ? (
-            <TouchableOpacity
-              style={{
-                ...styles.buttonStyle,
-                marginTop: 300,
-              }}
-              activeOpacity={0.5}
-              onPress={onSetupPressed}>
+              <Icon
+                raised
+                name={biometricKeysExist ? 'check-circle-o' : 'times-circle-o'}
+                size={24}
+                color={biometricKeysExist ? '#2E8B57' : '#afa3a3'}
+                style={styles.checkIcon}
+              />
               <Text
                 style={{
-                  ...styles.buttonTextStyle,
-                  textTransform: 'uppercase',
+                  color: biometricKeysExist ? '#2E8B57' : '#000000',
+                  fontWeight: 'normal',
+                  fontSize: 12,
+                  textAlign: 'left',
+                  lineHeight: 20,
+                  textTransform: 'capitalize',
+                  marginRight: 5,
                 }}>
-                Setup {getBiometricsType()}
+                {getBiometricsType()}
               </Text>
-            </TouchableOpacity>
+              <Text
+                style={{
+                  color: biometricKeysExist ? '#2E8B57' : '#000000',
+                  fontWeight: 'normal',
+                  fontSize: 12,
+                  textAlign: 'left',
+                  lineHeight: 20,
+                }}>
+                has {biometricKeysExist ? '' : 'not'} been set up
+              </Text>
+            </View>
+          )}
+          {!biometricKeysExist ? (
+            biometricNotSetup ? (
+              <OpenSettingsButton>Go to System Settings</OpenSettingsButton>
+            ) : deviceNotSupported ? (
+              <></>
+            ) : (
+              <TouchableOpacity
+                style={{
+                  ...styles.buttonStyle,
+                  marginTop: 300,
+                }}
+                activeOpacity={0.5}
+                onPress={onSetupPressed}>
+                <Text
+                  style={{
+                    ...styles.buttonTextStyle,
+                    textTransform: 'uppercase',
+                  }}>
+                  Setup {getBiometricsType()}
+                </Text>
+              </TouchableOpacity>
+            )
           ) : (
             <TouchableOpacity
               style={{

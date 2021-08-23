@@ -57,10 +57,13 @@ const Tab = createBottomTabNavigator();
 const App = () => {
   const [ numberOfRemindedSurvey, setNumberOfRemindedSurvey ] = useState(-1);
   const [biometricKeyExists, setBiometricKeyExists] = useState(false);
+  const [skipBiometrics, setSkipBiometrics] = useState(false);
 
   const checkUpdate = async () => {
     const {keysExist} = await ReactNativeBiometrics.biometricKeysExist();
     setBiometricKeyExists(keysExist);
+    const skip_biometrics = await AsyncStorage.getItem('skip_biometrics');
+    setSkipBiometrics(skip_biometrics === 'true');
     AsyncStorage.getItem('user_id').then(
       (value) =>
       {
@@ -239,13 +242,13 @@ const App = () => {
                 tabBarLabel: 'Profile',
                 tabBarIcon: ({ color, size }) => (
                   <View>
-                    {biometricKeyExists ? <></> :
-                      <Entypo
+                    {biometricKeyExists || skipBiometrics ? (<></>) :
+                      (<Entypo
                         name='dot-single'
                         color='#FF3A3A'
                         size={25}
                         style={{position:'absolute', right:-10, top:-10}}
-                      />
+                      />)
                     }
                     <MaterialIcons
                       name="account-circle"

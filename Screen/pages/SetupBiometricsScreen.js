@@ -1,5 +1,4 @@
-import React, {useState, useEffect} from 'react';
-import {API_URL} from '@env';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -7,6 +6,8 @@ import {
   ToastAndroid,
   TouchableOpacity,
   KeyboardAvoidingView,
+  Linking,
+  Platform,
 } from 'react-native';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -17,6 +18,7 @@ import styles from './../Components/StylesComponent';
 import LOGOSVG from 'AnRNApp/Image/svg_logo/aprilconnect_verticallogo-coloured.svg';
 import FINGERPRINTSVG from 'AnRNApp/Image/svg_logo/Fingerprint.svg';
 import FACEIDSVG from 'AnRNApp/Image/svg_logo/Faceid.svg';
+import BIOMETRICSVG from 'AnRNApp/Image/svg_logo/biometric-icon.svg';
 import {showMessage, postBiometricKey} from './../Components/biometricUtils';
 
 const SetupBiometricsScreen = ({route, navigation}) => {
@@ -27,6 +29,8 @@ const SetupBiometricsScreen = ({route, navigation}) => {
   const [faceIdAvailable, setFaceIdAvailable] = useState(false);
   const [fingerprintAvailable, setFingerprintAvailable] = useState(false);
   const [biometricsNotSupported, setBiometricsNotSupported] = useState(false);
+  const [biometricNotSetup, setBiometricNotSetup] = useState(false);
+  const [deviceNotSupported, setDeviceNotSupported] = useState(false);
   const biometricFailedMessage = 'Biometric linking failed, please try again';
 
   useEffect(async () => {
@@ -61,11 +65,71 @@ const SetupBiometricsScreen = ({route, navigation}) => {
       ? 'Touch ID'
       : faceIdAvailable
       ? 'Face ID'
-      : 'fingerprint';
+      : 'biometric authentication';
   };
 
   const GetBiometricsIcon = () => {
-    return faceIdAvailable ? <FACEIDSVG /> : <FINGERPRINTSVG />;
+    return faceIdAvailable ? (
+      <FACEIDSVG />
+    ) : touchIdAvailable ? (
+      <FINGERPRINTSVG />
+    ) : (
+      <BIOMETRICSVG />
+    );
+  };
+
+  const OpenSettingsButton = ({children}) => {
+    const handlePress = useCallback(async () => {
+      setBiometricNotSetup(false);
+      if (Platform.OS === 'android') {
+        await Linking.sendIntent('android.settings.SECURITY_SETTINGS');
+      } else {
+        await Linking.openURL('App-Prefs:root=TOUCHID_PASSCODE');
+      }
+    }, []);
+
+    return (
+      <TouchableOpacity
+        style={{
+          ...styles.buttonStyle,
+          width: '80%',
+        }}
+        activeOpacity={0.5}
+        onPress={handlePress}>
+        <Text
+          style={{
+            ...styles.buttonTextStyle,
+            textTransform: 'uppercase',
+          }}>
+          {children}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+
+  const SkipButton = ({children}) => {
+    const handlePress = useCallback(async () => {
+      onContinuePressed();
+    }, []);
+
+    return (
+      <TouchableOpacity
+        style={{
+          ...styles.buttonStyle,
+          width: '80%',
+          marginTop: 50
+        }}
+        activeOpacity={0.5}
+        onPress={handlePress}>
+        <Text
+          style={{
+            ...styles.buttonTextStyle,
+            textTransform: 'uppercase',
+          }}>
+          {children}
+        </Text>
+      </TouchableOpacity>
+    );
   };
 
   const sendBiometricKey = async (publicKey) => {
@@ -107,10 +171,9 @@ const SetupBiometricsScreen = ({route, navigation}) => {
       }
     } catch (err) {
       if (err.message === 'No fingerprints enrolled.') {
-        showMessage(
-          `No ${getBiometricsType()} enabled on device.`,
-          ToastAndroid.SHORT,
-        );
+        setBiometricNotSetup(true);
+      } else if (err.message === 'Error generating public private keys') {
+        setDeviceNotSupported(true);
       } else {
         showMessage(biometricFailedMessage, ToastAndroid.SHORT);
         console.error('Biometric authentication error: ', err.message);
@@ -149,39 +212,52 @@ const SetupBiometricsScreen = ({route, navigation}) => {
                 )}
                 <GetBiometricsIcon />
                 <Text style={styles.welcomeTextStyle}>
-                  Setup your {getBiometricsType()} for easier,{'\n'}
-                  faster and more secure log in.
+                  {biometricNotSetup
+                    ? `Sorry, you haven't set up your ${getBiometricsType()}\non your device.`
+                    : deviceNotSupported
+                    ? `Sorry, your device does not support ${getBiometricsType()}.`
+                    : `Setup your ${getBiometricsType()} for easier,\nfaster and more secure log in.`}
                 </Text>
-                <TouchableOpacity
-                  style={{
-                    ...styles.buttonStyle,
-                    width: '80%',
-                  }}
-                  activeOpacity={0.5}
-                  onPress={onSetupPressed}>
-                  <Text
+                {biometricNotSetup ? (
+                  <OpenSettingsButton>Go to System Settings</OpenSettingsButton>
+                ) : deviceNotSupported ? (
+                  <SkipButton>Skip</SkipButton>
+                ) : (
+                  <TouchableOpacity
                     style={{
-                      ...styles.buttonTextStyle,
-                      textTransform: 'uppercase',
-                    }}>
-                    Setup {getBiometricsType()}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    ...styles.buttonInvertStyle,
-                    width: '80%',
-                  }}
-                  activeOpacity={0.5}
-                  onPress={onContinuePressed}>
-                  <Text
+                      ...styles.buttonStyle,
+                      width: '80%',
+                    }}
+                    activeOpacity={0.5}
+                    onPress={onSetupPressed}>
+                    <Text
+                      style={{
+                        ...styles.buttonTextStyle,
+                        textTransform: 'uppercase',
+                      }}>
+                      Setup {getBiometricsType()}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+                {deviceNotSupported ? (
+                  <></>
+                ) : (
+                  <TouchableOpacity
                     style={{
-                      ...styles.buttonTextInvertStyle,
-                      textTransform: 'uppercase',
-                    }}>
-                    No Thanks, Continue
-                  </Text>
-                </TouchableOpacity>
+                      ...styles.buttonInvertStyle,
+                      width: '80%',
+                    }}
+                    activeOpacity={0.5}
+                    onPress={onContinuePressed}>
+                    <Text
+                      style={{
+                        ...styles.buttonTextInvertStyle,
+                        textTransform: 'uppercase',
+                      }}>
+                      No Thanks, Continue
+                    </Text>
+                  </TouchableOpacity>
+                )}
                 <Text
                   style={styles.registerTextStyle}
                   onPress={() => navigation.navigate('RegisterScreen')}>
