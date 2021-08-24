@@ -152,7 +152,6 @@ const LoginScreenNext = props => {
   const handleBiometricLogin = async () => {
     let _userEmail = '';
     const user_email = await AsyncStorage.getItem('user_email');
-    console.log(user_email);
     if (user_email) {
       const respp = await AESEncryption('decrypt', user_email);
       if (respp) {

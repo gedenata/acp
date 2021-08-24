@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import AsyncStorage from '@react-native-community/async-storage';
+import IntentLauncher from 'react-native-intent-launcher';
+import DeviceInfo from 'react-native-device-info';
 
 import Loader from './../Components/loader';
 import AESEncryption from './../Components/AESEncryption';
@@ -82,7 +84,16 @@ const SetupBiometricsScreen = ({route, navigation}) => {
     const handlePress = useCallback(async () => {
       setBiometricNotSetup(false);
       if (Platform.OS === 'android') {
-        await Linking.sendIntent('android.settings.SECURITY_SETTINGS');
+       // await Linking.sendIntent('android.settings.SECURITY_SETTINGS');
+        const apiLevel = await DeviceInfo.getApiLevel();
+        IntentLauncher.startActivity({
+          action:
+            apiLevel >= 30
+              ? 'android.settings.BIOMETRIC_ENROLL'
+              : apiLevel >= 28
+              ? 'android.settings.FINGERPRINT_ENROLL'
+              : 'android.settings.SECURITY_SETTINGS',
+        });
       } else {
         await Linking.openURL('App-Prefs:root=TOUCHID_PASSCODE');
       }
@@ -153,6 +164,8 @@ const SetupBiometricsScreen = ({route, navigation}) => {
       const {success, error} = await ReactNativeBiometrics.simplePrompt({
         promptMessage: `Confirm ${getBiometricsType()}`,
       });
+
+      
 
       if (success) {
         const {publicKey} = await ReactNativeBiometrics.createKeys(
