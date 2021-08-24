@@ -10,10 +10,11 @@ import {
   Text,
   FlatList,
   ScrollView,
+  Platform,
   TouchableOpacity,
   Dimensions
 } from 'react-native';
-import {API_URL} from '@env';
+import {ACCESS_API} from '@env';
 import Loader from './../Components/loader';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -21,6 +22,7 @@ import Moment from 'moment';
 import AsyncStorage from '@react-native-community/async-storage';
 
 import AESEncryption from './../Components/AESEncryption';
+import DeviceInfo from 'react-native-device-info';
 
 const { width } = Dimensions.get('window');
 const widthMultiplier = width / 400;
@@ -30,6 +32,12 @@ const ProductCatalogueScreen = ({route, navigation}) =>
     const [itemList, setItemList] = useState([]);
 
     const goBackToPage = () => { navigation.goBack(); };
+
+    const [ fontScale, setFontScale ] = useState(1);
+
+  DeviceInfo.getFontScale().then((fontScaleTemp) => {
+    setFontScale(fontScaleTemp);
+  });
 
     const buildItemProductCatalogueList = ({item}) => {
       // console.log(JSON.stringify(item));
@@ -83,7 +91,7 @@ const ProductCatalogueScreen = ({route, navigation}) =>
                 formBody.push(encodedKey + '=' + encodedValue);
             }
             formBody = formBody.join('&');
-            let url = `${API_URL}/WebApi1/access/api/papertypes`;
+            let url = `${ACCESS_API}/papertypes`;
             fetch(url,{
               method: 'POST',
               body: formBody, 
@@ -113,11 +121,11 @@ const ProductCatalogueScreen = ({route, navigation}) =>
           source={require('AnRNApp/Image/bar.png')}
           style={{width: '100%', height: 100, top:-30, resizeMode:'contain', borderRadius: 1000, borderTopLeftRadius:0, borderTopRightRadius:0, transform: [ {scaleX: 8*widthMultiplier} ]}}
         />
-        <View style={{ alignItems: 'center', position:'absolute', top:10, left:0, right:0 }}>
+        <View style={{ alignItems: 'center', position:'absolute', top: (Platform.OS === 'ios') ? 50 : 10, left:0, right:0 }}>
             <TouchableOpacity style={{position:'absolute',left:0,marginLeft:10,marginTop:4,}} onPress={goBackToPage}>
               <Icon raised name="arrow-left" size={30} color="#FDFDFD"/>
             </TouchableOpacity>
-            <Text style={{ marginTop:7,color:'#FDFDFD',fontSize:19, fontFamily:'HelveticaNeue-Bold',}}>Product Catalogue</Text>
+            <Text style={{ marginTop:7,color:'#FDFDFD',fontSize:(fontScale < 1.2 ? 19 : 20/fontScale), fontFamily:'HelveticaNeue-Bold' }}>Product Catalogue</Text>
         </View>
         <Text style={{fontWeight:'bold',marginLeft:22, marginBottom:10, fontSize:18, fontFamily:'HelveticaNeue',}}>Please Select Product Paper Type</Text>
         <FlatList

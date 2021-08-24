@@ -39,6 +39,9 @@ const LoginScreen = props => {
                 <TouchableOpacity style={styles.buttonStyle} activeOpacity={0.9} onPress={() => props.navigation.navigate('LoginNextStack')}>
                   <Text style={styles.buttonTextStyle}>LOG IN</Text>
                 </TouchableOpacity>
+                <Text style={styles.originalTextStyle}>
+                  v2.6.3
+                </Text>
               </KeyboardAvoidingView>
             </View>
           </ScrollView>

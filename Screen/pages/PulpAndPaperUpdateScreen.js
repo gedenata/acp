@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
   Dimensions
 } from 'react-native';
-import {API_URL} from '@env';
+import {ACCESS_API} from '@env';
 import Loader from './../Components/loader';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -150,7 +150,7 @@ const PulpAndPaperUpdateScreen = ({route, navigation}) =>
             var formBody = [];
             for (let key in dataToSend){ var encodedKey = encodeURIComponent(key); var encodedValue = encodeURIComponent(dataToSend[key]); formBody.push(encodedKey + '=' + encodedValue); }
             formBody = formBody.join('&');
-            let url = `${API_URL}/WebApi1/access/api/marketsurveyqna`;
+            let url = `${ACCESS_API}/marketsurveyqna`;
             fetch(url, {method: 'POST', body: formBody,  headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', },})
             .then((response) => response.json())
             .then(json => {

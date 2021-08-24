@@ -20,7 +20,7 @@ import {
   Platform
 } from 'react-native';
 
-import {API_URL} from '@env';
+import {ACCESS_API} from '@env';
 
 import { Modalize } from 'react-native-modalize';
 
@@ -48,7 +48,9 @@ import AESEncryption from './../Components/AESEncryption';
 const CustomerFeedbackScreen = ({route, navigation}) => {
 
   const [isLoadingPicker, setLoadingPicker] = useState(true);
-  const [pickerItems, setPickerItems] = useState(true);
+  const [pickerItems, setPickerItems] = useState([]);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerValue, setPickerValue] = useState(null);
   const [tokenValue, setTokenValue] = useState('');
 
   const [descriptionValue, setDescriptionValue] = useState('');
@@ -67,10 +69,8 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
   const [ fontScale, setFontScale ] = useState(1);
 
   DeviceInfo.getFontScale().then((fontScaleTemp) => {
-    setFontScale(fontScaleTemp)
+    setFontScale(fontScaleTemp);
   });
-
-  let controller;  
 
   const modalizeRef = React.createRef();
 
@@ -216,7 +216,7 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
   
         if(isLoadingPicker)
         { 
-          let url = `${API_URL}/WebApi1/access/api/feedbackcategories`;
+          let url = `${ACCESS_API}/feedbackcategories`;
           fetch(url ,{method: 'POST', body: formBody, headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', },})
           .then((response) => response.json())
           .then(json => {
@@ -238,9 +238,6 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
       setMultipleFile([]);
       setDescriptionValue('');
       setCategoryValue('');
-
-      if(controller)
-        controller.selectItem('Choose Support Category');
     }    
 
     const [multipleFile, setMultipleFile] = useState([]);
@@ -332,7 +329,7 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
                       '"CategoryName":"' + categoryValue + '",' + 
                       '"FeedbackAttachments":' + fileAttachmentString + 
                     "}";   
-        let url = `${API_URL}/WebApi1/access/api/customerfeedback`;
+        let url = `${ACCESS_API}/customerfeedback`;
         fetch(url ,{
           method: 'POST',
           body: formBody,
@@ -343,7 +340,6 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
         .then((response) => {
           // console.log(JSON.stringify(response));
           setLoading(false);
-          controller.selectItem('Choose Support Category');
           setMultipleFile([]);
           setDescriptionValue('');
           clearTimeout(timeoutCounter);
@@ -436,41 +432,27 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
           : 
             (
               <DropDownPicker
-                style={{
-                  borderStyle:'solid',
-                  borderColor:'#5c3b3b',
-                }}
-                items={pickerItems}
-                containerStyle={{
-                  height: 40,
-                }}
-                controller={instance => controller = instance} 
                 placeholder="Choose Support Category"
-                style={{
-                  backgroundColor: '#fafafa',
-                  color:'#000000'
+                open={pickerOpen}
+                value={pickerValue}
+                items={pickerItems}
+                setOpen={setPickerOpen}
+                setValue={setPickerValue}
+                setItems={setPickerItems}
+                listMode="SCROLLVIEW"
+                containerProps={{
+                  marginLeft: -2
                 }}
-                itemStyle={{
-                  justifyContent: 'flex-start',
-                  color:'#000000'
+                onChangeValue={(dropDownObject) => {
+                  setDropdownChange(dropDownObject);
                 }}
-                dropDownStyle={{
-                  backgroundColor: '#fafafa',
-                  borderColor:'#5c3b3b',
-                  borderStyle:'solid',
-                  borderWidth:1,
-                  borderRaidus:7,
-                }}
-                onChangeItem={
-                  (dropDownObject) => setDropdownChange(dropDownObject.value)
-                }
               />
             )
           }
         </View>
         <View 
           style={{
-            marginTop:10, 
+            marginTop:18, 
             marginLeft:22, 
             marginBottom:20, 
             marginRight:20, 

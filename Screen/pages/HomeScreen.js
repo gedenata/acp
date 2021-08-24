@@ -23,7 +23,7 @@ import {InternetLinkHandler} from './../Components/InternetLinkHandler';
 
 import DeviceInfo from 'react-native-device-info';
 import AESEncryption from './../Components/AESEncryption';
-import {API_URL} from '@env';
+import {ACCESS_API} from '@env';
 
 const HomeScreen = props => {
 
@@ -67,7 +67,7 @@ const HomeScreen = props => {
                 formBody.push(v1_encodedKey + '=' + v1_encodedValue);
             }
             formBody = formBody.join('&');
-            let url = `${API_URL}/WebApi1/access/api/marketsurveyandupdatespopup`;
+            let url = `${ACCESS_API}/marketsurveyandupdatespopup`;
             fetch(url, {
               method: 'POST',
               body: formBody,
@@ -95,7 +95,7 @@ const HomeScreen = props => {
                       formBody2.push(v2_encodedKey + '=' + v2_encodedValue);
                   }
                   formBody2 = formBody2.join('&');
-                  let marketQuestionURL = `${API_URL}/WebApi1/access/api/marketsurveyquestion`;
+                  let marketQuestionURL = `${ACCESS_API}/marketsurveyquestion`;
                   fetch(marketQuestionURL, {
                       method: 'POST',
                       body: formBody2, 
@@ -139,7 +139,7 @@ const HomeScreen = props => {
           
             if(isLoadingImage)
             {
-              let bannerURL = `${API_URL}/WebApi1/access/api/banner`;
+              let bannerURL = `${ACCESS_API}/banner`;
               fetch(bannerURL, {
                 method: 'POST',
                 body: formBody,      
@@ -162,7 +162,7 @@ const HomeScreen = props => {
             }
           
             if(isLoadingDelivered) {
-              let deliveredURL = `${API_URL}/WebApi1/access/api/delivered`;
+              let deliveredURL = `${ACCESS_API}/delivered`;
               fetch(deliveredURL,{
                 method: 'POST',
                 body: formBody,      
@@ -185,7 +185,7 @@ const HomeScreen = props => {
           
             if(isLoadingOutstanding)
             {
-              let outstandingURL = `${API_URL}/WebApi1/access/api/outstanding`;
+              let outstandingURL = `${ACCESS_API}/outstanding`;
               fetch(outstandingURL,{    
                 method: 'POST',
                 body: formBody,      
@@ -316,7 +316,7 @@ const HomeScreen = props => {
         formBody = "{" + 
                       '"Token":"' + tokenValue + '","SurveyID":"' + surveyData[0].SurveyID + '","Questions":[' + formBodyAnswers + ']' + 
                     "}";
-        let url = `${API_URL}/WebApi1/access/api/submitmarketsurveyresponse`;
+        let url = `${ACCESS_API}/submitmarketsurveyresponse`;
         fetch(url ,{
           method: 'POST',
           body: formBody,

@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {API_URL} from '@env';
+import {ACCESS_API} from '@env';
 import { View } from 'react-native';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -79,10 +79,10 @@ const App = () => {
               formBody.push(encodedKey + '=' + encodedValue);
           }
           formBody = formBody.join('&');
-          let url = `${API_URL}/WebApi1/access/api/marketsurveyqna`;
+          let url = `${ACCESS_API}/marketsurveyqna`;
           fetch(url, {
             method: 'POST',
-            body: formBody,
+            body: formBody, 
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
             },
@@ -91,7 +91,7 @@ const App = () => {
           .then(json => {
             setNumberOfRemindedSurvey(json.length);
           });
-        });
+        });        
       }
     );
   }
@@ -119,9 +119,9 @@ const App = () => {
       >
         <Stack.Screen
           name="LoginScreen"
-          component={LoginScreen}/>
+          component={LoginScreen}/>      
       </Stack.Navigator>
-    );
+    );  
   }
 
   function LoginNextStack() {
@@ -151,11 +151,11 @@ const App = () => {
       <Stack.Navigator
         initialRouteName="More"
         screenOptions={{
-          headerShown:false
-        }}>
+          headerShown:false        
+        }}>        
         <Stack.Screen
           name="TnCScreen"
-          component={TnCScreen}/>
+          component={TnCScreen}/>      
         <Stack.Screen
           name="LoginPassword"
           component={LoginPasswordScreen}/>
@@ -174,14 +174,14 @@ const App = () => {
       <Stack.Navigator
         initialRouteName="More"
         screenOptions={{
-          headerShown:false
+          headerShown:false        
         }}>
         <Stack.Screen
           name="LoginPasswordScreen"
-          component={LoginPasswordScreen}/>
+          component={LoginPasswordScreen}/>   
         <Stack.Screen
           name="CreatePassword"
-          component={CreatePasswordScreen}/>
+          component={CreatePasswordScreen}/>             
       </Stack.Navigator>
     );
   }
@@ -191,11 +191,11 @@ const App = () => {
       <Stack.Navigator
         initialRouteName="More"
         screenOptions={{
-          headerShown:false
+          headerShown:false        
         }}>
         <Stack.Screen
           name="LoadingScreen"
-          component={LoadingScreen}/>
+          component={LoadingScreen}/>      
       </Stack.Navigator>
     );
   }
@@ -219,7 +219,7 @@ const App = () => {
                     size={size}
                   />
                 ),
-              }}
+              }}  
             />
             <Tab.Screen
               name="SearchStack"
@@ -233,7 +233,7 @@ const App = () => {
                     size={size}
                   />
                 ),
-              }}
+              }}  
             />
             <Tab.Screen
               name="ProfileStack"
@@ -267,7 +267,7 @@ const App = () => {
                 tabBarIcon: ({ color, size }) => (
                   <View>
                     {
-                    numberOfRemindedSurvey > 0 ?
+                    numberOfRemindedSurvey > 0 ? 
                       <Entypo
                         name="dot-single"
                         color="#FF3A3A"
@@ -284,17 +284,17 @@ const App = () => {
                     />
                   </View>
                 ),
-              }}
+              }} 
             />
-          </Tab.Navigator>
+          </Tab.Navigator>     
     );
   }
 
-  function HomeStack()
+  function HomeStack() 
   {
     let isFocused = useIsFocused();
-    if(isFocused){
-      checkUpdate();
+    if(isFocused){ 
+      checkUpdate(); 
       return (
           <Stack.Navigator
             initialRouteName="Home"
@@ -305,9 +305,9 @@ const App = () => {
               name="Home"
               component={HomeScreen}/>
             <Stack.Screen
-              name="AllOrders"
+              name="AllOrders"       
               component={AllOrdersScreen}
-              options={ ({navigation,route}) => ({
+              options={ ({navigation,route}) => ({ 
                 title: 'My Orders' ,
                 headerShown:true,
                 headerLeft: (props) => (
@@ -317,7 +317,7 @@ const App = () => {
                     style={{marginLeft:5}}
                     onPress={() => navigation.navigate('Home')}
                     color="#000000"
-                  />
+                  />              
                 )
               })}/>
             <Stack.Screen
@@ -325,12 +325,12 @@ const App = () => {
               component={DetailsScreen}/>
             <Stack.Screen
               name="DetailsNext"
-              component={DetailsScreenNext}/>
+              component={DetailsScreenNext}/>          
             <Stack.Screen
               name="SurveyQuestion"
               component={SurveyQuestionScreen} />
           </Stack.Navigator>
-      );
+      );      
     }else{
       return (<></>)
     }
@@ -359,9 +359,9 @@ const App = () => {
           component={DetailsScreenNext}
         />
         <Stack.Screen
-          name="SearchResult"
+          name="SearchResult"       
           component={SearchOrdersResultScreen}
-          options={{
+          options={{ 
             title: 'Search Results' ,
             headerShown:true
           }}
@@ -369,7 +369,7 @@ const App = () => {
         <Stack.Screen
           name="SearchResultETAProductDesc"
           component={SearchOrdersResultETAProductDescScreen}
-          options={{
+          options={{ 
             title: 'Search Results' ,
             headerShown:true
           }}
@@ -411,7 +411,7 @@ const App = () => {
         <Stack.Screen
           name="ProductCatalogueSearch"
           component={ProductCatalogueSearchScreen}
-        />
+        />      
         <Stack.Screen
           name="CustomerFeedback"
           component={CustomerFeedbackScreen}
@@ -427,7 +427,7 @@ const App = () => {
         <Stack.Screen
           name="MarketUpdateDetail"
           component={MarketUpdateDetailScreen}
-        />
+        />    
         <Stack.Screen
           name="SurveyQuestion"
           component={SurveyQuestionScreen}
@@ -443,7 +443,7 @@ const App = () => {
         <Stack.Screen
           name="PhaseTwo"
           component={PhaseTwoScreen}
-        />
+        />                  
       </Stack.Navigator>
     );
   }
@@ -490,7 +490,7 @@ const App = () => {
         <RootStack.Screen name="LoginPasswordStack" component={LoginPasswordStack} options={{headerShown:false}} />
         <RootStack.Screen name="LoadingStack" component={LoadingStack} options={{headerShown:false}} />
         <RootStack.Screen name="DrawerNavigationRoutesStack" component={DrawerNavigationRoutesStack} options={{headerShown:false}} />
-        <RootStack.Screen name="TnCStack" component={TnCStack} options={{headerShown:false}} />
+        <RootStack.Screen name="TnCStack" component={TnCStack} options={{headerShown:false}} />        
       </RootStack.Navigator>
     </NavigationContainer>
   );

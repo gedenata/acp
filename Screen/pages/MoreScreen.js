@@ -10,7 +10,7 @@ import {
   SafeAreaView,
   ScrollView,
 } from 'react-native';
-import {API_URL, CONTACT_US_URL} from '@env';
+import {ACCESS_API, CONTACT_US_URL} from '@env';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -61,7 +61,7 @@ const MoreScreen = ({route,navigation}) => {
           var formBody = [];
           for (let key in dataToSend){ var encodedKey = encodeURIComponent(key); var encodedValue = encodeURIComponent(dataToSend[key]); formBody.push(encodedKey + '=' + encodedValue); }
           formBody = formBody.join('&');
-          let url = `${API_URL}/WebApi1/access/api/marketsurveyqna`;
+          let url = `${ACCESS_API}/marketsurveyqna`;
           fetch(url, { method: 'POST', body: formBody, headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',},})
           .then((response) => response.json())
           .then(json => {

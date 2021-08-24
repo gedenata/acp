@@ -14,10 +14,9 @@ import {
   ActivityIndicator,
   Platform
 } from 'react-native';
-import {API_URL} from '@env';
+import {ACCESS_API} from '@env';
 import AsyncStorage from '@react-native-community/async-storage';
-import InputSpinner from "react-native-input-spinner";
-
+import MyInputSpinner from '../Components/MyInputSpinner';
 import RadioForm from 'react-native-simple-radio-button';
 import DropDownPicker from 'react-native-dropdown-picker';
 
@@ -50,7 +49,9 @@ const SearchScreen = props => {
   const [productDescriptionKeywordTemporary, setProductDescriptionKeywordTemporary] = useState('');
   
   const [isLoadingPicker, setLoadingPicker] = useState(true);  
-  const [pickerItems, setPickerItems] = useState(true);  
+  const [pickerItems, setPickerItems] = useState([]);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerValue, setPickerValue] = useState(null);  
 
   const [colourOne, setColourOne] = useState('#d4e7f2');
   const [colourTwo, setColourTwo] = useState('#d4e7f2');
@@ -92,7 +93,7 @@ const SearchScreen = props => {
   
         if(isLoadingPicker)
         {
-          let url = `${API_URL}/WebApi1/access/api/producttype`;
+          let url = `${ACCESS_API}/producttype`;
           fetch(url ,{method: 'POST', body: formBody, headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',},})
           .then((response) => response.json())
           .then(json => {
@@ -341,37 +342,22 @@ const SearchScreen = props => {
       >
         <Text style={{marginBottom:10,fontFamily:'HelveticaNeue'}}>Product Description</Text>
         {isLoadingPicker ? <ActivityIndicator size="large" color="#00ff00"/> : (
-        <DropDownPicker
-            style={{
-              borderStyle:'solid',
-              borderColor:inputColorProductDescription,
-            }}
-            items={pickerItems}
-            containerStyle={{
-              height: 40,
-            }}
-            controller={instance => controller = instance}
+          <DropDownPicker
             placeholder="Choose Product Description Category"
-            style={{
-              backgroundColor: '#fafafa',
-              color:inputColorDropdown
+            open={pickerOpen}
+            value={pickerValue}
+            items={pickerItems}
+            setOpen={setPickerOpen}
+            setValue={setPickerValue}
+            setItems={setPickerItems}
+            listMode="SCROLLVIEW"
+            containerProps={{
+              marginLeft: -2
             }}
-            onFocus={setFocusProductDesription}
-            itemStyle={{
-              justifyContent: 'flex-start',
-              color:inputColorDropdown
+            onChangeValue={(ProductDescription) => {
+              setDropdownChange(ProductDescription)
             }}
-            dropDownStyle={{
-              backgroundColor: '#fafafa',
-              borderColor:inputColorDropdown,
-              borderStyle:'solid',
-              borderWidth:1,
-              borderRaidus:7,
-            }}
-            onChangeItem={
-              (ProductDescription) => setDropdownChange(ProductDescription.value)
-            }
-        />
+            />
         )}  
       </View>
       <View
@@ -383,7 +369,7 @@ const SearchScreen = props => {
           marginLeft:20,
           marginRight:20,
           marginBottom:5,
-          marginTop:8,
+          marginTop:16,
           borderWidth: 1,
           borderRadius: 7,
           borderStyle:'solid',
@@ -409,31 +395,7 @@ const SearchScreen = props => {
         <Text style={{marginLeft:20, marginBottom:10, marginTop:20,fontWeight:'bold',fontSize:15}}>Estimated Time Arrival</Text>
       </View>
       <View style={{alignItems:'center',justifyContent:'center',resizeMode:'contain'}}>
-        <InputSpinner
-          max={2050}
-          min={2000}
-          editable={false}
-          step={1}
-          rounded={false}
-          buttonLeftText={"<"}
-          buttonRightText={">"}
-          style={{
-            width:'95%',
-            borderRadius:5,
-          }}
-          buttonStyle={{transform:[
-            {scale:0.75}
-          ]}}
-          fontSize={18}
-          colorMax={"#f04048"}
-          colorMin={"#40c5f4"}
-          fontWeight={"bold"}
-          textColor={inputColorSpinner}
-          value={ new Date().getFullYear() } // {this.state.number}
-          onChange={(num) => {
-            setSpinnerChange(num);
-          }}
-        />
+        <MyInputSpinner max={2050} min={2000} value={year} onChange={(num) => setSpinnerChange(num)}/>
       </View>
       <View style={{marginTop:8, alignItems:'stretch',justifyContent:'flex-start', flexDirection:'row'}}>
       <TouchableOpacity style={[styles.monthFirstRow, {backgroundColor:colourOne}]} onPress={handleClick.bind(this,'1')}><Text style={{color:'#c97d7d', fontFamily:'HelveticaNeue'}}>January</Text></TouchableOpacity>  

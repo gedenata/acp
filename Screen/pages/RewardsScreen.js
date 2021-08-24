@@ -11,9 +11,10 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
-  FlatList
+  FlatList,
+  Platform
 } from 'react-native';
-import {API_URL} from '@env';
+import {ACCESS_API} from '@env';
 import Loader from './../Components/loader';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -131,6 +132,58 @@ const RewardsScreen = ({route, navigation}) =>
       );
     };
 
+    const renderMessage = (message) => {
+      let messageTemp = message;
+      let extractedLength = 0;
+      let position = 0;
+      let elements = []
+      let testMessage = "";
+      let counter = 0;
+
+      while(position >= 0)
+      {
+        extractedLength = messageTemp.indexOf('[') >= 0 ? messageTemp.indexOf('[') : messageTemp.length;
+
+        if(extractedLength == 0)
+        {
+          extractedLength = messageTemp.indexOf(']') >= 0 ? messageTemp.indexOf(']') - 1 : messageTemp.length;
+          testMessage = messageTemp.substring(1,extractedLength);
+          elements.push(
+            <View style={{marginLeft:20,marginRight:20}} key={counter}>
+              <Text style={{alignSelf:'center', alignItems:'center', textAlign:'center', fontFamily:'HelveticaNeue-Bold', color:'#ac828b' }}>{testMessage}</Text>
+            </View>           
+          );
+          position = -1;
+        }
+        else
+        {
+          testMessage = messageTemp.substring(position,extractedLength);
+          messageTemp = messageTemp.substring(extractedLength,messageTemp.length);          
+          elements.push(
+            <View style={{marginLeft:20,marginRight:20}} key={counter}>
+              <Text style={{alignSelf:'center', alignItems:'center', textAlign:'center', fontFamily:'HelveticaNeue', color:'#ac828b' }}>{testMessage}</Text>
+            </View>           
+          );
+          position = extractedLength
+        }
+        counter++;
+      }
+
+      return (
+          [
+            <View style={{marginLeft:20,marginRight:20, marginTop:20, marginBottom:10}}>
+              <LOGOSVG
+                style={{ marginTop:20,alignSelf:'center',alignItems:'center' }}
+                width={300}
+                height={140}
+            />
+            </View>
+            ,
+            elements              
+          ]            
+        );
+    };    
+
     const goBackToPage = () => { navigation.navigate("More") };
     DeviceInfo.getFontScale().then((fontScaleTemp) => {
       setFontScale(fontScaleTemp)
@@ -153,7 +206,7 @@ const RewardsScreen = ({route, navigation}) =>
                 formBody.push(encodedKey + '=' + encodedValue);
             } 
             formBody = formBody.join('&');
-            let companyURL = `${API_URL}/WebApi1/access/api/companylist`;
+            let companyURL = `${ACCESS_API}/companylist`;
             fetch(companyURL,{
               method: 'POST',
               body: formBody, 
@@ -164,58 +217,88 @@ const RewardsScreen = ({route, navigation}) =>
             .then((response) => response.json())
             .then(json => {
               let jsonTemp = [];
-              setListProducts(json[0].products);
-  
-              setDisplayedCompany((route.params) ? (route.params.companyName) : json[0].companyName);
-              setSelectedProduct((route.params) ? (route.params.productName) : json[0].products[0]);
-
-              let parameterProduct = (route.params) ? (route.params.productName) : json[0].products[0];
-  
-              for(let i=0; i < json.length; i++)
+              if(json[0])
               {
-                json[i].selected = (route.params) ? (route.params.companyName == json[i].companyName ? true : false)  : ((i==0) ? true : false);
-                jsonTemp.push(json[i]);
-                if(route.params)
+                setListProducts(json[0].products);
+                setSelectedProduct((route.params) ? (route.params.productName) : json[0].products[0]);
+  
+                setDisplayedCompany((route.params) ? (route.params.companyName) : json[0].companyName);
+
+                let parameterProduct = (route.params) ? (route.params.productName) : json[0].products[0];
+    
+                for(let i=0; i < json.length; i++)
                 {
-                  if(route.params.companyName == json[i].companyName){
-                    setListProducts(json[i].products);
-                    if(!route.params.productName){
-                      parameterProduct = json[i].products[0];
-                      setSelectedProduct(json[i].products[0]);
+                  json[i].selected = (route.params) ? (route.params.companyName == json[i].companyName ? true : false)  : ((i==0) ? true : false);
+                  jsonTemp.push(json[i]);
+                  if(route.params)
+                  {
+                    if(route.params.companyName == json[i].companyName){
+                      setListProducts(json[i].products);
+                      if(!route.params.productName){
+                        parameterProduct = json[i].products[0];
+                        setSelectedProduct(json[i].products[0]);
+                      }
                     }
                   }
                 }
-              }
-              setCompanyList(jsonTemp);
+                setCompanyList(jsonTemp);
 
-              let dataToSend2 = {Token: ''+JSON.parse(respp).data.Token, CompanyName : (route.params) ? (route.params.companyName) : json[0].companyName, Product : parameterProduct};
-  
-              let formBody2 = [];
-              for (let key in dataToSend2){
-                  let encodedKey2 = encodeURIComponent(key);
-                  let encodedValue2 = encodeURIComponent(dataToSend2[key]);
-                  formBody2.push(encodedKey2 + '=' + encodedValue2);
+                let dataToSend2 = {Token: ''+JSON.parse(respp).data.Token, CompanyName : (route.params) ? (route.params.companyName) : json[0].companyName, Product : parameterProduct};
+    
+                let formBody2 = [];
+                for (let key in dataToSend2){
+                    let encodedKey2 = encodeURIComponent(key);
+                    let encodedValue2 = encodeURIComponent(dataToSend2[key]);
+                    formBody2.push(encodedKey2 + '=' + encodedValue2);
+                }
+                formBody2 = formBody2.join('&');
+                let rewardURL = `${ACCESS_API}/rewardslist`;
+                fetch(rewardURL,{
+                  method: 'POST',
+                  body: formBody2, 
+                  headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                  },
+                })
+                .then((response) => response.json())
+                .then(rwJsonData => {
+                  setItemList(rwJsonData);
+                })
+                .catch((error) => console.error(error))
+                .finally(() => setLoading(false))  
               }
-              formBody2 = formBody2.join('&');
-              let rewardURL = `${API_URL}/WebApi1/access/api/rewardslist`;
-              fetch(rewardURL,{
-                method: 'POST',
-                body: formBody2, 
-                headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-                },
-              })
-              .then((response) => response.json())
-              .then(rwJsonData => {
-                setItemList(rwJsonData);
-              })
-              .catch((error) => console.error(error))
-              .finally(() => setLoading(false))            
+              else{
+                let dataToSend2 = {Token: ''+JSON.parse(respp).data.Token, CompanyName : '' , Product : ''};
+                let formBody2 = [];
+                for (let key in dataToSend2){
+                    let encodedKey2 = encodeURIComponent(key);
+                    let encodedValue2 = encodeURIComponent(dataToSend2[key]);
+                    formBody2.push(encodedKey2 + '=' + encodedValue2);
+                }
+                formBody2 = formBody2.join('&');
+                let rewardURL = `${ACCESS_API}/rewardslist`;
+                fetch(rewardURL,{
+                  method: 'POST',
+                  body: formBody2, 
+                  headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                  },
+                })
+                .then((response) => response.json())
+                .then(rwJsonData => {
+                  if(rwJsonData.Message){
+                    setItemList(rwJsonData);
+                  }
+                })
+                .catch((error) => console.error(error))
+                .finally(() => setLoading(false))                 
+
+                setLoading(false)
+              }
   
             })
             .catch((error) => console.error(error))
-          });          
-
+          });
         }
       );
     }, []);
@@ -256,11 +339,11 @@ const RewardsScreen = ({route, navigation}) =>
                   color="#000000"
                 />
             <View 
-                style={{
-                  flexDirection:'column',
-                  flex:1,
-                  width:'100%'
-                }}
+              style={{
+                flexDirection:'column',
+                flex:1,
+                width:'100%'
+              }}
             >
               <View style={{ flex:3, flexDirection:'row',}}>
                   <View style={{flex:2}}>
@@ -287,14 +370,14 @@ const RewardsScreen = ({route, navigation}) =>
               }
             </View>
             <View style={{width:'85%', marginTop:15, height:8,backgroundColor:'#C4C4C4',alignItems:'center',alignSelf:'center',borderRadius:3,flexDirection:'row'}}>
-                <View style={{width:((item.TotalAchievement/item.TotalTarget)*100)+'%',height:7,backgroundColor:(item.TotalAchievement < item.TotalTarget ? '#FFAE34' : '#00854F'),borderRadius:3,left:0}}/>
+                <View style={{width:(item.TotalAchievement >= item.TotalTarget ? 100 : item.TotalAchievement/item.TotalTarget*100)+'%',height:7,backgroundColor:(item.TotalAchievement < item.TotalTarget ? '#FFAE34' : '#00854F'),borderRadius:3,left:0}}/>
             </View>
             <View style={{minHeight:30,marginTop:15, marginBottom:10, alignItems:'center', flex:2, flexDirection:'row'}}>
               <View style={{flex:1}}>
                 <Text style={{color:(item.Status == "" || item.Status == "Current Status" ? '#000000' : '#75787C') ,marginTop:4, fontSize:14, fontWeight:'bold', textAlign:'left',paddingLeft:12}}>{item.Status}</Text>
               </View>
               <View style={{flex:1}}>
-                <Text style={{color:(item.Status == "" ? "#000000" : item.TotalAchievement < item.TotalTarget ? '#FFAE34' : '#00854F'),marginTop:4, fontSize:14, fontWeight:'bold', textAlign:'right',paddingRight:20}}>{parseFloat((item.TotalAchievement/item.TotalTarget)*100).toFixed(2)}%</Text>
+                <Text style={{color:(item.Status == "" ? "#000000" : item.TotalAchievement < item.TotalTarget ? '#FFAE34' : '#00854F'),marginTop:4, fontSize:14, fontWeight:'bold', textAlign:'right',paddingRight:20}}>{item.TotalTarget <= 0 ? 0 : parseFloat((item.TotalAchievement/item.TotalTarget)*100).toFixed(2)}%</Text>
               </View>
             </View>              
           </TouchableOpacity>                     
@@ -379,7 +462,6 @@ const RewardsScreen = ({route, navigation}) =>
 
     // Force Load
     const handleSubmitPress = (productNumber) => {
-      console.log("{companyName:" + displayedCompany + ", productName:" + listProducts[productNumber] + "}")
       navigation.push('Rewards', {companyName:displayedCompany, productName:listProducts[productNumber]})
     }    
 
@@ -411,197 +493,211 @@ const RewardsScreen = ({route, navigation}) =>
             ]
           }}
         />
-        <View style={{ alignItems: 'center', position:'absolute', top:10, left:0, right:0 }}>
+        <View style={{ alignItems: 'center', position:'absolute', top:(Platform.OS === 'ios') ? 50 : 10, left:0, right:0 }}>
             <TouchableOpacity style={{position:'absolute',left:0,marginLeft:10,marginTop:4,}} onPress={goBackToPage}>
               <Icon raised name="arrow-left" size={30} color="#FDFDFD"/>
             </TouchableOpacity>
             <Text style={{ marginTop:7,color:'#FDFDFD',fontSize:(fontScale < 1.2 ? 19 : 20/fontScale), fontFamily:'HelveticaNeue-Bold', }}>Rewards</Text>
         </View>
-        <View style={{flexDirection:'row' }}>
-            <View style={{paddingRight:11, alignContent:'center', alignSelf:'center', width:'35%', justifyContent:'center'}}>
-              <Image
-                source={require('AnRNApp/Image/DummyProfile.png')}
-                style={{
-                  width: 75,
-                  height: 75,
-                  alignSelf:'flex-end',
-                }}
-              />
-            </View>
-            <View style={{paddingRight:15, marginTop:-5, alignContent:'center', alignSelf:'center',flex:1, justifyContent:'center'}}>
-              <TouchableOpacity style={{flex:2, flexDirection:'row'}} onPress={() => {onOpen('company')}} >
-                <Text
-                  style={{
-                    fontFamily:'HelveticaNeue-Bold',
-                    fontSize:17,
-                    alignSelf:'center',
-                    color:'#00854F'
-                  }}
-                >
-                  {displayedCompany}
-                </Text>
-                <TouchableOpacity>
-                  <FontAwesome
-                    raised 
-                    name="chevron-down"
-                    size={18}
-                    style={{
-                      marginLeft:4,
-                      marginTop:4
-                    }}
-                    color="#00854F"
-                    onPress={() => {onOpen('company')}} 
-                  />              
-                </TouchableOpacity>
-              </TouchableOpacity>
-              <View style={{flex:2, flexDirection:'row', }}>
-                {
-                  (listProducts.length > 0 && listProducts.length <= 2)
-                  ?
-                    listProducts.map((item, key) => (
-                      <TouchableOpacity
-                          style={{
-                            backgroundColor: (selectedProduct == listProducts[key] ? '#00854F' : '#00854F90'),
-                            fontWeight:'bold',
-                            borderWidth: 0,
-                            marginRight:10,
-                            color: '#000000',
-                            borderColor: '#228B22',
-                            height: 30,
-                            alignItems: 'center',
-                            borderRadius: 14,
-                            width:75,
-                            justifyContent:'center',
-                          }}
-                          activeOpacity={0.5}
-                          onPress={() => { handleSubmitPress(key) }}
-                      >
-                        <Text style={{
-                          fontFamily:'HelveticaNeue',
-                          color: '#FFFFFF',
-                          fontSize: 14,                              
-                        }}>
-                            {listProducts[key]}
-                        </Text>
-                      </TouchableOpacity>
-                    ))
-                  :
-                    (listProducts.length >= 2)
-                    ?
-                      listProducts.map((item, key) => (
-                        selectedProduct == listProducts[key] 
-                        ?
-                          [
-                          <TouchableOpacity
-                              style={{
-                                backgroundColor: (selectedProduct == listProducts[key] ? '#00854F' : '#00854F90'),
-                                fontWeight:'bold',
-                                borderWidth: 0,
-                                marginRight:10,
-                                color: '#000000',
-                                borderColor: '#228B22',
-                                height: 30,
-                                alignItems: 'center',
-                                borderRadius: 14,
-                                width:75,
-                                justifyContent:'center',
-                              }}
-                              activeOpacity={0.5}
-                              onPress={() => { handleSubmitPress(key) }}
-                          >
-                            <Text style={{
-                              fontFamily:'HelveticaNeue',
-                              color: '#FFFFFF',
-                              fontSize: 14,                              
-                            }}>
-                                {listProducts[key]}
-                            </Text>
-                          </TouchableOpacity>
-                          ,
-                          <TouchableOpacity
-                              style={{
-                                backgroundColor: '#00854F90',
-                                fontWeight:'bold',
-                                borderWidth: 0,
-                                color: '#000000',
-                                borderColor: '#228B22',
-                                height: 30,
-                                alignItems: 'center',
-                                borderRadius: 14,
-                                width:125,
-                                justifyContent:'center',
-                              }}
-                              activeOpacity={0.5}
-                              onPress={() => { onOpen('products') }}
-                          >
-                            <Text style={{
-                              fontFamily:'HelveticaNeue',
-                              color: '#FFFFFF',
-                              marginLeft:-20,
-                              fontSize: 14,                              
-                            }}>
-                                Categories
-                            </Text>
-                            <FontAwesome5
-                              style={{position:'absolute',right:20}}
-                              name="chevron-down" 
-                              size={12}
-                              color="#ccc"
-                            />
-                          </TouchableOpacity>                          
-                          ]                          
-                        :
-                          <></>
-                      ))
-                    :
-                    <></>
-                }
-              </View>
-            </View>            
-        </View>
-        <View
-          style={{
-            left:0,
-            right:0,
-            borderColor:'#eac3c3',  
-            backgroundColor:'#FDFDFD',
-            flex:1,
-          }}
-        >        
-          {
-              (itemList.AchivementCards)
-              ?
-                itemList.AchivementCards.length > 0
-                ?
-                  <Tab.Navigator>{
-                    itemList.AchivementCards.map((item, key) => (           
-                        <Tab.Screen key={key} name={item.Category} children={()=><TabPage data={item}></TabPage>}></Tab.Screen>
-                    ))
-                  }
-                  </Tab.Navigator>
-                :
-                (
-                  <View style={{marginLeft:20,marginRight:20, marginTop:20}}>
-                        <LOGOSVG
-                          style={{marginTop:20,alignSelf:'center',alignItems:'center'}}
-                          width={300}
-                          height={140}
-                        />
-                        <Text style={{alignSelf:'center', alignItems:'center', textAlign:'center', color:'#ac828b' }}>{(itemList.Message) ? itemList.Message : "You are currently not enrolled in our APRIL rewards program, please kindly contact your sales representative."}</Text>
-                  </View>
-                )
-              :
-              (
-                <View style={{marginLeft:20,marginRight:20, marginTop:20}}>
-                      <LOGOSVG
-                        style={{marginTop:20,alignSelf:'center',alignItems:'center'}}
-                        width={300}
-                        height={140}
+        <View style={{flex:1, marginTop:-20, }}>        
+        {
+          (companyList)
+          ?
+            companyList.length > 0
+            ?       
+            (
+                <View style={{ position:'relative', left:0, right:0, marginLeft:0, marginRight:0, minHeight:77 }}>
+                    <View style={{ height:77, left:0, marginLeft:0, position:'absolute', left:10 }}>
+                      <Image
+                        source={require('AnRNApp/Image/DummyProfile.png')}
+                        style={{
+                          width: 75,
+                          height: 75,
+                          alignSelf:'flex-end',
+                        }}
                       />
-                        <Text style={{alignSelf:'center', alignItems:'center', textAlign:'center', color:'#ac828b' }}>{(itemList.Message) ? itemList.Message : "You are currently not enrolled in our APRIL rewards program, please kindly contact your sales representative."}</Text>                      
-                </View>
-              )
-          }
+                    </View>
+                    <View style={{ alignContent:'center', marginRight:10, marginLeft:90, left:0 , right:0 , position:'relative'}}>
+                      <TouchableOpacity
+                        style={{ 
+                          width:'100%',
+                          marginRight:0,
+                          minHeight:30,
+                          marginBottom:10
+                        }} 
+                        onPress={() => {onOpen('company')}} 
+                      >
+                        <Text
+                          style={{
+                            fontFamily:'HelveticaNeue-Bold',
+                            fontSize:17,
+                            textAlign:'left',
+                            color:'#00854F'
+                          }}
+                        >
+                          {displayedCompany}
+                        </Text>
+                        <TouchableOpacity
+                            style={{
+                              position:'absolute',
+                              top:3,
+                              right:-5
+                            }}
+                        >
+                          <FontAwesome
+                            raised 
+                            name="chevron-down"
+                            size={18}
+                            color="#00854F"
+                            onPress={() => {onOpen('company')}} 
+                          />              
+                        </TouchableOpacity>                              
+                      </TouchableOpacity>
+                      <View 
+                        style={{
+                          position:'relative',
+                          flexDirection:'row',
+                          width:220,
+                          height:40,
+                        }}>
+                        {
+                          (listProducts.length > 0 && listProducts.length <= 2)
+                          ?
+                            listProducts.map((item, key) => (
+                              <TouchableOpacity
+                                  style={{
+                                    backgroundColor: (selectedProduct == listProducts[key] ? '#00854F' : '#00854F90'),
+                                    fontWeight:'bold',
+                                    borderWidth: 0,
+                                    marginRight:10,
+                                    color: '#000000',
+                                    borderColor: '#228B22',
+                                    height: 30,
+                                    alignItems: 'center',
+                                    borderRadius: 14,
+                                    width:75,
+                                    justifyContent:'center',
+                                  }}
+                                  activeOpacity={0.5}
+                                  onPress={() => { handleSubmitPress(key) }}
+                              >
+                                <Text style={{
+                                  fontFamily:'HelveticaNeue',
+                                  color: '#FFFFFF',
+                                  fontSize: 14,                              
+                                }}>
+                                    {listProducts[key]}
+                                </Text>
+                              </TouchableOpacity>
+                            ))
+                          :
+                            (listProducts.length >= 2)
+                            ?
+                              listProducts.map((item, key) => (
+                                selectedProduct == listProducts[key] 
+                                ?
+                                  [
+                                  <TouchableOpacity
+                                      style={{
+                                        backgroundColor: (selectedProduct == listProducts[key] ? '#00854F' : '#00854F90'),
+                                        fontWeight:'bold',
+                                        borderWidth: 0,
+                                        marginRight:10,
+                                        color: '#000000',
+                                        height:20,
+                                        position:'absolute',
+                                        left:0,
+                                        borderColor: '#228B22',
+                                        height: 30,
+                                        alignItems: 'center',
+                                        borderRadius: 14,
+                                        width:75,
+                                        justifyContent:'center',
+                                      }}
+                                      activeOpacity={0.5}
+                                      onPress={() => { handleSubmitPress(key) }}
+                                  >
+                                    <Text style={{
+                                      fontFamily:'HelveticaNeue',
+                                      color: '#FFFFFF',
+                                      fontSize: 14,                              
+                                    }}>
+                                        {listProducts[key]}
+                                    </Text>
+                                  </TouchableOpacity>
+                                  ,
+                                  <TouchableOpacity
+                                      style={{
+                                        backgroundColor: '#00854F90',
+                                        fontWeight:'bold',
+                                        borderWidth: 0,
+                                        color: '#000000',
+                                        borderColor: '#228B22',
+                                        height: 30,
+                                        position:'absolute',
+                                        right:0,                                  
+                                        alignItems: 'center',
+                                        borderRadius: 14,
+                                        width:125,
+                                        justifyContent:'center',
+                                      }}
+                                      activeOpacity={0.5}
+                                      onPress={() => { onOpen('products') }}
+                                  >
+                                    <Text style={{
+                                      fontFamily:'HelveticaNeue',
+                                      color: '#FFFFFF',
+                                      marginLeft:-20,
+                                      fontSize: 14,                              
+                                    }}>
+                                        Categories
+                                    </Text>
+                                    <FontAwesome5
+                                      style={{position:'absolute',right:10}}
+                                      name="chevron-down" 
+                                      size={12}
+                                      color="#ccc"
+                                    />
+                                  </TouchableOpacity>                          
+                                  ]                          
+                                :
+                                  <></>
+                              ))
+                            :
+                            <></>
+                        }
+                      </View>
+                    </View>
+              </View>
+            )
+            :
+              <></>
+          :
+            <></>
+        }
+          <View
+            style={{
+              backgroundColor:'#FDFDFD',
+              flex:1
+            }}
+          >        
+            {
+                (itemList.AchivementCards)
+                ?
+                  itemList.AchivementCards.length > 0
+                  ?
+                    <Tab.Navigator>{
+                      itemList.AchivementCards.map((item, key) => (           
+                          <Tab.Screen key={key} name={item.Category} children={()=><TabPage data={item}></TabPage>}></Tab.Screen>
+                      ))
+                    }
+                    </Tab.Navigator>
+                  :
+                    renderMessage((itemList.Message) ? itemList.Message : "You are currently not enrolled in our APRIL rewards program, please kindly contact your sales representative.")
+                :
+                  renderMessage((itemList.Message) ? itemList.Message : "You are currently not enrolled in our APRIL rewards program, please kindly contact your sales representative.")
+            }
+          </View>
         </View>
       </SafeAreaView>              
     );

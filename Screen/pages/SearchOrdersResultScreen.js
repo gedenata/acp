@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
   TouchableOpacity
 } from 'react-native';
-import {API_URL} from '@env';
+import {ACCESS_API} from '@env';
 import Moment from 'moment';
 import LOGOSVG from 'AnRNApp/Image/svg_logo/emptystate_noresults.svg';
 import DeviceInfo from 'react-native-device-info';
@@ -43,11 +43,11 @@ const SearchOrdersResultScreen = ({route, navigation}) => {
         var APITarget = "";
         let dataToSend;
         if(route.params.POOrOrderNumber == "" || route.params.POOrOrderNumber == "0"){ // zero means Order Number
-          APITarget = `${API_URL}/WebApi1/access/api/outstanding`;
+          APITarget = `${ACCESS_API}/outstanding`;
           dataToSend = { SalesOrderID: route.params.POOrOrderNumberKeyword, Token: route.params.TokenValue /* route.params.SalesOrderID */ };                
         }
         else{
-          APITarget = `${API_URL}/WebApi1/access/api/po`;      
+          APITarget = `${ACCESS_API}/po`;      
           dataToSend = { POnumber: route.params.POOrOrderNumberKeyword, Token: route.params.TokenValue /* route.params.SalesOrderID */ };        
         }
 
@@ -87,7 +87,7 @@ const SearchOrdersResultScreen = ({route, navigation}) => {
                       formBodyLocal.push(encodedKeyOutstanding + '=' + encodedValueOutstanding);
                     }
                     formBodyLocal = formBodyLocal.join('&'); 
-                    let url = `${API_URL}/WebApi1/access/api/outstanding`;
+                    let url = `${ACCESS_API}/outstanding`;
                     fetch(url,{ method: 'POST', body: formBodyLocal, headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', },})
                     .then((responseAgain) => responseAgain.json())
                     .then(responseAgainJSON => {
@@ -180,8 +180,8 @@ const SearchOrdersResultScreen = ({route, navigation}) => {
                       <Text style={{marginTop:1,color:'#000000',fontWeight:'bold',fontSize:13, textAlign:'left'}}>Total Quantity</Text>
                     </View>
                     <View style={{flex:1, paddingRight:10,marginBottom:5}}>
-                      <Text style={{marginTop:1,color:'#000000',fontSize:13, textAlign:'right'}}>{(item.Body[0].TargetDelivered != "") ? Moment(item.Body[0].TargetDelivered).format('d MMMM YYYY') : ""}</Text>
-                      <Text style={{marginTop:1,color:'#000000',fontSize:13, textAlign:'right'}}>{(item.Body[0].OrderTaken != "") ? Moment(item.Body[0].OrderTaken).format('d MMMM YYYY') : ""}</Text>
+                      <Text style={{marginTop:1,color:'#000000',fontSize:13, textAlign:'right'}}>{(item.Body[0].TargetDelivered != "") ? Moment(item.Body[0].TargetDelivered).format('D MMMM YYYY') : ""}</Text>
+                      <Text style={{marginTop:1,color:'#000000',fontSize:13, textAlign:'right'}}>{(item.Body[0].OrderTaken != "") ? Moment(item.Body[0].OrderTaken).format('D MMMM YYYY') : ""}</Text>
                       <Text style={{marginTop:1,color:'#000000',fontSize:13, textAlign:'right'}}>{item.Header.ProductQty}</Text>
                     </View>
                   </View>                

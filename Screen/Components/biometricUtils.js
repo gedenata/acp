@@ -1,5 +1,5 @@
 import {Platform, ToastAndroid} from 'react-native';
-import {API_URL} from '@env';
+import {ACCESS_API} from '@env';
 
 const showMessage = (message, duration) => {
   if (Platform.OS === 'android') {
@@ -18,7 +18,7 @@ const postBiometricKey = async (tokenValue, publicKey) => {
     formBody.push(encodedKey + '=' + encodedValue);
   }
   formBody = formBody.join('&');
-  let url = `${API_URL}/WebApi1/access/api/create/biometrics`;
+  let url = `${ACCESS_API}/create/biometrics`;
   return await fetch(url, {
     method: 'POST',
     body: formBody,
@@ -37,7 +37,7 @@ const removeBiometricKey = async (tokenValue) => {
     formBody.push(encodedKey + '=' + encodedValue);
   }
   formBody = formBody.join('&');
-  let url = `${API_URL}/WebApi1/access/api/remove/biometrics`;
+  let url = `${ACCESS_API}/remove/biometrics`;
   return await fetch(url, {
     method: 'POST',
     body: formBody,

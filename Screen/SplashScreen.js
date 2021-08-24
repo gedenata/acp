@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 
 //Import all required component
-import {API_URL} from '@env';
+import {ACCESS_API} from '@env';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import LOGOSVG from 'AnRNApp/Image/svg_logo/aprilconnect_verticallogo-white.svg';
@@ -50,7 +50,7 @@ const SplashScreen = props => {
                               props.navigation.navigate('LoginStack');
                             }, 15000); 
 
-                            let url = `${API_URL}/WebApi1/access/api/outstanding`; 
+                            let url = `${ACCESS_API}/outstanding`; 
                             fetch(url,{
                               method: 'POST',
                               body: formBody,

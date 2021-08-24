@@ -19,7 +19,7 @@ import Moment from 'moment';
 import AsyncStorage from '@react-native-community/async-storage';
 
 import AESEncryption from './../Components/AESEncryption';
-import {API_URL} from '@env';
+import {APP_API} from '@env';
 
 const { width } = Dimensions.get('window');
 const widthMultiplier = width / 400;
@@ -68,7 +68,7 @@ const ChangePasswordScreen = ({route, navigation}) => {
         formBody.push(encodedKey + '=' + encodedValue);
       }
       formBody = formBody.join('&');
-      let url = `${API_URL}/WebApi1/april/api/reset/password`;
+      let url = `${APP_API}/reset/password`;
       fetch(url, {
         method: 'POST',
         body: formBody,

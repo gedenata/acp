@@ -12,7 +12,7 @@ import {
     Platform
 } from 'react-native';
 
-import {API_URL} from '@env';
+import {ACCESS_API} from '@env';
 
 import Loader from './../Components/loader';
 
@@ -48,7 +48,7 @@ const MarketUpdateDetailScreen = ({route, navigation}) => {
                 var formBody = [];
                 for (let key in dataToSend){ var encodedKey = encodeURIComponent(key); var encodedValue = encodeURIComponent(dataToSend[key]); formBody.push(encodedKey + '=' + encodedValue); }
                 formBody = formBody.join('&');
-                let url = `${API_URL}/WebApi1/access/api/marketupdatedetails`;
+                let url = `${ACCESS_API}/marketupdatedetails`;
                 fetch(url, {method: 'POST', body: formBody,  headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', },})
                 .then((response) => response.json())
                 .then(json => {

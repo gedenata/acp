@@ -15,7 +15,7 @@ import {
     BackHandler,
     Alert
 } from 'react-native';
-import {API_URL} from '@env';
+import {ACCESS_API} from '@env';
 import { Modalize } from 'react-native-modalize';
 
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -65,7 +65,7 @@ const SurveyQuestionScreen = ({route, navigation}) => {
                     formBody.push(encodedKey + '=' + encodedValue);
                 }
                 formBody = formBody.join('&');
-                let url = `${API_URL}/WebApi1/access/api/marketsurveyquestion`;
+                let url = `${ACCESS_API}/marketsurveyquestion`;
                 fetch(url, {
                     method: 'POST',
                     body: formBody, 
@@ -200,7 +200,7 @@ const SurveyQuestionScreen = ({route, navigation}) => {
                         "}";
 
             //console.log(formBody);
-            let url = `${API_URL}/WebApi1/access/api/submitmarketsurveyresponse`;
+            let url = `${ACCESS_API}/submitmarketsurveyresponse`;
             fetch(url ,{
               method: 'POST',
               body: formBody,

@@ -1,15 +1,15 @@
 import React, { useState, createRef, useEffect } from 'react';
-import {API_URL} from '@env';
+import {APP_API} from '@env';
 import {
   TouchableOpacity,
-  TextInput,
+  TextInput,  
   Keyboard,
   View,
   Text,
   SafeAreaView,
   ScrollView,
   ToastAndroid,
-  ActivityIndicator,
+  ActivityIndicator,  
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -27,7 +27,7 @@ const CreatePasswordScreen = props => {
   const [isLoading, setLoading] = useState(false);
   const [iconNameEightCharacter, setIconNameEightCharacter] = useState('times-circle-o');
   const [iconNameNumericalCharacter, setIconNameNumerical] = useState('times-circle-o');
-  let [encryptedTextValue, setEncryptedText] = useState('');
+  let [encryptedTextValue, setEncryptedText] = useState('');  
 
   const passwordInputRef = createRef();
 
@@ -41,14 +41,14 @@ const CreatePasswordScreen = props => {
             }
             else{
               setEncryptedText("" + JSON.parse(respp).EncryptedText)
-            }
+            }        
           });// End of encryption/decryption
         },
       );
     }
   }, []);
 
-  const handleSubmitPress = () =>
+  const handleSubmitPress = () => 
   {
     if(userNewPassword != userNewConfirmedPassword){
       ToastAndroid.show("Your password and confirmation password don't match", ToastAndroid.SHORT);
@@ -57,7 +57,7 @@ const CreatePasswordScreen = props => {
 
     if(iconNameEightCharacter == "check-circle-o" && iconNameNumericalCharacter == "check-circle-o" ){
       setLoading(true);
-      var dataToSend = {
+      var dataToSend = { 
         EncryptText: encryptedTextValue,
         Password: userNewPassword,
       };
@@ -69,7 +69,7 @@ const CreatePasswordScreen = props => {
         formBody.push(encodedKey + '=' + encodedValue);
       }
       formBody = formBody.join('&');
-      let url = `${API_URL}/WebApi1/april/api/create/password`;
+      let url = `${APP_API}/create/password`;
       fetch(url, {
         method: 'POST',
         body: formBody,
@@ -77,7 +77,7 @@ const CreatePasswordScreen = props => {
           'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
         },
       })
-      .then(response =>
+      .then(response => 
       {
           if(response.status == 200){
             setLoading(false);
@@ -103,7 +103,7 @@ const CreatePasswordScreen = props => {
     }
     else
     {
-      ToastAndroid.show("Invalid Password Format", ToastAndroid.SHORT);
+      ToastAndroid.show("Invalid Password Format", ToastAndroid.SHORT);            
       setLoading(false);
     }
   }
@@ -113,21 +113,21 @@ const CreatePasswordScreen = props => {
   function validateNewPassword(newPassword){
 
     const numericalCharacterCondtion = new RegExp('(?=.*[0-9])', 'g')
-
+    
     setIconNameNumerical(numericalCharacterCondtion.test(newPassword) ? 'check-circle-o' : 'times-circle-o')
     setIconNameEightCharacter((newPassword.length > 7) ? 'check-circle-o' : 'times-circle-o')
     setUserNewPassword(newPassword);
   }
 
   return (
-    <SafeAreaView
+    <SafeAreaView 
       style={{
         flex: 1,
-        backgroundColor: '#fdfdfd',
+        backgroundColor: '#fdfdfd',      
       }}
     >
-      <ScrollView>
-        <View>
+      <ScrollView>       
+        <View>                 
             <View style={{ alignItems: 'center' }}>
               <LOGOSVG
                 style={{marginTop:20}}
@@ -179,7 +179,7 @@ const CreatePasswordScreen = props => {
                   style={styles.originalLabelStyle}>
                   CONFIRM PASSWORD
               </Text>
-            </View>
+            </View>                                
             <View style={styles.SectionStyle}>
               <Icon raised name="lock" size={20} color="#2a2d4a" style={styles.searchIcon}/>
               <TextInput
@@ -200,7 +200,7 @@ const CreatePasswordScreen = props => {
             <View style={{left:0,right:0,marginLeft:35,marginRight:35, textAlign:'justify', marginTop:30, marginBottom:1,flexDirection:'row'}}>
                 <Icon raised name={iconNameEightCharacter} size={24} color="#afa3a3" style={styles.checkIcon}/>
                 <Text style={{color:'#000000', fontWeight:'normal', fontSize:12, textAlign:'left', lineHeight:20}}>At Least 8 Characters</Text>
-            </View>
+            </View>  
             <View style={{left:0,right:0,marginLeft:35,marginRight:35, textAlign:'justify',top:3, marginBottom:3,flexDirection:'row'}}>
                 <Icon raised name={iconNameNumericalCharacter} size={24} color="#afa3a3" style={styles.checkIcon}/>
                 <Text style={{color:'#000000', fontWeight:'normal', fontSize:12, textAlign:'left', lineHeight:20}}>Contain at least one numerical character</Text>

@@ -11,3 +11,5 @@
 -keep class com.facebook.** {*;}
 -keep class com.horcrux.svg.** {*;}
 -keep class com.proyecto26.** {*;}
+-keep class com.facebook.hermes.** { *; }
+-keep class com.facebook.jni.** { *; }

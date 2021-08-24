@@ -11,7 +11,7 @@ import {
     Dimensions,
     Platform
 } from 'react-native';
-import {API_URL} from '@env';
+import {APP_API} from '@env';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {WebView} from 'react-native-webview';
 
@@ -29,7 +29,7 @@ const TnCFromMoreScreen = props => {
 
     async function getHTML() {
         try {
-          let url = `${API_URL}/WebApi1/april/api/tnc`;
+          let url = `${APP_API}/tnc`;
           let response = await fetch(url,{ method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', }, })
           let responseJson = await response.json();
 

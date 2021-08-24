@@ -16,7 +16,7 @@ import {
 import Moment from 'moment';
 
 import DeviceInfo from 'react-native-device-info';
-import {API_URL} from '@env';
+import {ACCESS_API} from '@env';
 
 const AllOrdersScreen = ({route, navigation}) => {
 
@@ -57,9 +57,9 @@ const AllOrdersScreen = ({route, navigation}) => {
             setTokenValueOutstandingFlatlist(tokenValueOutstandingFlatlistTemp)
 
             var APITarget = "";
-            APITarget = `${API_URL}/WebApi1/access/api/outstanding`;
+            APITarget = `${ACCESS_API}/outstanding`;
             if(route.params.OrderType == "Delivered"){
-              APITarget = `${API_URL}/WebApi1/access/api/delivered`;
+              APITarget = `${ACCESS_API}/delivered`;
             }
             let dataToSend = { SalesOrderID: '', Token: ''+tokenValueOutstandingFlatlistTemp, Skip:skipValueOutstandingFlatlist /* route.params.SalesOrderID */ };
     
@@ -100,7 +100,7 @@ const AllOrdersScreen = ({route, navigation}) => {
                         formBodyLocal.push(encodedKey + '=' + encodedValueOutstanding);
                       }
                       formBodyLocal = formBodyLocal.join('&'); 
-                      let url = `${API_URL}/WebApi1/access/api/outstanding`;
+                      let url = `${ACCESS_API}/outstanding`;
                       fetch(url,{
                         method: 'POST',
                         body: formBodyLocal, 
@@ -164,7 +164,7 @@ const AllOrdersScreen = ({route, navigation}) => {
   };
 
   const ItemViewOutstandingFlatlist = ({item}) => {
-      if(item == "notFound=true"){
+      if(item == "notFound=true") {
         return (
           <View>
           <Image
@@ -238,8 +238,8 @@ const AllOrdersScreen = ({route, navigation}) => {
                     <Text style={{marginTop:1,color:'#000000',fontWeight:'bold',fontSize:13, textAlign:'left'}}>Total Quantity</Text>
                   </View>
                   <View style={{flex:1, paddingRight:10,marginBottom:5}}>
-                    <Text style={{marginTop:1,color:'#000000',fontSize:13, textAlign:'right'}}>{(item.ETA != "") ? Moment(item.ETA).format('d MMMM YYYY') : ""}</Text>
-                    <Text style={{marginTop:1,color:'#000000',fontSize:13, textAlign:'right'}}>{(item.OrderTaken != "") ? Moment(item.OrderTaken).format('d MMMM YYYY') : ""}</Text>
+                    <Text style={{marginTop:1,color:'#000000',fontSize:13, textAlign:'right'}}>{(item.ETA != "") ? Moment(item.ETA).format('D MMMM YYYY') : ""}</Text>
+                    <Text style={{marginTop:1,color:'#000000',fontSize:13, textAlign:'right'}}>{(item.OrderTaken != "") ? Moment(item.OrderTaken).format('D MMMM YYYY') : ""}</Text>
                     <Text style={{marginTop:1,color:'#000000',fontSize:13, textAlign:'right'}}>{item.Quantity}</Text>
                   </View>
                 </View>                

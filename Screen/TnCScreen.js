@@ -1,5 +1,5 @@
 import React, { useState }  from 'react';
-import {API_URL} from '@env';
+import {APP_API} from '@env';
 import { SafeAreaView,   StyleSheet, Text, TouchableOpacity, } from 'react-native';
 import {WebView} from 'react-native-webview';
 
@@ -8,7 +8,7 @@ const TnCScreen = props => {
     const [dataHTML, setDataHTML] = useState('');
     async function getHTML() {
         try {
-          let url = `${API_URL}/WebApi1/april/api/tnc`; 
+          let url = `${APP_API}/tnc`; 
           let response = await fetch(url,{
             method: 'POST',
             headers: {

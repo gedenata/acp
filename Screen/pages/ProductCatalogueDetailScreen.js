@@ -18,7 +18,7 @@ import {
   Alert,
   Platform
 } from 'react-native';
-import {API_URL} from '@env';
+import {ACCESS_API} from '@env';
 import Loader from './../Components/loader';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -85,7 +85,7 @@ const ProductCatalogueDetailScreen = ({route, navigation}) => {
       }
 
       formBody = formBody.join('&');
-      let url = `${API_URL}/WebApi1/access/api/productcataloguefile`;
+      let url = `${ACCESS_API}/productcataloguefile`;
       fetch(url, {
         method: 'POST',
         body: formBody, 
@@ -207,7 +207,7 @@ const ProductCatalogueDetailScreen = ({route, navigation}) => {
                 formBody.push(encodedKey + '=' + encodedValue);
             }
             formBody = formBody.join('&');
-            let url = `${API_URL}/WebApi1/access/api/productcategories`;
+            let url = `${ACCESS_API}/productcategories`;
             fetch(url, {
               method: 'POST',
               body: formBody, 
@@ -257,7 +257,7 @@ const ProductCatalogueDetailScreen = ({route, navigation}) => {
               "}";
   
               // console.log("ya=>" + formBody2);
-              let prodCatalogDetailURL = `${API_URL}/WebApi1/access/api/productcataloguedetails`;
+              let prodCatalogDetailURL = `${ACCESS_API}/productcataloguedetails`;
               fetch(prodCatalogDetailURL, {
                 method: 'POST',
                 body: formBody2, 

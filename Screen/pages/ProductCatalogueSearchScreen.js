@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
   Dimensions
 } from 'react-native';
-import {API_URL} from '@env';
+import {ACCESS_API} from '@env';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -89,7 +89,7 @@ const ProductCatalogueSearchScreen = ({route, navigation}) => {
 					formBody.push(encodedKey + '=' + encodedValue);
 				}
 				formBody = formBody.join('&');
-        let url = `${API_URL}/WebApi1/access/api/productcategories`;
+        let url = `${ACCESS_API}/productcategories`;
 				fetch(url, {
 				  method: 'POST',
 				  body: formBody, 

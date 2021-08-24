@@ -1,7 +1,7 @@
 //Import React and Hook we needed
 import React, { useState, useEffect } from 'react';
 // import LinearGradient from 'react-native-linear-gradient';
-import {API_URL} from '@env';
+import {APP_API} from '@env';
 // Import all required component
 import {
   TextInput,
@@ -97,11 +97,11 @@ const LoginScreenNext = props => {
     var formBody = [];
     for (let key in dataToSend) {
       var encodedKey = encodeURIComponent(key);
-      var encodedValue = encodeURIComponent(dataToSend[key]);
+      var encodedValue = encodeURIComponent(dataToSend[key]); 
       formBody.push(encodedKey + '=' + encodedValue);
     }
     formBody = formBody.join('&');
-    let url = `${API_URL}/WebApi1/april/api/register`;
+    let url = `${APP_API}/register`;
     fetch(url, {
       method: 'POST',
       body: formBody,
@@ -134,7 +134,7 @@ const LoginScreenNext = props => {
               }
               else{
                 props.navigation.navigate('LoginPassword');
-              }
+              }                                  
           }); // End of encryption/decryption
       }
       else{
@@ -152,6 +152,7 @@ const LoginScreenNext = props => {
   const handleBiometricLogin = async () => {
     let _userEmail = '';
     const user_email = await AsyncStorage.getItem('user_email');
+    console.log(user_email);
     if (user_email) {
       const respp = await AESEncryption('decrypt', user_email);
       if (respp) {
@@ -188,7 +189,7 @@ const LoginScreenNext = props => {
         formBody.push(encodedKey + '=' + encodedValue);
       }
       formBody = formBody.join('&');
-      let url = `${API_URL}/WebApi1/april/api/biometrics`;
+      let url = `${APP_API}/biometrics`;
       setLoading(true);
       fetch(url, {
         method: 'POST',
@@ -199,7 +200,7 @@ const LoginScreenNext = props => {
       })
         .then((response) => {
           // // console.log('biometric login response', response.status);
-          if (response.status != 200) {
+          if (response.status !== 200) {
             showMessage(biometricFailedMessage, ToastAndroid.SHORT);
             setLoading(false);
             return false;
@@ -214,7 +215,7 @@ const LoginScreenNext = props => {
         .then((responseJson) => {
           if (responseJson) {
             const {statusCode, data} = responseJson;
-            if (statusCode != 200) {
+            if (statusCode !== 200) {
               showMessage(biometricFailedMessage, ToastAndroid.SHORT);
               setLoading(false);
               return false;
@@ -274,7 +275,7 @@ const LoginScreenNext = props => {
                       EMAIL
                   </Text>
                 </View>
-                <View style={styles.SectionStyle}>
+                <View style={styles.SectionStyle}>                
                   <Icon raised name="envelope-o" size={20} color="#000" style={styles.searchIcon}/>
                   <TextInput
                     style={styles.inputStyle}
@@ -308,7 +309,7 @@ const LoginScreenNext = props => {
                       style={styles.originalLabelStyle}>
                       PHONE NUMBER
                   </Text>
-                </View>
+                </View>                
                 <View style={styles.SectionStyle}>
                   <Icon raised name="phone" size={20} color="#000" style={styles.searchIcon}/>
                   <TextInput
@@ -350,7 +351,7 @@ const LoginScreenNext = props => {
                   <Text style={{
                       color: '#FFFFFF',
                       fontFamily:'HelveticaNeue-Bold',
-                      fontSize: 15,
+                      fontSize: 15,          
                   }}>LOG IN</Text>
                 </TouchableOpacity>
                 <Text
@@ -361,7 +362,7 @@ const LoginScreenNext = props => {
               </KeyboardAvoidingView>
             </View>
           </ScrollView>
-        </View>
+        </View>       
     </View>
   );
 };

@@ -2,12 +2,12 @@ import React, {useEffect, useState} from 'react';
 import {
   TouchableOpacity,
   KeyboardAvoidingView,
-  Image,
+  Image,  
   View,
   Text,
   SafeAreaView,
   ScrollView,
-  Dimensions
+  Dimensions  
 } from 'react-native';
 
 import AsyncStorage from '@react-native-community/async-storage';
@@ -28,7 +28,7 @@ const ProfileScreen = props => {
 
       AsyncStorage.getItem('user_id').then(
         (value) => {
-
+          
           AESEncryption("decrypt",value).then((respp)=>{
             // console.log("Check session: " + JSON.parse(respp).data);
             if(JSON.parse(respp).data){
@@ -66,15 +66,15 @@ const ProfileScreen = props => {
   }
 
   return (
-    <SafeAreaView
-      style={{
+    <SafeAreaView 
+      style={{    
         flex: 1,
         backgroundColor: '#fdfdfd',
       }}
     >
       <ScrollView>
       <KeyboardAvoidingView enabled>
-      <View>
+      <View>    
         <Image
           source={require('AnRNApp/Image/bar.png')}
           style={{
@@ -109,18 +109,18 @@ const ProfileScreen = props => {
           </Text>
           </View>
       </View>
-      <TouchableOpacity
+      <TouchableOpacity  
         style={{
           height:25,
           width:'100%',
           right:2,
           left:2,
           marginTop:30,
-          flexDirection:'row',
-          borderStyle:'solid',
-          borderWidth:0,
-          borderColor:'#dbd4d4',
-          borderBottomWidth:1,
+          flexDirection:'row', 
+          borderStyle:'solid', 
+          borderWidth:0, 
+          borderColor:'#dbd4d4', 
+          borderBottomWidth:1, 
           paddingBottom:10,
         }}
         onPress={goToChangePassword.bind(this)}

@@ -10,7 +10,7 @@ import {
   ActivityIndicator,  
 } from 'react-native';
 
-import {API_URL} from '@env';
+import {ACCESS_API} from '@env';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Moment from 'moment';
 
@@ -49,7 +49,7 @@ const DetailsScreen = ({route, navigation}) => {
   var rows = [];        
 
   useEffect(() => {
-    let url = `${API_URL}/WebApi1/access/api/outstanding`;
+    let url = `${ACCESS_API}/outstanding`;
     fetch(url,{
       method: 'POST',
       body: formBody,      

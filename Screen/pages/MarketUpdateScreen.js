@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
   Dimensions
 } from 'react-native';
-import {API_URL} from '@env';
+import {ACCESS_API} from '@env';
 import Loader from './../Components/loader';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -45,7 +45,7 @@ const MarketUpdateScreen = ({route, navigation}) =>
       navigation.navigate('MarketUpdateDetail', {id:SurveyID})
       const parent = navigation.dangerouslyGetParent();
       parent.setOptions({
-        tabBarVisible: false
+        tabBarVisible: true
       });
       return () => parent.setOptions({ tabBarVisible: true });  
     }
@@ -143,7 +143,7 @@ const MarketUpdateScreen = ({route, navigation}) =>
             var formBody = [];
             for (let key in dataToSend){ var encodedKey = encodeURIComponent(key); var encodedValue = encodeURIComponent(dataToSend[key]); formBody.push(encodedKey + '=' + encodedValue); }
             formBody = formBody.join('&');
-            let url = `${API_URL}/WebApi1/access/api/marketupdateslist`;
+            let url = `${ACCESS_API}/marketupdateslist`;
             fetch(url, {method: 'POST', body: formBody,  headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', },})
             .then((response) => response.json())
             .then(json => {
