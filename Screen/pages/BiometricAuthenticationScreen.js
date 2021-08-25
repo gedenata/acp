@@ -79,6 +79,12 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
     setBiometricKeysExist(keysExist);
   }, []);
 
+  useEffect(() => {
+    if(biometricsNotSupported) {
+      setBiometricNotSetup(true);
+    }
+  }, [biometricsNotSupported]);
+
   const getBiometricsType = () => {
     return touchIdAvailable
       ? 'Touch ID'
@@ -141,8 +147,13 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
         AsyncStorage.setItem('skip_biometrics', 'true');
         setDeviceNotSupported(true);
       } else {
-        showMessage(biometricFailedMessage, ToastAndroid.SHORT);
-        console.error('Biometric authentication error: ', err.message);
+        if(Platform.OS === 'ios' && biometricsNotSupported) {
+          setBiometricNotSetup(true);
+        }
+        else {
+          showMessage(biometricFailedMessage, ToastAndroid.SHORT);
+          console.error('Biometric authentication error: ', err.message);
+        }
       }
     }
   };
@@ -293,10 +304,10 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
                 minHeight: 50
               }}>
               {biometricNotSetup
-                ? `Sorry, you haven't set up your ${getBiometricsType()}\non your device.`
+                ? `Sorry, you haven't set up your ${getBiometricsType()} on your device.`
                 : deviceNotSupported
                 ? `Sorry, your device does not support ${getBiometricsType()}.`
-                : `Setup your ${getBiometricsType()} for easier, faster and more\nsecure log in.`}
+                : `Setup your ${getBiometricsType()} for easier, faster and more secure log in.`}
             </Text>
           </View>
           {deviceNotSupported ? (
@@ -497,8 +508,8 @@ const styles = StyleSheet.create({
     height: 40,
     alignItems: 'center',
     borderRadius: 40,
-    marginLeft: 35,
-    marginRight: 35,
+    marginLeft: 20,
+    marginRight: 20,
     marginTop: 20,
     marginBottom: 20,
   },

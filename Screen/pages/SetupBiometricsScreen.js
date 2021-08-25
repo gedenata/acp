@@ -62,6 +62,12 @@ const SetupBiometricsScreen = ({route, navigation}) => {
     }
   }, []);
 
+  useEffect(() => {
+    if(biometricsNotSupported) {
+      setBiometricNotSetup(true);
+    }
+  }, [biometricsNotSupported]);
+
   const getBiometricsType = () => {
     return touchIdAvailable
       ? 'Touch ID'
@@ -188,8 +194,13 @@ const SetupBiometricsScreen = ({route, navigation}) => {
       } else if (err.message === 'Error generating public private keys') {
         setDeviceNotSupported(true);
       } else {
-        showMessage(biometricFailedMessage, ToastAndroid.SHORT);
-        console.error('Biometric authentication error: ', err.message);
+        if(Platform.OS === 'ios' && biometricsNotSupported) {
+          setBiometricNotSetup(true);
+        }
+        else {
+          showMessage(biometricFailedMessage, ToastAndroid.SHORT);
+          console.error('Biometric authentication error: ', err.message);
+        }
       }
     }
   };
@@ -226,10 +237,10 @@ const SetupBiometricsScreen = ({route, navigation}) => {
                 <GetBiometricsIcon />
                 <Text style={styles.welcomeTextStyle}>
                   {biometricNotSetup
-                    ? `Sorry, you haven't set up your ${getBiometricsType()}\non your device.`
+                    ? `Sorry, you haven't set up your ${getBiometricsType()} on your device.`
                     : deviceNotSupported
                     ? `Sorry, your device does not support ${getBiometricsType()}.`
-                    : `Setup your ${getBiometricsType()} for easier,\nfaster and more secure log in.`}
+                    : `Setup your ${getBiometricsType()} for easier, faster and more secure log in.`}
                 </Text>
                 {biometricNotSetup ? (
                   <OpenSettingsButton>Go to System Settings</OpenSettingsButton>
@@ -239,7 +250,7 @@ const SetupBiometricsScreen = ({route, navigation}) => {
                   <TouchableOpacity
                     style={{
                       ...styles.buttonStyle,
-                      width: '80%',
+                      width: '85%',
                     }}
                     activeOpacity={0.5}
                     onPress={onSetupPressed}>
