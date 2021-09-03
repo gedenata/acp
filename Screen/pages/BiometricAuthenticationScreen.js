@@ -61,10 +61,8 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
       });
     });
 
-    const {
-      available,
-      biometryType,
-    } = await ReactNativeBiometrics.isSensorAvailable();
+    const {available, biometryType} =
+      await ReactNativeBiometrics.isSensorAvailable();
     if (available && biometryType === ReactNativeBiometrics.TouchID) {
       setTouchIdAvailable(true);
     } else if (available && biometryType === ReactNativeBiometrics.FaceID) {
@@ -80,16 +78,18 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
   }, []);
 
   useEffect(() => {
-    if(biometricsNotSupported) {
+    if (biometricsNotSupported) {
       setBiometricNotSetup(true);
     }
   }, [biometricsNotSupported]);
 
-  const getBiometricsType = () => {
+  const getBiometricsType = (capitalize) => {
     return touchIdAvailable
       ? 'Touch ID'
       : faceIdAvailable
       ? 'Face ID'
+      : capitalize
+      ? 'Biometric Authentication'
       : 'biometric authentication';
   };
 
@@ -104,30 +104,40 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
   };
 
   const sendBiometricKey = async (publicKey) => {
-    if (tokenValue !== '') {
-      setLoading(true);
-      const response = await postBiometricKey(tokenValue, publicKey);
-      // // console.log('biometric setup response', response.status);
-      if (response && response.status === 200) {
-        setBiometricKeysExist(true);
+    try {
+      if (tokenValue !== '') {
+        setLoading(true);
+        var startTime = new Date();
+        console.log('postBiometricKey started');
+        const response = await postBiometricKey(tokenValue, publicKey);
+        var timeElapsed = new Date() - startTime;
+        console.log('postBiometricKey ended in ' + timeElapsed + ' ms.');
+        // // console.log('biometric setup response', response.status);
+        if (response && response.status === 200) {
+          setBiometricKeysExist(true);
+        } else {
+          showMessage(biometricFailedMessage, ToastAndroid.SHORT);
+        }
+        setLoading(false);
       } else {
         showMessage(biometricFailedMessage, ToastAndroid.SHORT);
       }
-      setLoading(false);
-    } else {
+    } catch (err) {
       showMessage(biometricFailedMessage, ToastAndroid.SHORT);
+      console.error('Biometric authentication error: ', err.message);
+      setLoading(false);
     }
   };
 
   const onSetupPressed = async () => {
     try {
       const {success, error} = await ReactNativeBiometrics.simplePrompt({
-        promptMessage: `Confirm ${getBiometricsType()}`,
+        promptMessage: `Confirm ${getBiometricsType(true)}`,
       });
 
       if (success) {
         const {publicKey} = await ReactNativeBiometrics.createKeys(
-          `Confirm ${getBiometricsType()}`,
+          `Confirm ${getBiometricsType(true)}`,
         );
         if (publicKey) {
           sendBiometricKey(publicKey);
@@ -144,13 +154,12 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
       if (err.message === 'No fingerprints enrolled.') {
         setBiometricNotSetup(true);
       } else if (err.message === 'Error generating public private keys') {
-        AsyncStorage.setItem('skip_biometrics', 'true');
+        await AsyncStorage.setItem('biometrics_not_supported', 'true');
         setDeviceNotSupported(true);
       } else {
-        if(Platform.OS === 'ios' && biometricsNotSupported) {
+        if (Platform.OS === 'ios' && biometricsNotSupported) {
           setBiometricNotSetup(true);
-        }
-        else {
+        } else {
           showMessage(biometricFailedMessage, ToastAndroid.SHORT);
           console.error('Biometric authentication error: ', err.message);
         }
@@ -181,7 +190,7 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
       <TouchableOpacity
         style={{
           ...styles.buttonStyle,
-          marginTop: 300,
+          marginTop: 250,
         }}
         activeOpacity={0.5}
         onPress={handlePress}>
@@ -208,20 +217,31 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
   };
 
   const onRemoveConfirmPressed = async () => {
-    if (tokenValue !== '') {
-      setLoading(true);
-      closeModal();
-      const response = await removeBiometricKey(tokenValue);
-      // // console.log('biometric remove response', response.status);
-      if (response && response.status === 200) {
-        await ReactNativeBiometrics.deleteKeys();
-        setBiometricKeysExist(false);
+    try {
+      if (tokenValue !== '') {
+        setLoading(true);
+        closeModal();
+        var startTime = new Date();
+        console.log('removeBiometricKey started');
+        const response = await removeBiometricKey(tokenValue);
+        var timeElapsed = new Date() - startTime;
+        console.log('removeBiometricKey ended in ' + timeElapsed + ' ms.');
+        // // console.log('biometric remove response', response.status);
+        if (response && response.status === 200) {
+          await ReactNativeBiometrics.deleteKeys();
+          await AsyncStorage.setItem('skip_biometrics', 'false');
+          setBiometricKeysExist(false);
+        } else {
+          showMessage(biometricRemovalFailedMessage, ToastAndroid.SHORT);
+        }
+        setLoading(false);
       } else {
         showMessage(biometricRemovalFailedMessage, ToastAndroid.SHORT);
       }
-      setLoading(false);
-    } else {
+    } catch (err) {
       showMessage(biometricRemovalFailedMessage, ToastAndroid.SHORT);
+      console.error('Biometric removal error: ', err.message);
+      setLoading(false);
     }
   };
 
@@ -301,7 +321,7 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
                 width: '100%',
                 marginLeft: 20,
                 marginTop: 40,
-                minHeight: 50
+                minHeight: 50,
               }}>
               {biometricNotSetup
                 ? `Sorry, you haven't set up your ${getBiometricsType()} on your device.`
@@ -338,10 +358,9 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
                   fontSize: 12,
                   textAlign: 'left',
                   lineHeight: 20,
-                  textTransform: 'capitalize',
                   marginRight: 5,
                 }}>
-                {getBiometricsType()}
+                {getBiometricsType(true)}
               </Text>
               <Text
                 style={{
@@ -364,7 +383,7 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
               <TouchableOpacity
                 style={{
                   ...styles.buttonStyle,
-                  marginTop: 300,
+                  marginTop: 250,
                 }}
                 activeOpacity={0.5}
                 onPress={onSetupPressed}>
@@ -381,7 +400,7 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
             <TouchableOpacity
               style={{
                 ...styles.buttonStyle,
-                marginTop: 300,
+                marginTop: 250,
                 backgroundColor: '#c6481c',
               }}
               activeOpacity={0.5}
@@ -406,9 +425,8 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
               <TouchableOpacity style={s.content__icon} onPress={closeModal}>
                 <Icon raised name="chevron-down" size={15} />
               </TouchableOpacity>
-              <Text
-                style={{...s.content__heading, textTransform: 'capitalize'}}>
-                Remove {getBiometricsType()}
+              <Text style={s.content__heading}>
+                Remove {getBiometricsType(true)}
               </Text>
             </View>
             <View style={s.content__inside} key="1">

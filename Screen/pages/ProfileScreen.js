@@ -2,12 +2,12 @@ import React, {useEffect, useState} from 'react';
 import {
   TouchableOpacity,
   KeyboardAvoidingView,
-  Image,  
+  Image,
   View,
   Text,
   SafeAreaView,
   ScrollView,
-  Dimensions  
+  Dimensions
 } from 'react-native';
 
 import AsyncStorage from '@react-native-community/async-storage';
@@ -21,14 +21,14 @@ const ProfileScreen = props => {
 
   const [userEmail, setUserEmail] = useState('');
   const [biometricKeysExist, setBiometricKeysExist] = useState(false);
-  const [skipBiometrics, setSkipBiometrics] = useState(false);
+  const [biometricsNotSupported, setBiometricsNotSupported] = useState(false);
 
   useEffect(async () => {
     if(AsyncStorage.getItem('user_id')){
 
       AsyncStorage.getItem('user_id').then(
         (value) => {
-          
+
           AESEncryption("decrypt",value).then((respp)=>{
             // console.log("Check session: " + JSON.parse(respp).data);
             if(JSON.parse(respp).data){
@@ -42,8 +42,8 @@ const ProfileScreen = props => {
       );
       const {keysExist} = await ReactNativeBiometrics.biometricKeysExist();
       setBiometricKeysExist(keysExist);
-      const skip_biometrics = await AsyncStorage.getItem('skip_biometrics');
-      setSkipBiometrics(skip_biometrics === 'true');
+      const biometrics_not_supported = await AsyncStorage.getItem('biometrics_not_supported');
+      setBiometricsNotSupported(biometrics_not_supported === 'true');
     }
     else {
       props.navigation.navigate('SplashStack');
@@ -66,15 +66,15 @@ const ProfileScreen = props => {
   }
 
   return (
-    <SafeAreaView 
-      style={{    
+    <SafeAreaView
+      style={{
         flex: 1,
         backgroundColor: '#fdfdfd',
       }}
     >
       <ScrollView>
       <KeyboardAvoidingView enabled>
-      <View>    
+      <View>
         <Image
           source={require('AnRNApp/Image/bar.png')}
           style={{
@@ -109,18 +109,18 @@ const ProfileScreen = props => {
           </Text>
           </View>
       </View>
-      <TouchableOpacity  
+      <TouchableOpacity
         style={{
           height:25,
           width:'100%',
           right:2,
           left:2,
           marginTop:30,
-          flexDirection:'row', 
-          borderStyle:'solid', 
-          borderWidth:0, 
-          borderColor:'#dbd4d4', 
-          borderBottomWidth:1, 
+          flexDirection:'row',
+          borderStyle:'solid',
+          borderWidth:0,
+          borderColor:'#dbd4d4',
+          borderBottomWidth:1,
           paddingBottom:10,
         }}
         onPress={goToChangePassword.bind(this)}
@@ -153,7 +153,7 @@ const ProfileScreen = props => {
         <View style={{left:0, position:'absolute',marginLeft:15,marginTop:0,marginBottom:20,flex:2,flexDirection:'row'}}>
           <Text>Biometric Authentication</Text>
           {
-            biometricKeysExist || skipBiometrics ? <></> :
+            biometricKeysExist || biometricsNotSupported ? <></> :
             <View style={{marginLeft:10,marginTop:-8,height:28,width:28,borderRadius:28,backgroundColor:'#FF3A3A',justifyContent:'center'}}>
               <Text style={{fontFamily:'HelveticaNeue-Bold',fontSize:17,lineHeight:24,textAlign:'center',color:'#fff'}}>!</Text>
             </View>

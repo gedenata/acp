@@ -76,7 +76,7 @@ const LoginScreenNext = props => {
       ? 'Touch ID'
       : faceIdAvailable
       ? 'Face ID'
-      : 'fingerprint';
+      : 'Biometric Authentication';
   };
 
   const GetBiometricsIcon = ({style, width, height}) => {
@@ -97,7 +97,7 @@ const LoginScreenNext = props => {
     var formBody = [];
     for (let key in dataToSend) {
       var encodedKey = encodeURIComponent(key);
-      var encodedValue = encodeURIComponent(dataToSend[key]); 
+      var encodedValue = encodeURIComponent(dataToSend[key]);
       formBody.push(encodedKey + '=' + encodedValue);
     }
     formBody = formBody.join('&');
@@ -134,7 +134,7 @@ const LoginScreenNext = props => {
               }
               else{
                 props.navigation.navigate('LoginPassword');
-              }                                  
+              }
           }); // End of encryption/decryption
       }
       else{
@@ -172,7 +172,7 @@ const LoginScreenNext = props => {
     }
     let payload = `${_userEmail};${_userPhoneNumber}`;
     const {success, signature} = await ReactNativeBiometrics.createSignature({
-      promptMessage: `Confirm ${getBiometricsType()}`,
+      promptMessage: `Confirm ${getBiometricsType(true)}`,
       payload: payload,
     });
     if (success && signature) {
@@ -274,7 +274,7 @@ const LoginScreenNext = props => {
                       EMAIL
                   </Text>
                 </View>
-                <View style={styles.SectionStyle}>                
+                <View style={styles.SectionStyle}>
                   <Icon raised name="envelope-o" size={20} color="#000" style={styles.searchIcon}/>
                   <TextInput
                     style={styles.inputStyle}
@@ -308,7 +308,7 @@ const LoginScreenNext = props => {
                       style={styles.originalLabelStyle}>
                       PHONE NUMBER
                   </Text>
-                </View>                
+                </View>
                 <View style={styles.SectionStyle}>
                   <Icon raised name="phone" size={20} color="#000" style={styles.searchIcon}/>
                   <TextInput
@@ -350,7 +350,7 @@ const LoginScreenNext = props => {
                   <Text style={{
                       color: '#FFFFFF',
                       fontFamily:'HelveticaNeue-Bold',
-                      fontSize: 15,          
+                      fontSize: 15,
                   }}>LOG IN</Text>
                 </TouchableOpacity>
                 <Text
@@ -361,7 +361,7 @@ const LoginScreenNext = props => {
               </KeyboardAvoidingView>
             </View>
           </ScrollView>
-        </View>       
+        </View>
     </View>
   );
 };
