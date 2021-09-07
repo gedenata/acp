@@ -131,11 +131,11 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
         }
         // alert("Only png and jpeg is allowed");
         return false;
-      }    
+      }
 
       setOnOpenPurpose(purpose);
       modalizeRef.current?.open();
-  };        
+  };
 
   const handleClose = () => {
       if (modalizeRef.current) {
@@ -149,7 +149,7 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
     </View>,
     <View style={s.content__inside} key="1">
       <ScrollView style={s.content__scrollview}>
-      <View 
+      <View
         style={{
           backgroundColor:'#FDFDFD',
           width:'100%',
@@ -162,7 +162,7 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
           style={{
           marginTop:10,
           alignItems:'stretch',
-          justifyContent:'flex-start', 
+          justifyContent:'flex-start',
           left:15,
           right:15,
           marginRight:25,
@@ -182,7 +182,7 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
                 borderRadius: 25,
                 marginTop: 20,
                 marginBottom: 15,
-            }} 
+            }}
             onPress={() => {
               handleClose();
               setLoading(true);
@@ -201,7 +201,7 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
     (value) =>
     {
       AESEncryption("decrypt",value).then((respp)=>{
-		  
+
         setTokenValue("" + JSON.parse(respp).data.Token)
         var dataToSend = {Token: ''+JSON.parse(respp).data.Token};
         var formBody = [];
@@ -213,9 +213,9 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
         }
         formBody = formBody.join('&');
         const loadingItems = [];
-  
+
         if(isLoadingPicker)
-        { 
+        {
           let url = `${ACCESS_API}/feedbackcategories`;
           fetch(url ,{method: 'POST', body: formBody, headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', },})
           .then((response) => response.json())
@@ -230,7 +230,7 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
       });// End of encryption/decryption
 
     },
-  );  
+  );
 
   const goBackToPage = () => { navigation.goBack() };
 
@@ -238,7 +238,7 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
       setMultipleFile([]);
       setDescriptionValue('');
       setCategoryValue('');
-    }    
+    }
 
     const [multipleFile, setMultipleFile] = useState([]);
 
@@ -281,103 +281,113 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
       setMultipleFile(multipleFileTemp);
     }
 
-    let uploadImage = async () => 
-    {
-        var timeoutCounter = setTimeout(() => {
-          setLoading(false);
-          setMultipleFile([]);
-          setDescriptionValue('');
-          navigation.push('More', {notificationText:'Apps experiences some issue during send feedback, Please try again later',status:'failed'});
-        }, 100000);
-
+    let uploadImage = async () => {
+      var timeoutCounter = setTimeout(() => {
+        setLoading(false);
+        setMultipleFile([]);
+        setDescriptionValue('');
+        navigation.push('More', {
+          notificationText:
+            'Apps experiences some issue during send feedback, Please try again later',
+          status: 'failed',
+        });
+      }, 100000);
+      try {
         setLoading(true);
 
-        // If file selected then create FormData
-        const fileToUpload = multipleFile;
-        const data = new FormData();
-
-        data.append("Token",tokenValue);
-        data.append("FeedbackContent",descriptionValue);
-        data.append('CategoryName', 'Image Upload');
-
-        let fileAttachmentString = "[";
-        for (const res of fileToUpload){
-
-          let temp = {};
-          temp.AttachmentContentType = res["type"];
-          temp.AttachmentSize = (res["size"] / 1024) + " KB";
-          temp.AttachmentName = res["path"].substring(res["path"].lastIndexOf('/') + 1);
-
-          fileAttachmentString += (fileAttachmentString == "[" ? "" : ",") + '{"AttachmentContentType":"' + res["mime"] + '",'
-          fileAttachmentString += '"AttachmentSize":"' + (res["size"] / 1024) + ' KB",' 
-          fileAttachmentString += '"AttachmentName":"' + res["path"].substring(res["path"].lastIndexOf('/') + 1) + '",'
-
-          await RNFS.readFile(res["path"], 'base64')
-          .then(result =>
-          {
-            temp.AttachmentData = result;
-            fileAttachmentString += '"AttachmentData":"' + result + '"'
-          });
-
-          fileAttachmentString += "}";
-        }
-        fileAttachmentString += "]";
-        let formBody = "";
-        formBody = "{" + 
-                      '"Token":"' + tokenValue + '",' + 
-                      '"FeedbackContent":"' + descriptionValue.replace("\"","\\\"") + '",' + 
-                      '"CategoryName":"' + categoryValue + '",' + 
-                      '"FeedbackAttachments":' + fileAttachmentString + 
-                    "}";   
-        let url = `${ACCESS_API}/customerfeedback`;
-        fetch(url ,{
-          method: 'POST',
-          body: formBody,
+        const filesToUpload = multipleFile.map((res) => {
+          return {
+            filename: res['path'].substring(res['path'].lastIndexOf('/') + 1),
+            filepath: res['path'].replace('file:///', ''),
+            filetype: res['mime'],
+          };
+        });
+        const {promise} = RNFS.uploadFiles({
+          toUrl: `${ACCESS_API}/customerfeedback`,
+          files: filesToUpload,
           headers: {
-            'Content-Type': 'application/json',
+            Accept: 'application/json',
           },
-        })
-        .then((response) => {
-          // console.log(JSON.stringify(response));
-          setLoading(false);
-          setMultipleFile([]);
-          setDescriptionValue('');
-          clearTimeout(timeoutCounter);
-          if(response.status == 200){
-            navigation.push('More', {notificationText:'Feedback submitted. Thank you for your feedback and we will revert back to you soon.',status:'ok'})
-          }
-          else if(response.status == 417){
-            navigation.push('More', {notificationText:'Total count of attachments exceeds 5 (Custom error message if the attachment count > 5',status:'failed'})
-          }
-          else if(response.status == 404){
-            navigation.push('More', {notificationText:'Unable to find the Support Category ID (Custom error message if the feedback category is null/empty)',status:'failed'})
-          }
-          else if(response.status == 501){
-            navigation.push('More', {notificationText:'Unable to Insert Customer Support. Please contact Application support engineer (Custom error message if there is a problem in inserting data.)',status:'failed'})
-          }
-          else if(response.status == 403){
-            navigation.push('More', {notificationText:'User Not Found',status:'failed'})
-          }            
-          else
-          {
-            navigation.push('More', {notificationText:'Error during send feedback, Please try again later',status:'failed'})
-          }
-        })
-        .catch((error) => { 
-          handleClose();
-          clearTimeout(timeoutCounter);
-          setMultipleFile([]);
-          setDescriptionValue('');
-          navigation.push('More', {notificationText:'Error during send feedback (' + error + ")",status:'failed'})
-        })
+          fields: {
+            Token: tokenValue,
+            FeedbackContent: descriptionValue.replace('"', '\\"'),
+            CategoryName: categoryValue,
+          },
+          method: 'POST',
+        });
+        promise
+          .then((response) => {
+            setLoading(false);
+            setMultipleFile([]);
+            setDescriptionValue('');
+            clearTimeout(timeoutCounter);
+            if (response.statusCode == 200) {
+              navigation.push('More', {
+                notificationText:
+                  'Feedback submitted. Thank you for your feedback and we will revert back to you soon.',
+                status: 'ok',
+              });
+            } else if (response.statusCode == 417) {
+              navigation.push('More', {
+                notificationText:
+                  'Total count of attachments exceeds 5 (Custom error message if the attachment count > 5',
+                status: 'failed',
+              });
+            } else if (response.statusCode == 404) {
+              navigation.push('More', {
+                notificationText:
+                  'Unable to find the Support Category ID (Custom error message if the feedback category is null/empty)',
+                status: 'failed',
+              });
+            } else if (response.statusCode == 501) {
+              navigation.push('More', {
+                notificationText:
+                  'Unable to Insert Customer Support. Please contact Application support engineer (Custom error message if there is a problem in inserting data.)',
+                status: 'failed',
+              });
+            } else if (response.statusCode == 403) {
+              navigation.push('More', {
+                notificationText: 'User Not Found',
+                status: 'failed',
+              });
+            } else {
+              navigation.push('More', {
+                notificationText:
+                  'Error during send feedback, Please try again later',
+                status: 'failed',
+              });
+            }
+          })
+          .catch((error) => {
+            setLoading(false);
+            handleClose();
+            clearTimeout(timeoutCounter);
+            setMultipleFile([]);
+            setDescriptionValue('');
+            navigation.push('More', {
+              notificationText: 'Error during send feedback (' + error + ')',
+              status: 'failed',
+            });
+          });
+      } catch (error) {
+        setLoading(false);
+        handleClose();
+        clearTimeout(timeoutCounter);
+        setMultipleFile([]);
+        setDescriptionValue('');
+        navigation.push('More', {
+          notificationText: 'Error during send feedback (' + error + ')',
+          status: 'failed',
+        });
+      }
     };
 
-    Moment.locale('en');  
+    Moment.locale('en');
 
-    let [loading, setLoading] = useState(false); 
-  
+    let [loading, setLoading] = useState(false);
+
     return (
-      <SafeAreaView 
+      <SafeAreaView
         style={{
           flex: 1,
           backgroundColor: '#fdfdfd',
@@ -386,7 +396,7 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
       <Loader loading={loading} />
       <ScrollView>
       <KeyboardAvoidingView enabled>
-        <View>    
+        <View>
           <Image
             source={require('AnRNApp/Image/bar.png')}
             style={{
@@ -412,24 +422,24 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
         <TouchableOpacity  style={{marginTop:0, marginLeft:20, marginRight:20, alignItems:'stretch',justifyContent:'flex-start'}} onPress={() => clearForm()}>
             <Text style={{alignSelf:'center',alignItems:'center',textDecorationLine:'underline'}}>Clear Forms</Text>
         </TouchableOpacity>
-        <View 
+        <View
           style={{
-            marginTop:10, 
-            marginLeft:22, 
-            height:50, 
-            marginBottom:20, 
-            marginRight:20, 
+            marginTop:10,
+            marginLeft:22,
+            height:50,
+            marginBottom:20,
+            marginRight:20,
             alignItems:'stretch',
-            justifyContent:'flex-start', 
-            ...(Platform.OS !== 'android' && {zIndex:10}) 
+            justifyContent:'flex-start',
+            ...(Platform.OS !== 'android' && {zIndex:10})
           }}
         >
           <Text style={{marginBottom:10,color:'#000000',fontWeight:'bold'}}>Category</Text>
           {
-          isLoadingPicker 
-          ? 
-            <ActivityIndicator size="large" color="#00ff00"/> 
-          : 
+          isLoadingPicker
+          ?
+            <ActivityIndicator size="large" color="#00ff00"/>
+          :
             (
               <DropDownPicker
                 placeholder="Choose Support Category"
@@ -450,26 +460,26 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
             )
           }
         </View>
-        <View 
+        <View
           style={{
-            marginTop:18, 
-            marginLeft:22, 
-            marginBottom:20, 
-            marginRight:20, 
+            marginTop:18,
+            marginLeft:22,
+            marginBottom:20,
+            marginRight:20,
             alignItems:'stretch',
-            justifyContent:'flex-start', 
+            justifyContent:'flex-start',
           }}
         >
           <Text style={{marginBottom:10,color:'#000000',fontWeight:'bold',}}>Description</Text>
           <TextInput
-            style={{  
+            style={{
               borderStyle:'solid',
               borderColor:descriptionValue.length == 0 ? '#ccc' : '#5c3b3b',
               borderWidth:1,
               borderRadius:7,
               height:120,
               textAlignVertical: 'top'
-            }} 
+            }}
             multiline
             editable
             numberOfLines={10}
@@ -478,29 +488,29 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
             keyboardType="default"
             value={descriptionValue}
             onChangeText={tempValue => setDescriptionChange(tempValue)}
-          />   
+          />
         </View>
-        <View 
+        <View
           style={{
-            marginTop:0, 
-            marginLeft:22, 
-            marginBottom:20, 
-            marginRight:20, 
+            marginTop:0,
+            marginLeft:22,
+            marginBottom:20,
+            marginRight:20,
             alignItems:'stretch',
-            justifyContent:'flex-start', 
+            justifyContent:'flex-start',
           }}
         >
           <Text style={{marginBottom:10,color:'#000000',fontWeight:'bold',}}>Attach Files</Text>
             {
-              multipleFile.length > 0 ? 
+              multipleFile.length > 0 ?
               <View
-                style={{  
+                style={{
                   borderStyle:'dashed',
-                  borderColor:'#000000',     
+                  borderColor:'#000000',
                   borderWidth:1,
                   borderRadius:7,
                   height:150,
-                }} 
+                }}
                 multiline
                 numberOfLines={10}
                 placeholderTextColor="#3CB371"
@@ -515,8 +525,8 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
                       <View key={key} style={{marginTop:0}}>
                         <AntDesign name="checkcircle" size={20} color="#5e7d40" style={{margin:5}} />
                         <Text style={{position:'absolute',left:40, top:7,fontSize:13, color:'#000000'}}>File Name: {item.path.substring(item.path.lastIndexOf('/') + 1)}</Text>
-                        <TouchableOpacity 
-                          style={{position:'absolute',top:8,right:10}} 
+                        <TouchableOpacity
+                          style={{position:'absolute',top:8,right:10}}
                           onPress={takeOutOneFile.bind(this, item.path)}
                         >
                           <AntDesign name="closecircleo" size={18} color="#835b5b"/>
@@ -526,7 +536,7 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
                   }
                 </ScrollView>
               </View>
-              : 
+              :
                 <TouchableOpacity
                   style={{
                     borderStyle:'dashed',
@@ -547,14 +557,14 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
                   <Text style={{alignItems:'center',textAlign:'center',marginTop:5,color:'#835b5b'}}>Only JPEG & PNG</Text>
                   <Text style={{alignItems:'center',textAlign:'center',marginTop:5,color:'#835b5b'}}>Maximum 5 Files</Text>
                   <Text style={{alignItems:'center',textAlign:'center',marginTop:5,color:'#835b5b'}}>Maximum 2 MB Files each</Text>
-                </TouchableOpacity>                
+                </TouchableOpacity>
             }
         </View>
         <View style={{marginTop:0, alignItems:'stretch',justifyContent:'flex-start'}}>
           <TouchableOpacity
             style={{
               fontFamily:'sans-serif-light',
-              backgroundColor: descriptionValue.length == 0 || categoryValue == "Choose Support Category" ? '#858585' : '#2E8B57' , 
+              backgroundColor: descriptionValue.length == 0 || categoryValue == "Choose Support Category" ? '#858585' : '#2E8B57' ,
               fontWeight:'bold',
               borderWidth: 0,
               color: '#000000',
@@ -577,24 +587,24 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
         </View>
       </KeyboardAvoidingView>
       </ScrollView>
-      <Modalize 
+      <Modalize
         ref={modalizeRef}
         modalHeight={250}
         scrollViewProps={{
             showsVerticalScrollIndicator: false,
             stickyHeaderIndices: [0],
         }}
-      > 
+      >
         {renderContent()}
       </Modalize>
-      </SafeAreaView>              
+      </SafeAreaView>
     );
 };
 
-const styles = StyleSheet.create({  
+const styles = StyleSheet.create({
   buttonStyle: {
     fontFamily:'sans-serif-light',
-    backgroundColor:  '#2E8B57' , 
+    backgroundColor:  '#2E8B57' ,
     fontWeight:'bold',
     borderWidth: 0,
     color: '#000000',
@@ -611,7 +621,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     paddingVertical: 10,
     fontSize: 16,
-  },  
+  },
 });
 
 const s = StyleSheet.create({
@@ -645,7 +655,7 @@ const s = StyleSheet.create({
 
   content__paragraph: {
     fontSize: 15,
-    fontFamily:'Rubik-Regular',      
+    fontFamily:'Rubik-Regular',
     fontWeight: '200',
     lineHeight: 22,
     color: '#666',
