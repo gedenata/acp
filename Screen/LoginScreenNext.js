@@ -41,10 +41,8 @@ const LoginScreenNext = props => {
   const biometricFailedMessage = 'Biometric login failed, please try again.';
 
   useEffect(async () => {
-    const {
-      available,
-      biometryType,
-    } = await ReactNativeBiometrics.isSensorAvailable();
+    const {available, biometryType} =
+      await ReactNativeBiometrics.isSensorAvailable();
     setBiometricSensorAvailable(available);
     if (available && biometryType === ReactNativeBiometrics.TouchID) {
       setTouchIdAvailable(true);
@@ -55,8 +53,16 @@ const LoginScreenNext = props => {
     } else {
       setBiometricsNotSupported(true);
     }
-    const {keysExist} = await ReactNativeBiometrics.biometricKeysExist();
-    setBiometricKeysExist(keysExist);
+    const {_userEmail, _userPhoneNumber} = await getStoredEmailAndPhone();
+    console.log({_userEmail, _userPhoneNumber});
+    if (_userEmail === '' || _userPhoneNumber === '') {
+      await ReactNativeBiometrics.deleteKeys();
+      await AsyncStorage.setItem('skip_biometrics', 'false');
+      setBiometricKeysExist(false);
+    } else {
+      const {keysExist} = await ReactNativeBiometrics.biometricKeysExist();
+      setBiometricKeysExist(keysExist);
+    }
   }, []);
 
   useEffect(() => {
@@ -83,6 +89,26 @@ const LoginScreenNext = props => {
     return faceIdAvailable ?
     <FACEIDSVG style={style} width={width} height={height} /> :
     <FINGERPRINTSVG style={style} width={width} height={height} />;
+  };
+
+  const getStoredEmailAndPhone = async () => {
+    let _userEmail = '';
+    const user_email = await AsyncStorage.getItem('user_email');
+    if (user_email) {
+      const respp = await AESEncryption('decrypt', user_email);
+      if (respp) {
+          _userEmail = respp;
+      }
+    }
+    let _userPhoneNumber = '';
+    const user_phone = await AsyncStorage.getItem('user_phone');
+    if (user_phone) {
+      const userPhone = await AESEncryption('decrypt', user_phone);
+      if (userPhone) {
+        _userPhoneNumber = userPhone;
+      }
+    }
+    return { _userEmail, _userPhoneNumber };
   };
 
   const handleSubmitPress = () => {
@@ -150,22 +176,7 @@ const LoginScreenNext = props => {
   };
 
   const handleBiometricLogin = async () => {
-    let _userEmail = '';
-    const user_email = await AsyncStorage.getItem('user_email');
-    if (user_email) {
-      const respp = await AESEncryption('decrypt', user_email);
-      if (respp) {
-          _userEmail = respp;
-      }
-    }
-    let _userPhoneNumber = '';
-    const user_phone = await AsyncStorage.getItem('user_phone');
-    if (user_phone) {
-      const userPhone = await AESEncryption('decrypt', user_phone);
-      if (userPhone) {
-        _userPhoneNumber = userPhone;
-      }
-    }
+    const { _userEmail, _userPhoneNumber } = await getStoredEmailAndPhone();
     if (_userEmail === '' || _userPhoneNumber === '') {
       showMessage(biometricFailedMessage, ToastAndroid.SHORT);
       return false;
