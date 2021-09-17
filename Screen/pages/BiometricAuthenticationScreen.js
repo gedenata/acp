@@ -13,7 +13,7 @@ import {
   Platform,
 } from 'react-native';
 
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Moment from 'moment';
 import AsyncStorage from '@react-native-community/async-storage';
 import {Modalize} from 'react-native-modalize';
@@ -46,6 +46,7 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
   const [biometricKeysExist, setBiometricKeysExist] = useState(false);
   const [biometricNotSetup, setBiometricNotSetup] = useState(false);
   const [deviceNotSupported, setDeviceNotSupported] = useState(false);
+  const [fontScale, setFontScale] = useState(1);
 
   const modalizeRef = createRef();
   const biometricFailedMessage = 'Biometric linking failed, please try again.';
@@ -59,6 +60,9 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
           setTokenValue('' + JSON.parse(respp).data.Token);
         }
       });
+    });
+    DeviceInfo.getFontScale().then((fontScaleTemp) => {
+      setFontScale(fontScaleTemp);
     });
 
     const {available, biometryType} =
@@ -190,7 +194,9 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
       <TouchableOpacity
         style={{
           ...styles.buttonStyle,
-          marginTop: 250,
+          position: 'absolute',
+          bottom: 10,
+          width: '90%',
         }}
         activeOpacity={0.5}
         onPress={handlePress}>
@@ -198,6 +204,7 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
           style={{
             ...styles.buttonTextStyle,
             textTransform: 'uppercase',
+            fontSize: fontScale < 1.2 ? 16 : 16 / fontScale,
           }}>
           {children}
         </Text>
@@ -254,8 +261,8 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
   return (
     <SafeAreaView style={styles.mainBody}>
       <Loader loading={isLoading} />
-      <ScrollView>
-        <View>
+      <View>
+        <View style={{height: '100%'}}>
           <View>
             <Image
               source={require('AnRNApp/Image/bar.png')}
@@ -293,7 +300,7 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
               style={{
                 marginTop: 12,
                 color: '#FDFDFD',
-                fontSize: 19,
+                fontSize: fontScale < 1.2 ? 19 : 20 / fontScale,
                 fontWeight: 'bold',
               }}>
               Biometric Authentication
@@ -344,10 +351,10 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
                 marginBottom: 1,
                 flexDirection: 'row',
               }}>
-              <Icon
+              <FontAwesome
                 raised
                 name={biometricKeysExist ? 'check-circle-o' : 'times-circle-o'}
-                size={24}
+                size={fontScale < 1.2 ? 18 : 24 / fontScale}
                 color={biometricKeysExist ? '#2E8B57' : '#afa3a3'}
                 style={styles.checkIcon}
               />
@@ -355,22 +362,13 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
                 style={{
                   color: biometricKeysExist ? '#2E8B57' : '#000000',
                   fontWeight: 'normal',
-                  fontSize: 12,
+                  fontSize: fontScale < 1.2 ? 12 : 12 / fontScale,
                   textAlign: 'left',
-                  lineHeight: 20,
+                  lineHeight: fontScale < 1.2 ? 20 : 16 / fontScale,
                   marginRight: 5,
                 }}>
-                {getBiometricsType(true)}
-              </Text>
-              <Text
-                style={{
-                  color: biometricKeysExist ? '#2E8B57' : '#000000',
-                  fontWeight: 'normal',
-                  fontSize: 12,
-                  textAlign: 'left',
-                  lineHeight: 20,
-                }}>
-                has {biometricKeysExist ? '' : 'not'} been set up
+                {getBiometricsType(true)} has {biometricKeysExist ? '' : 'not'}{' '}
+                been set up
               </Text>
             </View>
           )}
@@ -383,7 +381,9 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
               <TouchableOpacity
                 style={{
                   ...styles.buttonStyle,
-                  marginTop: 250,
+                  position: 'absolute',
+                  bottom: 10,
+                  width: '90%',
                 }}
                 activeOpacity={0.5}
                 onPress={onSetupPressed}>
@@ -391,6 +391,7 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
                   style={{
                     ...styles.buttonTextStyle,
                     textTransform: 'uppercase',
+                    fontSize: fontScale < 1.2 ? 16 : 16 / fontScale,
                   }}>
                   Setup {getBiometricsType()}
                 </Text>
@@ -400,7 +401,9 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
             <TouchableOpacity
               style={{
                 ...styles.buttonStyle,
-                marginTop: 250,
+                position: 'absolute',
+                bottom: 10,
+                width: '90%',
                 backgroundColor: '#c6481c',
               }}
               activeOpacity={0.5}
@@ -409,6 +412,7 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
                 style={{
                   ...styles.buttonTextStyle,
                   textTransform: 'uppercase',
+                  fontSize: fontScale < 1.2 ? 16 : 16 / fontScale,
                 }}>
                 Remove {getBiometricsType()}
               </Text>
@@ -416,7 +420,7 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
           )}
           <Modalize
             ref={modalizeRef}
-            modalHeight={250}
+            adjustToContentHeight={true}
             scrollViewProps={{
               showsVerticalScrollIndicator: false,
               stickyHeaderIndices: [0],
@@ -466,7 +470,13 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
                         backgroundColor: '#c6481c',
                       }}
                       onPress={onRemoveConfirmPressed}>
-                      <Text style={styles.buttonTextStyle}>REMOVE</Text>
+                      <Text
+                        style={{
+                          ...styles.buttonTextStyle,
+                          fontSize: fontScale < 1.2 ? 16 : 16 / fontScale,
+                        }}>
+                        REMOVE
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -474,7 +484,7 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
             </View>
           </Modalize>
         </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };

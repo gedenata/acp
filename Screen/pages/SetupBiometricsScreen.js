@@ -33,6 +33,7 @@ const SetupBiometricsScreen = ({route, navigation}) => {
   const [biometricsNotSupported, setBiometricsNotSupported] = useState(false);
   const [biometricNotSetup, setBiometricNotSetup] = useState(false);
   const [deviceNotSupported, setDeviceNotSupported] = useState(false);
+  const [fontScale, setFontScale] = useState(1);
   const biometricFailedMessage = 'Biometric linking failed, please try again';
 
   useEffect(async () => {
@@ -45,6 +46,10 @@ const SetupBiometricsScreen = ({route, navigation}) => {
           setTokenValue('' + JSON.parse(respp).data.Token);
         }
       });
+    });
+
+    DeviceInfo.getFontScale().then((fontScaleTemp) => {
+      setFontScale(fontScaleTemp);
     });
 
     const {available, biometryType} =
@@ -117,6 +122,7 @@ const SetupBiometricsScreen = ({route, navigation}) => {
           style={{
             ...styles.buttonTextStyle,
             textTransform: 'uppercase',
+            fontSize: fontScale < 1.2 ? 16 : 16 / fontScale,
           }}>
           {children}
         </Text>
@@ -142,6 +148,7 @@ const SetupBiometricsScreen = ({route, navigation}) => {
           style={{
             ...styles.buttonTextStyle,
             textTransform: 'uppercase',
+            fontSize: fontScale < 1.2 ? 16 : 16 / fontScale,
           }}>
           {children}
         </Text>
@@ -266,6 +273,7 @@ const SetupBiometricsScreen = ({route, navigation}) => {
                       style={{
                         ...styles.buttonTextStyle,
                         textTransform: 'uppercase',
+                        fontSize: fontScale < 1.2 ? 16 : 16 / fontScale,
                       }}>
                       Setup {getBiometricsType()}
                     </Text>
@@ -285,6 +293,7 @@ const SetupBiometricsScreen = ({route, navigation}) => {
                       style={{
                         ...styles.buttonTextInvertStyle,
                         textTransform: 'uppercase',
+                        fontSize: fontScale < 1.2 ? 16 : 16 / fontScale,
                       }}>
                       No Thanks, Continue
                     </Text>
