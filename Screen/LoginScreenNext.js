@@ -183,7 +183,7 @@ const LoginScreenNext = props => {
     }
     let payload = `${_userEmail};${_userPhoneNumber}`;
     const {success, signature} = await ReactNativeBiometrics.createSignature({
-      promptMessage: `Confirm ${getBiometricsType(true)}`,
+      promptMessage: `Confirm ${getBiometricsType()}`,
       payload: payload,
     });
     if (success && signature) {

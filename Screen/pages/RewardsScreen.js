@@ -35,7 +35,7 @@ const widthMultiplier = width / 400;
 import { Modalize } from 'react-native-modalize';
 import AESEncryption from './../Components/AESEncryption';
 
-const RewardsScreen = ({route, navigation}) => 
+const RewardsScreen = ({route, navigation}) =>
 {
     const [ fontScale, setFontScale ] = useState(1);
     const [ loading , setLoading ] = useState(false);
@@ -51,9 +51,9 @@ const RewardsScreen = ({route, navigation}) =>
     const Tab = createMaterialTopTabNavigator();
     const modalizeRef = React.createRef();
 
-    const onOpen = (purpose) => { 
+    const onOpen = (purpose) => {
       setModalizePurpose(purpose);
-      modalizeRef.current?.open(); 
+      modalizeRef.current?.open();
     };
 
     const handleSelect = (nameTemp) => {
@@ -81,7 +81,7 @@ const RewardsScreen = ({route, navigation}) =>
           </View>,
           <View style={s.content__inside} key="1">
             <ScrollView style={s.content__scrollview}>
-            <View 
+            <View
               style={{
                 backgroundColor:'#FDFDFD',
                 width:'100%',
@@ -94,9 +94,9 @@ const RewardsScreen = ({route, navigation}) =>
                   companyList.map((item, key) => (
                     <TouchableOpacity key={key} style={{marginTop:0, minHeight:45, borderBottomWidth:1, borderBottomColor:'#e4c2c250', flex:2, flexDirection:'row'}} onPress={() => { handleSelect(item.companyName) }}>
                       <View style={{left:20, justifyContent:'center', width:'70%' }}>
-                        <Text style={{ fontSize:15, color:'#000000', textAlign:'left'}}>{item.companyName}</Text> 
+                        <Text style={{ fontSize:15, color:'#000000', textAlign:'left'}}>{item.companyName}</Text>
                       </View>
-                      <TouchableOpacity 
+                      <TouchableOpacity
                           style={{position:'absolute',top:10,right:35}}
                           onPress={() => {
                             handleSelect(item.companyName)
@@ -110,9 +110,9 @@ const RewardsScreen = ({route, navigation}) =>
                   listProducts.map((item, key) => (
                     <TouchableOpacity key={key} style={{marginTop:0, minHeight:45, borderBottomWidth:1, borderBottomColor:'#e4c2c250', flex:2, flexDirection:'row'}} onPress={() => { handleSubmitPress(key) }}>
                       <View style={{left:20, justifyContent:'center', width:'70%' }}>
-                        <Text style={{ fontSize:15, color:'#000000', textAlign:'left'}}>{item}</Text> 
+                        <Text style={{ fontSize:15, color:'#000000', textAlign:'left'}}>{item}</Text>
                       </View>
-                      <TouchableOpacity 
+                      <TouchableOpacity
                           style={{position:'absolute',top:10,right:35}}
                           onPress={() => { handleSubmitPress(key) }}
                       >
@@ -151,18 +151,18 @@ const RewardsScreen = ({route, navigation}) =>
           elements.push(
             <View style={{marginLeft:20,marginRight:20}} key={counter}>
               <Text style={{alignSelf:'center', alignItems:'center', textAlign:'center', fontFamily:'HelveticaNeue-Bold', color:'#ac828b' }}>{testMessage}</Text>
-            </View>           
+            </View>
           );
           position = -1;
         }
         else
         {
           testMessage = messageTemp.substring(position,extractedLength);
-          messageTemp = messageTemp.substring(extractedLength,messageTemp.length);          
+          messageTemp = messageTemp.substring(extractedLength,messageTemp.length);
           elements.push(
             <View style={{marginLeft:20,marginRight:20}} key={counter}>
               <Text style={{alignSelf:'center', alignItems:'center', textAlign:'center', fontFamily:'HelveticaNeue', color:'#ac828b' }}>{testMessage}</Text>
-            </View>           
+            </View>
           );
           position = extractedLength
         }
@@ -179,17 +179,17 @@ const RewardsScreen = ({route, navigation}) =>
             />
             </View>
             ,
-            elements              
-          ]            
+            elements
+          ]
         );
-    };    
+    };
 
     const goBackToPage = () => { navigation.navigate("More") };
     DeviceInfo.getFontScale().then((fontScaleTemp) => {
       setFontScale(fontScaleTemp)
     });
 
-    useEffect(() => 
+    useEffect(() =>
     {
       setLoading(true);
       AsyncStorage.getItem('user_id').then(
@@ -204,12 +204,12 @@ const RewardsScreen = ({route, navigation}) =>
                 var encodedKey = encodeURIComponent(key);
                 var encodedValue = encodeURIComponent(dataToSend[key]);
                 formBody.push(encodedKey + '=' + encodedValue);
-            } 
+            }
             formBody = formBody.join('&');
             let companyURL = `${ACCESS_API}/companylist`;
             fetch(companyURL,{
               method: 'POST',
-              body: formBody, 
+              body: formBody,
               headers: {
                 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
               },
@@ -221,11 +221,11 @@ const RewardsScreen = ({route, navigation}) =>
               {
                 setListProducts(json[0].products);
                 setSelectedProduct((route.params) ? (route.params.productName) : json[0].products[0]);
-  
+
                 setDisplayedCompany((route.params) ? (route.params.companyName) : json[0].companyName);
 
                 let parameterProduct = (route.params) ? (route.params.productName) : json[0].products[0];
-    
+
                 for(let i=0; i < json.length; i++)
                 {
                   json[i].selected = (route.params) ? (route.params.companyName == json[i].companyName ? true : false)  : ((i==0) ? true : false);
@@ -244,7 +244,7 @@ const RewardsScreen = ({route, navigation}) =>
                 setCompanyList(jsonTemp);
 
                 let dataToSend2 = {Token: ''+JSON.parse(respp).data.Token, CompanyName : (route.params) ? (route.params.companyName) : json[0].companyName, Product : parameterProduct};
-    
+
                 let formBody2 = [];
                 for (let key in dataToSend2){
                     let encodedKey2 = encodeURIComponent(key);
@@ -255,7 +255,7 @@ const RewardsScreen = ({route, navigation}) =>
                 let rewardURL = `${ACCESS_API}/rewardslist`;
                 fetch(rewardURL,{
                   method: 'POST',
-                  body: formBody2, 
+                  body: formBody2,
                   headers: {
                     'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
                   },
@@ -265,7 +265,7 @@ const RewardsScreen = ({route, navigation}) =>
                   setItemList(rwJsonData);
                 })
                 .catch((error) => console.error(error))
-                .finally(() => setLoading(false))  
+                .finally(() => setLoading(false))
               }
               else{
                 let dataToSend2 = {Token: ''+JSON.parse(respp).data.Token, CompanyName : '' , Product : ''};
@@ -279,7 +279,7 @@ const RewardsScreen = ({route, navigation}) =>
                 let rewardURL = `${ACCESS_API}/rewardslist`;
                 fetch(rewardURL,{
                   method: 'POST',
-                  body: formBody2, 
+                  body: formBody2,
                   headers: {
                     'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
                   },
@@ -291,11 +291,11 @@ const RewardsScreen = ({route, navigation}) =>
                   }
                 })
                 .catch((error) => console.error(error))
-                .finally(() => setLoading(false))                 
+                .finally(() => setLoading(false))
 
                 setLoading(false)
               }
-  
+
             })
             .catch((error) => console.error(error))
           });
@@ -306,14 +306,14 @@ const RewardsScreen = ({route, navigation}) =>
     const buildItem = ({item}) => {
 
       return (
-        <View 
+        <View
           style={{
-            marginRight:(fontScale > 1.2 ? 4 : 20), 
+            marginRight:(fontScale > 1.2 ? 4 : 20),
             marginLeft:(fontScale > 1.2 ? 4 : 20)
-          }} 
+          }}
           key={item.Header + item.Status}
         >
-          <TouchableOpacity 
+          <TouchableOpacity
             key="outstanding{theCards.length}"
             style={{
               borderRadius:14,
@@ -322,7 +322,7 @@ const RewardsScreen = ({route, navigation}) =>
               borderColor:'#ccc',
               borderWidth:1,
               color:'#000000',
-              marginBottom:5, 
+              marginBottom:5,
               marginTop:5,
               paddingLeft:8,
             }}
@@ -334,11 +334,11 @@ const RewardsScreen = ({route, navigation}) =>
                 <Text style={{color:'#000000',marginTop:20, alignSelf:'center', fontSize:13,fontWeight:'bold'}}>{item.Header}</Text>
                 <FontAwesome5
                   style={{position:'absolute',top:10,right:20}}
-                  name="chevron-down" 
+                  name="chevron-down"
                   size={15}
                   color="#000000"
                 />
-            <View 
+            <View
               style={{
                 flexDirection:'column',
                 flex:1,
@@ -362,9 +362,9 @@ const RewardsScreen = ({route, navigation}) =>
                   </View>
               </View>
               {
-                item.Header == expandedCard 
+                item.Header == expandedCard
                 ?
-                setDetails(item.Details, item.Status)
+                setDetails(item.Details/*, item.Status*/)
                 :
                 (<></>)
               }
@@ -379,8 +379,8 @@ const RewardsScreen = ({route, navigation}) =>
               <View style={{flex:1}}>
                 <Text style={{color:(item.Status == "" ? "#000000" : item.TotalAchievement < item.TotalTarget ? '#FFAE34' : '#00854F'),marginTop:4, fontSize:14, fontWeight:'bold', textAlign:'right',paddingRight:20}}>{item.TotalTarget <= 0 ? 0 : parseFloat((item.TotalAchievement/item.TotalTarget)*100).toFixed(2)}%</Text>
               </View>
-            </View>              
-          </TouchableOpacity>                     
+            </View>
+          </TouchableOpacity>
         </View>
       )
     }
@@ -420,7 +420,7 @@ const RewardsScreen = ({route, navigation}) =>
               flex:3,
               position:'absolute',
               top:0,
-              marginTop:5, 
+              marginTop:5,
               flexDirection:'row',
             }}
           >
@@ -463,21 +463,21 @@ const RewardsScreen = ({route, navigation}) =>
     // Force Load
     const handleSubmitPress = (productNumber) => {
       navigation.push('Rewards', {companyName:displayedCompany, productName:listProducts[productNumber]})
-    }    
+    }
 
     return (
       <SafeAreaView style={styles.mainBody}>
-        <Modalize 
+        <Modalize
           ref={modalizeRef}
           modalHeight={300}
           scrollViewProps={{
               showsVerticalScrollIndicator: false,
               stickyHeaderIndices: [0],
           }}
-        > 
+        >
           {renderContent()}
-        </Modalize>        
-        <Loader loading={loading} />        
+        </Modalize>
+        <Loader loading={loading} />
         <Image
           source={require('AnRNApp/Image/bar.png')}
           style={{
@@ -499,15 +499,15 @@ const RewardsScreen = ({route, navigation}) =>
             </TouchableOpacity>
             <Text style={{ marginTop:7,color:'#FDFDFD',fontSize:(fontScale < 1.2 ? 19 : 20/fontScale), fontFamily:'HelveticaNeue-Bold', }}>Rewards</Text>
         </View>
-        <View style={{flex:1, marginTop:-20, }}>        
+        <View style={{flex:1, marginTop:-20, }}>
         {
           (companyList)
           ?
             companyList.length > 0
-            ?       
+            ?
             (
                 <View style={{ position:'relative', left:0, right:0, marginLeft:0, marginRight:0, minHeight:77 }}>
-                    <View style={{ height:77, left:0, marginLeft:0, position:'absolute', left:10 }}>
+                    <View style={{ height:77/*, left:0*/, marginLeft:0, position:'absolute', left:10 }}>
                       <Image
                         source={require('AnRNApp/Image/DummyProfile.png')}
                         style={{
@@ -519,13 +519,13 @@ const RewardsScreen = ({route, navigation}) =>
                     </View>
                     <View style={{ alignContent:'center', marginRight:10, marginLeft:90, left:0 , right:0 , position:'relative'}}>
                       <TouchableOpacity
-                        style={{ 
+                        style={{
                           width:'100%',
                           marginRight:0,
                           minHeight:30,
                           marginBottom:10
-                        }} 
-                        onPress={() => {onOpen('company')}} 
+                        }}
+                        onPress={() => {onOpen('company')}}
                       >
                         <Text
                           style={{
@@ -545,15 +545,15 @@ const RewardsScreen = ({route, navigation}) =>
                             }}
                         >
                           <FontAwesome
-                            raised 
+                            raised
                             name="chevron-down"
                             size={18}
                             color="#00854F"
-                            onPress={() => {onOpen('company')}} 
-                          />              
-                        </TouchableOpacity>                              
+                            onPress={() => {onOpen('company')}}
+                          />
+                        </TouchableOpacity>
                       </TouchableOpacity>
-                      <View 
+                      <View
                         style={{
                           position:'relative',
                           flexDirection:'row',
@@ -584,7 +584,7 @@ const RewardsScreen = ({route, navigation}) =>
                                 <Text style={{
                                   fontFamily:'HelveticaNeue',
                                   color: '#FFFFFF',
-                                  fontSize: 14,                              
+                                  fontSize: 14,
                                 }}>
                                     {listProducts[key]}
                                 </Text>
@@ -594,7 +594,7 @@ const RewardsScreen = ({route, navigation}) =>
                             (listProducts.length >= 2)
                             ?
                               listProducts.map((item, key) => (
-                                selectedProduct == listProducts[key] 
+                                selectedProduct == listProducts[key]
                                 ?
                                   [
                                   <TouchableOpacity
@@ -604,7 +604,7 @@ const RewardsScreen = ({route, navigation}) =>
                                         borderWidth: 0,
                                         marginRight:10,
                                         color: '#000000',
-                                        height:20,
+                                        /*height:20,*/
                                         position:'absolute',
                                         left:0,
                                         borderColor: '#228B22',
@@ -620,7 +620,7 @@ const RewardsScreen = ({route, navigation}) =>
                                     <Text style={{
                                       fontFamily:'HelveticaNeue',
                                       color: '#FFFFFF',
-                                      fontSize: 14,                              
+                                      fontSize: 14,
                                     }}>
                                         {listProducts[key]}
                                     </Text>
@@ -635,7 +635,7 @@ const RewardsScreen = ({route, navigation}) =>
                                         borderColor: '#228B22',
                                         height: 30,
                                         position:'absolute',
-                                        right:0,                                  
+                                        right:0,
                                         alignItems: 'center',
                                         borderRadius: 14,
                                         width:125,
@@ -648,18 +648,18 @@ const RewardsScreen = ({route, navigation}) =>
                                       fontFamily:'HelveticaNeue',
                                       color: '#FFFFFF',
                                       marginLeft:-20,
-                                      fontSize: 14,                              
+                                      fontSize: 14,
                                     }}>
                                         Categories
                                     </Text>
                                     <FontAwesome5
                                       style={{position:'absolute',right:10}}
-                                      name="chevron-down" 
+                                      name="chevron-down"
                                       size={12}
                                       color="#ccc"
                                     />
-                                  </TouchableOpacity>                          
-                                  ]                          
+                                  </TouchableOpacity>
+                                  ]
                                 :
                                   <></>
                               ))
@@ -680,14 +680,14 @@ const RewardsScreen = ({route, navigation}) =>
               backgroundColor:'#FDFDFD',
               flex:1
             }}
-          >        
+          >
             {
                 (itemList.AchivementCards)
                 ?
                   itemList.AchivementCards.length > 0
                   ?
                     <Tab.Navigator>{
-                      itemList.AchivementCards.map((item, key) => (           
+                      itemList.AchivementCards.map((item, key) => (
                           <Tab.Screen key={key} name={item.Category} children={()=><TabPage data={item}></TabPage>}></Tab.Screen>
                       ))
                     }
@@ -699,7 +699,7 @@ const RewardsScreen = ({route, navigation}) =>
             }
           </View>
         </View>
-      </SafeAreaView>              
+      </SafeAreaView>
     );
 };
 
@@ -718,7 +718,7 @@ const styles = StyleSheet.create({
     marginBottom:15,
     borderWidth: 0.5,
     borderRadius: 10,
-    borderColor: '#685640',    
+    borderColor: '#685640',
   },
   searchIcon: {
     padding: 10,
@@ -770,7 +770,7 @@ const s = StyleSheet.create({
 
   content__paragraph: {
     fontSize: 15,
-    fontFamily:'Rubik-Regular',      
+    fontFamily:'Rubik-Regular',
     fontWeight: '200',
     lineHeight: 22,
     color: '#666',
