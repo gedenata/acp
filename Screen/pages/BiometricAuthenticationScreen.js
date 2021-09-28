@@ -128,7 +128,7 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
       }
     } catch (err) {
       showMessage(biometricFailedMessage, ToastAndroid.SHORT);
-      console.error('Biometric authentication error: ', err.message);
+      // // console.error('Biometric authentication error: ', err.message);
       setLoading(false);
     }
   };
@@ -152,7 +152,7 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
         showMessage('Biometric linking cancelled', ToastAndroid.SHORT);
       } else {
         showMessage(biometricFailedMessage, ToastAndroid.SHORT);
-        console.error('Biometric authentication error: ', error);
+        // // console.error('Biometric authentication error: ', error);
       }
     } catch (err) {
       if (err.message === 'No fingerprints enrolled.') {
@@ -165,7 +165,7 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
           setBiometricNotSetup(true);
         } else {
           showMessage(biometricFailedMessage, ToastAndroid.SHORT);
-          console.error('Biometric authentication error: ', err.message);
+          // // console.error('Biometric authentication error: ', err.message);
         }
       }
     }
@@ -247,7 +247,7 @@ const BiometricAuthenticationScreen = ({route, navigation}) => {
       }
     } catch (err) {
       showMessage(biometricRemovalFailedMessage, ToastAndroid.SHORT);
-      console.error('Biometric removal error: ', err.message);
+      // // console.error('Biometric removal error: ', err.message);
       setLoading(false);
     }
   };
