@@ -85,7 +85,7 @@ const LoginPasswordScreen = props => {
   const getDataAsync = async () => {
     let deviceJSON = {};
     try {
-      deviceJSON.userAgent = await DeviceInfo.getUserAgent(); 
+      deviceJSON.userAgent = await DeviceInfo.getUserAgent();
       setUserAgent(deviceJSON.userAgent);
       try {
         deviceJSON.deviceToken = await DeviceInfo.getDeviceToken();
@@ -95,7 +95,7 @@ const LoginPasswordScreen = props => {
     } catch (e) {
       // console.log('Trouble getting device info ', e);
     }
-  };    
+  };
 
   const handleSecureTextEntry = () => {
     if(secureTextEntryStatus){ setSecureTextEntryStatus(false) }
@@ -107,20 +107,12 @@ const LoginPasswordScreen = props => {
 
     // console.log("ya : " + encryptedTextValue + "::" + userEmail);
     // return false;
-    
+
     setLoading(true);
-    var dataToSend = { EncryptText: encryptedTextValue, Password: userPassword };
-    var formBody = [];
-    for (let key in dataToSend) {
-      var encodedKey = encodeURIComponent(key);
-      var encodedValue = encodeURIComponent(dataToSend[key]);
-      formBody.push(encodedKey + '=' + encodedValue);
-    }
-    formBody = formBody.join('&');
     let url = `${APP_API}/password`;
     fetch(url, {
       method: 'POST',
-      body: formBody,
+      body: `EncryptText=${encodeURIComponent(encryptedTextValue)}&Password=${encodeURIComponent(userPassword)}`,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
         'User-Agent':userAgent,
@@ -132,10 +124,10 @@ const LoginPasswordScreen = props => {
 
         AESEncryption("encrypt", JSON.stringify(response)).then((resp)=>{
           AsyncStorage.setItem(
-            'user_id', 
+            'user_id',
             resp
           );
-          props.navigation.navigate('CreatePassword');                              
+          props.navigation.navigate('CreatePassword');
 		});// End of encryption/decryption
 
 
@@ -213,7 +205,7 @@ const LoginPasswordScreen = props => {
                       style={styles.originalLabelStyle}>
                       PASSWORD
                   </Text>
-                </View>                                
+                </View>
                 <View style={styles.SectionStyle}>
                   <Icon raised name="lock" size={20} color="#000" style={styles.searchIcon} />
                   <TextInput
@@ -247,7 +239,7 @@ const LoginPasswordScreen = props => {
               </KeyboardAvoidingView>
             </View>
           </ScrollView>
-        </View>       
+        </View>
     </View>
   );
 };

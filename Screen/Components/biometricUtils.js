@@ -10,18 +10,10 @@ const showMessage = (message, duration) => {
 };
 
 const postBiometricKey = async (tokenValue, publicKey) => {
-  var dataToSend = {Token: '' + tokenValue, PublicKey: '' + publicKey};
-  var formBody = [];
-  for (let key in dataToSend) {
-    var encodedKey = encodeURIComponent(key);
-    var encodedValue = encodeURIComponent(dataToSend[key]);
-    formBody.push(encodedKey + '=' + encodedValue);
-  }
-  formBody = formBody.join('&');
   let url = `${ACCESS_API}/create/biometrics`;
   return await fetch(url, {
     method: 'POST',
-    body: formBody,
+    body: `Token=${encodeURIComponent(tokenValue)}&PublicKey=${encodeURIComponent(publicKey)}`,
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
     },
@@ -29,18 +21,10 @@ const postBiometricKey = async (tokenValue, publicKey) => {
 };
 
 const removeBiometricKey = async (tokenValue) => {
-  var dataToSend = {Token: '' + tokenValue};
-  var formBody = [];
-  for (let key in dataToSend) {
-    var encodedKey = encodeURIComponent(key);
-    var encodedValue = encodeURIComponent(dataToSend[key]);
-    formBody.push(encodedKey + '=' + encodedValue);
-  }
-  formBody = formBody.join('&');
   let url = `${ACCESS_API}/remove/biometrics`;
   return await fetch(url, {
     method: 'POST',
-    body: formBody,
+    body: `Token=${encodeURIComponent(tokenValue)}`,
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
     },

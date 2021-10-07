@@ -54,7 +54,7 @@ const LoginScreenNext = props => {
       setBiometricsNotSupported(true);
     }
     const {_userEmail, _userPhoneNumber} = await getStoredEmailAndPhone();
-    console.log({_userEmail, _userPhoneNumber});
+    // // console.log({_userEmail, _userPhoneNumber});
     if (_userEmail === '' || _userPhoneNumber === '') {
       await ReactNativeBiometrics.deleteKeys();
       await AsyncStorage.setItem('skip_biometrics', 'false');
@@ -119,18 +119,10 @@ const LoginScreenNext = props => {
     }
 
     setLoading(true);
-    var dataToSend = { RegisterEmail: userEmail, RegisterTelPhone: userPhoneNumber };
-    var formBody = [];
-    for (let key in dataToSend) {
-      var encodedKey = encodeURIComponent(key);
-      var encodedValue = encodeURIComponent(dataToSend[key]);
-      formBody.push(encodedKey + '=' + encodedValue);
-    }
-    formBody = formBody.join('&');
     let url = `${APP_API}/register`;
     fetch(url, {
       method: 'POST',
-      body: formBody,
+      body: `RegisterEmail=${encodeURIComponent(userEmail)}&RegisterTelPhone=${encodeURIComponent(userPhoneNumber)}`,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
       },
@@ -181,29 +173,16 @@ const LoginScreenNext = props => {
       showMessage(biometricFailedMessage, ToastAndroid.SHORT);
       return false;
     }
-    let payload = `${_userEmail};${_userPhoneNumber}`;
     const {success, signature} = await ReactNativeBiometrics.createSignature({
       promptMessage: `Confirm ${getBiometricsType()}`,
-      payload: payload,
+      payload: `${_userEmail};${_userPhoneNumber}`,
     });
     if (success && signature) {
-      var dataToSend = {
-        payload: payload,
-        signature: signature,
-      };
-      // // console.log('data to send', dataToSend);
-      var formBody = [];
-      for (let key in dataToSend) {
-        var encodedKey = encodeURIComponent(key);
-        var encodedValue = encodeURIComponent(dataToSend[key]);
-        formBody.push(encodedKey + '=' + encodedValue);
-      }
-      formBody = formBody.join('&');
       let url = `${APP_API}/biometrics`;
       setLoading(true);
       fetch(url, {
         method: 'POST',
-        body: formBody,
+        body: `payload=${encodeURIComponent(_userEmail+';'+_userPhoneNumber)}&signature=${encodeURIComponent(signature)}`,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
         },
