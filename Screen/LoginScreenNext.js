@@ -53,9 +53,8 @@ const LoginScreenNext = props => {
     } else {
       setBiometricsNotSupported(true);
     }
-    const {_userEmail, _userPhoneNumber} = await getStoredEmailAndPhone();
-    // // console.log({_userEmail, _userPhoneNumber});
-    if (_userEmail === '' || _userPhoneNumber === '') {
+    await getStoredEmailAndPhone();
+    if (storedUserEmail === '' || storedUserPhoneNumber === '') {
       await ReactNativeBiometrics.deleteKeys();
       await AsyncStorage.setItem('skip_biometrics', 'false');
       setBiometricKeysExist(false);
@@ -92,23 +91,24 @@ const LoginScreenNext = props => {
   };
 
   const getStoredEmailAndPhone = async () => {
-    let _userEmail = '';
-    const user_email = await AsyncStorage.getItem('user_email');
+    let user_email = await AsyncStorage.getItem('user_email');
     if (user_email) {
       const respp = await AESEncryption('decrypt', user_email);
       if (respp) {
-          _userEmail = respp;
+        setStoredUserEmail(respp);
       }
+      respp = '';
     }
-    let _userPhoneNumber = '';
-    const user_phone = await AsyncStorage.getItem('user_phone');
+    user_email = '';
+    let user_phone = await AsyncStorage.getItem('user_phone');
     if (user_phone) {
       const userPhone = await AESEncryption('decrypt', user_phone);
       if (userPhone) {
-        _userPhoneNumber = userPhone;
+        setStoredUserPhoneNumber(userPhone);
       }
+      userPhone = '';
     }
-    return { _userEmail, _userPhoneNumber };
+    user_phone = '';
   };
 
   const handleSubmitPress = () => {
@@ -168,21 +168,22 @@ const LoginScreenNext = props => {
   };
 
   const handleBiometricLogin = async () => {
-    const { _userEmail, _userPhoneNumber } = await getStoredEmailAndPhone();
-    if (_userEmail === '' || _userPhoneNumber === '') {
+    // // // // Its done in useeffect so not needed to run again
+    // // await getStoredEmailAndPhone();
+    if (storedUserEmail === '' || storedUserPhoneNumber === '') {
       showMessage(biometricFailedMessage, ToastAndroid.SHORT);
       return false;
     }
     const {success, signature} = await ReactNativeBiometrics.createSignature({
       promptMessage: `Confirm ${getBiometricsType()}`,
-      payload: `${_userEmail};${_userPhoneNumber}`,
+      payload: `${storedUserEmail};${storedUserPhoneNumber}`,
     });
     if (success && signature) {
       let url = `${APP_API}/biometrics`;
       setLoading(true);
       fetch(url, {
         method: 'POST',
-        body: `payload=${encodeURIComponent(_userEmail+';'+_userPhoneNumber)}&signature=${encodeURIComponent(signature)}`,
+        body: `payload=${encodeURIComponent(storedUserEmail+';'+storedUserPhoneNumber)}&signature=${encodeURIComponent(signature)}`,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
         },
