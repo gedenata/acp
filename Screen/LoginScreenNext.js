@@ -28,6 +28,8 @@ const LoginScreenNext = props => {
 
   let [userEmail, setUserEmail] = useState('');
   let [userPhoneNumber, setUserPhoneNumber] = useState('');
+  let [storedUserEmail, setStoredUserEmail] = useState('');
+  let [storedUserPhoneNumber, setStoredUserPhoneNumber] = useState('');
   let [loading, setLoading] = useState(false);
   let [errortext, setErrortext] = useState('');
   const [touchIdAvailable, setTouchIdAvailable] = useState(false);
