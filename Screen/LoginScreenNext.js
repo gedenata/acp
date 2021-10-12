@@ -56,14 +56,6 @@ const LoginScreenNext = props => {
       setBiometricsNotSupported(true);
     }
     await getStoredEmailAndPhone();
-    if (storedUserEmail === '' || storedUserPhoneNumber === '') {
-      await ReactNativeBiometrics.deleteKeys();
-      await AsyncStorage.setItem('skip_biometrics', 'false');
-      setBiometricKeysExist(false);
-    } else {
-      const {keysExist} = await ReactNativeBiometrics.biometricKeysExist();
-      setBiometricKeysExist(keysExist);
-    }
   }, []);
 
   useEffect(() => {
@@ -93,23 +85,37 @@ const LoginScreenNext = props => {
   };
 
   const getStoredEmailAndPhone = async () => {
+    let _userEmail = '';
+    let _userPhone = '';
     let user_email = await AsyncStorage.getItem('user_email');
     if (user_email) {
-      const respp = await AESEncryption('decrypt', user_email);
+      let respp = await AESEncryption('decrypt', user_email);
       if (respp) {
+        _userEmail = respp;
         setStoredUserEmail(respp);
       }
       respp = '';
     }
-    user_email = '';
     let user_phone = await AsyncStorage.getItem('user_phone');
     if (user_phone) {
-      const userPhone = await AESEncryption('decrypt', user_phone);
+      let userPhone = await AESEncryption('decrypt', user_phone);
       if (userPhone) {
+        _userPhone = userPhone;
         setStoredUserPhoneNumber(userPhone);
       }
       userPhone = '';
     }
+    if (_userEmail === '' || _userPhone === '') {
+      await ReactNativeBiometrics.deleteKeys();
+      await AsyncStorage.setItem('skip_biometrics', 'false');
+      setBiometricKeysExist(false);
+    } else {
+      const {keysExist} = await ReactNativeBiometrics.biometricKeysExist();
+      setBiometricKeysExist(keysExist);
+    }
+    _userEmail = '';
+    _userPhone = '';
+    user_email = '';
     user_phone = '';
   };
 
