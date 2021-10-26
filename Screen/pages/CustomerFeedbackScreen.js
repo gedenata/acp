@@ -238,6 +238,8 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
       setMultipleFile([]);
       setDescriptionValue('');
       setCategoryValue('');
+      setPickerValue(null);
+      setPickerOpen(false);
     }
 
     const [multipleFile, setMultipleFile] = useState([]);
@@ -302,50 +304,118 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
             filetype: res['mime'],
           };
         });
-        const {promise} = RNFS.uploadFiles({
-          toUrl: `${ACCESS_API}/customerfeedback`,
-          files: filesToUpload,
-          headers: {
-            Accept: 'application/json',
-          },
-          fields: {
-            Token: tokenValue,
-            FeedbackContent: descriptionValue.replace('"', '\\"'),
-            CategoryName: categoryValue,
-          },
-          method: 'POST',
-        });
-        promise
+        if(filesToUpload && filesToUpload.length > 0)
+        {
+          const {promise} = RNFS.uploadFiles({
+            toUrl: `${ACCESS_API}/customerfeedback`,
+            files: filesToUpload,
+            headers: {
+              Accept: 'application/json',
+            },
+            fields: {
+              Token: tokenValue,
+              FeedbackContent: descriptionValue.replace('"', '\\"'),
+              CategoryName: categoryValue,
+            },
+            method: 'POST',
+          });
+          promise
+            .then((response) => {
+              setLoading(false);
+              setMultipleFile([]);
+              setDescriptionValue('');
+              clearTimeout(timeoutCounter);
+              if (response.statusCode == 200) {
+                navigation.push('More', {
+                  notificationText:
+                    'Feedback submitted. Thank you for your feedback and we will revert back to you soon.',
+                  status: 'ok',
+                });
+              } else if (response.statusCode == 417) {
+                navigation.push('More', {
+                  notificationText:
+                    'Total count of attachments exceeds 5 (Custom error message if the attachment count > 5',
+                  status: 'failed',
+                });
+              } else if (response.statusCode == 404) {
+                navigation.push('More', {
+                  notificationText:
+                    'Unable to find the Support Category ID (Custom error message if the feedback category is null/empty)',
+                  status: 'failed',
+                });
+              } else if (response.statusCode == 501) {
+                navigation.push('More', {
+                  notificationText:
+                    'Unable to Insert Customer Support. Please contact Application support engineer (Custom error message if there is a problem in inserting data.)',
+                  status: 'failed',
+                });
+              } else if (response.statusCode == 403) {
+                navigation.push('More', {
+                  notificationText: 'User Not Found',
+                  status: 'failed',
+                });
+              } else {
+                navigation.push('More', {
+                  notificationText:
+                    'Error during send feedback, Please try again later',
+                  status: 'failed',
+                });
+              }
+            })
+            .catch((error) => {
+              setLoading(false);
+              handleClose();
+              clearTimeout(timeoutCounter);
+              setMultipleFile([]);
+              setDescriptionValue('');
+              navigation.push('More', {
+                notificationText: 'Error during send feedback (' + error + ')',
+                status: 'failed',
+              });
+            });
+        }
+        else
+        {
+          let url = `${ACCESS_API}/customerfeedback`;
+          const formData = new FormData();
+          formData.append("Token",tokenValue);
+          formData.append("FeedbackContent",descriptionValue.replace('"', '\\"'));
+          formData.append("CategoryName",categoryValue);
+          fetch(url ,{
+            method: 'POST',
+            body: formData,
+          })
           .then((response) => {
+            console.log({response});
             setLoading(false);
             setMultipleFile([]);
             setDescriptionValue('');
             clearTimeout(timeoutCounter);
-            if (response.statusCode == 200) {
+            if (response.status == 200) {
               navigation.push('More', {
                 notificationText:
                   'Feedback submitted. Thank you for your feedback and we will revert back to you soon.',
                 status: 'ok',
               });
-            } else if (response.statusCode == 417) {
+            } else if (response.status == 417) {
               navigation.push('More', {
                 notificationText:
                   'Total count of attachments exceeds 5 (Custom error message if the attachment count > 5',
                 status: 'failed',
               });
-            } else if (response.statusCode == 404) {
+            } else if (response.status == 404) {
               navigation.push('More', {
                 notificationText:
                   'Unable to find the Support Category ID (Custom error message if the feedback category is null/empty)',
                 status: 'failed',
               });
-            } else if (response.statusCode == 501) {
+            } else if (response.status == 501) {
               navigation.push('More', {
                 notificationText:
                   'Unable to Insert Customer Support. Please contact Application support engineer (Custom error message if there is a problem in inserting data.)',
                 status: 'failed',
               });
-            } else if (response.statusCode == 403) {
+            } else if (response.status == 403) {
               navigation.push('More', {
                 notificationText: 'User Not Found',
                 status: 'failed',
@@ -369,6 +439,7 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
               status: 'failed',
             });
           });
+        }
       } catch (error) {
         setLoading(false);
         handleClose();
