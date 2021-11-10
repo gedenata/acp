@@ -3,7 +3,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   StyleSheet,
-  Image,  
+  Image,
   View,
   Text,
   Dimensions,
@@ -24,18 +24,20 @@ const { width } = Dimensions.get('window');
 const widthMultiplier = width / 400;
 import AsyncStorage from '@react-native-community/async-storage';
 import AESEncryption from './../Components/AESEncryption';
- 
+import { fetchMarketUpdates, checkUnreadMarketUpdates } from './../Components/marketUpdateUtils';
+
 const MoreScreen = ({route,navigation}) => {
 
   const [ isLoadingNotification, setIsLoadingNotification ] = useState(false);
   const [ numberOfRemindedSurvey, setNumberOfRemindedSurvey ] = useState(0);
+  const [ unreadMarketUpdates, setUnreadMarketUpdates ] = useState(0);
   let [loading, setLoading] = useState(false);
 
   const openBrowser = () => {
     InternetLinkHandler(CONTACT_US_URL);
   }
 
-  const goToPage = (targetPage) => { 
+  const goToPage = (targetPage) => {
     if(targetPage == "TermsofService"){
       navigation.navigate('TnC');
     } else if(targetPage == "ContactSupport"){
@@ -45,18 +47,18 @@ const MoreScreen = ({route,navigation}) => {
     }
   };
 
-  useEffect(() => 
+  useEffect(() =>
   {
     var timeoutCounter = setTimeout(() => {
       setNumberOfRemindedSurvey(0);
       setLoading(false);
-    }, 200000);    
+    }, 200000);
 
     setLoading(true);
     AsyncStorage.getItem('user_id').then(
       (value) =>
       {
-        AESEncryption("decrypt",value).then((respp)=>{
+        AESEncryption("decrypt",value).then(async(respp)=>{
           var dataToSend = {Token: JSON.parse(respp).data.Token};
           var formBody = [];
           for (let key in dataToSend){ var encodedKey = encodeURIComponent(key); var encodedValue = encodeURIComponent(dataToSend[key]); formBody.push(encodedKey + '=' + encodedValue); }
@@ -81,23 +83,25 @@ const MoreScreen = ({route,navigation}) => {
               }
             }
           })
-          .catch((error) => { 
+          .catch((error) => {
             clearTimeout(timeoutCounter);
             clearTimeout(timeoutCounter2);
             setNumberOfRemindedSurvey(0);
             setLoading(false);
-          })
+          });
+          await fetchMarketUpdates(JSON.parse(respp).data.Token);
+          setUnreadMarketUpdates(await checkUnreadMarketUpdates());
         });// End of encryption/decryption
       }
     );
   }, []);
-  
+
   return (
     <SafeAreaView style={styles.mainBody}>
-      <Loader loading={loading} />              
+      <Loader loading={loading} />
       <ScrollView>
       <KeyboardAvoidingView enabled>
-      <View>    
+      <View>
       <Image
             source={require('AnRNApp/Image/bar.png')}
             style={{
@@ -118,82 +122,91 @@ const MoreScreen = ({route,navigation}) => {
           <LOGOSVG
             width={150}
             height={40}
-          />      
+          />
       </View>
-      <TouchableOpacity  
+      <TouchableOpacity
         style={{
-          height:25, 
-          marginTop:20, 
-          width:'100%', 
+          height:25,
+          marginTop:20,
+          width:'100%',
           right:2,
-          left:2, 
-          flexDirection:'row', 
-          borderStyle:'solid', 
-          borderWidth:0, 
-          borderColor:'#dbd4d4', 
-          borderBottomWidth:0.4, 
+          left:2,
+          flexDirection:'row',
+          borderStyle:'solid',
+          borderWidth:0,
+          borderColor:'#dbd4d4',
+          borderBottomWidth:0.4,
           }}
       >
         <View style={{left:0, position:'absolute', marginLeft:10,}}>
           <Text style={{color:'#191E24', fontWeight:'bold', opacity:0.6}}>For Our Customers</Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity  
+      <TouchableOpacity
         style={{
           height:45,
-          width:'100%', 
+          width:'100%',
           right:2,
-          left:2, 
-          marginTop:10, 
-          flexDirection:'row', 
-          borderStyle:'solid', 
-          borderWidth:0, 
-          borderColor:'#dbd4d4', 
+          left:2,
+          marginTop:10,
+          flexDirection:'row',
+          borderStyle:'solid',
+          borderWidth:0,
+          borderColor:'#dbd4d4',
           borderBottomWidth:1,
         }}
         onPress={goToPage.bind(this,'MarketUpdate')}
       >
-        <View 
+        <View
           style={{
-            left:0, 
+            left:0,
             width:25,
-            marginLeft:12, 
-            marginTop:4, 
-            marginBottom:10, 
+            marginLeft:12,
+            marginTop:4,
+            marginBottom:10,
             position:'absolute'
           }}
         >
           <Ionicons raised name="ios-book-outline" size={25}  color="#00854F"/>
-        </View>          
+        </View>
         <View style={{left:40, position:'absolute', marginLeft:10,marginTop:8, marginBottom:8}}>
           <Text style={{fontFamily:'HelveticaNeue', fontSize:16, lineHeight:24}}>Market Update</Text>
+          {
+            (unreadMarketUpdates > 0)
+            ?
+            <View style={{ marginLeft:116, marginTop:-27, height:28, width:28, borderRadius:28, backgroundColor:'#FF3A3A', justifyContent:'center'}}>
+              <Text  style={{fontFamily:'HelveticaNeue-Bold', fontSize:17, lineHeight:24, textAlign:'center', color:'#FFF'}}>{unreadMarketUpdates}</Text>
+            </View>
+            :
+            <></>
+          }
         </View>
         <View style={{right:0, marginTop:10, marginBottom:10, position:'absolute', marginRight:20}}>
           <Icon raised name="navigate-next" size={21} />
         </View>
       </TouchableOpacity>
-      <TouchableOpacity  
+      <TouchableOpacity
         style={{
           height:45,
-          width:'100%', 
+          width:'100%',
           right:2,
-          left:2, 
-          marginTop:10, 
-          flexDirection:'row', 
-          borderStyle:'solid', 
-          borderWidth:0, 
-          borderColor:'#dbd4d4', 
+          left:2,
+          marginTop:10,
+          flexDirection:'row',
+          borderStyle:'solid',
+          borderWidth:0,
+          borderColor:'#dbd4d4',
           borderBottomWidth:1,
         }}
         onPress={goToPage.bind(this,'ProductCatalogue')}
       >
-        <View 
+        <View
           style={{
-            left:0, 
+            left:0,
             width:25,
-            marginLeft:10, 
-            marginTop:4, 
-            marginBottom:10, 
+            marginLeft:10,
+            marginTop:4,
+            marginBottom:10,
             position:'absolute'
           }}
         >
@@ -220,15 +233,15 @@ const MoreScreen = ({route,navigation}) => {
       <TouchableOpacity  style={styles.MoreItemStyle} onPress={goToPage.bind(this,'PulpAndPaperUpdate')}>
       <View style={{left:0, width:25, marginLeft:10, marginTop:4, marginBottom:10, position:'absolute'}}>
           <Icon raised name="content-paste" size={28} color="#00854F" />
-        </View>          
+        </View>
         <View style={{left:40, position:'absolute', marginLeft:10,marginTop:8, marginBottom:8, flex:2, flexDirection:'row'}}>
           <Text  style={{fontFamily:'HelveticaNeue', fontSize:16, lineHeight:24}}>Market Survey</Text>
           {
-            (numberOfRemindedSurvey > 0) 
-            ? 
+            (numberOfRemindedSurvey > 0)
+            ?
             <View style={{ marginLeft:10, marginTop:-2, height:28, width:28, borderRadius:28, backgroundColor:'#FF3A3A', justifyContent:'center'}}>
               <Text  style={{fontFamily:'HelveticaNeue-Bold', fontSize:17, lineHeight:24, textAlign:'center', color:'#FFF'}}>{numberOfRemindedSurvey}</Text>
-            </View>                  
+            </View>
             :
             <></>
           }
@@ -264,7 +277,7 @@ const MoreScreen = ({route,navigation}) => {
           <Icon raised name="navigate-next" size={21} />
         </View>
       </TouchableOpacity>
-      <TouchableOpacity  style={styles.MoreItemStyle} onPress={goToPage.bind(this,'PhaseTwo')}> 
+      <TouchableOpacity  style={styles.MoreItemStyle} onPress={goToPage.bind(this,'PhaseTwo')}>
       <View style={{left:0, width:25, marginLeft:18, marginTop:9, marginBottom:10, position:'absolute'}}>
           <Icon raised name="privacy-tip" size={20}  color="#00854F"/>
         </View>
@@ -278,7 +291,7 @@ const MoreScreen = ({route,navigation}) => {
       <TouchableOpacity  style={styles.MoreItemStyle} onPress={goToPage.bind(this,'TermsofService')}>
       <View style={{left:0, width:25, marginLeft:18, marginTop:9, marginBottom:10, position:'absolute'}}>
           <Ionicons raised name="document-text-outline" size={20}  color="#00854F"/>
-        </View>          
+        </View>
         <View style={{left:40, position:'absolute', marginLeft:10,marginTop:8, marginBottom:8}}>
           <Text  style={{fontFamily:'HelveticaNeue', fontSize:16, lineHeight:24}}>Terms of Service</Text>
         </View>
@@ -289,25 +302,25 @@ const MoreScreen = ({route,navigation}) => {
       </KeyboardAvoidingView>
       </ScrollView>
       {
-      (isLoadingNotification) ? 
+      (isLoadingNotification) ?
       (
         <View>
           <View>
             <TouchableOpacity
-              visible={isLoadingNotification}            
+              visible={isLoadingNotification}
               style={{bottom:60,right:10,position:'absolute',height:20,width:20,}}
               onPress={() => {
                 navigation.navigate('More',{notificationText:'',status:''});
               }}
-            > 
-              <AntDesign 
-                name="closesquare" 
-                size={20} 
-                color="#686a4a" 
+            >
+              <AntDesign
+                name="closesquare"
+                size={20}
+                color="#686a4a"
                 style={{borderRadius:5,}}
-              />          
-            </TouchableOpacity>          
-          </View>        
+              />
+            </TouchableOpacity>
+          </View>
           <View
             visible={isLoadingNotification}
             style={{
@@ -325,11 +338,11 @@ const MoreScreen = ({route,navigation}) => {
             <AntDesign name={(route.params.status == "ok") ? "checkcircle" : "closecircle"} size={35} color="#FDFDFD" style={{margin:6,marginLeft:10,position:'absolute'}} />
             <Text style={{color:'#FDFDFD',position:'absolute',left:60,right:60, top:7, fontSize:12}}>{(route.params) ? route.params.notificationText : ''}</Text>
           </View>
-        </View>  
+        </View>
       )
       :
         (<></>)
-      }      
+      }
     </SafeAreaView>
   );
 };
@@ -341,15 +354,15 @@ const styles = StyleSheet.create({
   },
   MoreItemStyle: {
     height:45,
-    width:'100%', 
+    width:'100%',
     right:2,
-    left:2, 
-    marginTop:10, 
-    flexDirection:'row', 
-    borderStyle:'solid', 
-    borderWidth:0, 
-    borderColor:'#dbd4d4', 
-    borderBottomWidth:1,    
+    left:2,
+    marginTop:10,
+    flexDirection:'row',
+    borderStyle:'solid',
+    borderWidth:0,
+    borderColor:'#dbd4d4',
+    borderBottomWidth:1,
   }
 });
 export default MoreScreen;

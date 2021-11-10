@@ -2,8 +2,8 @@
 import React, { useState, useEffect }  from 'react';
 
 // Import all the components we are going to use
-import { 
-    SafeAreaView, 
+import {
+    SafeAreaView,
     View,
     Text,
     Image,
@@ -25,6 +25,7 @@ const headerTopMargin = Platform.OS === 'ios' ? 53 : 25;
 
 import AsyncStorage from '@react-native-community/async-storage';
 import AESEncryption from './../Components/AESEncryption';
+import { readMarketUpdates } from './../Components/marketUpdateUtils';
 
 const MarketUpdateDetailScreen = ({route, navigation}) => {
 
@@ -37,8 +38,9 @@ const MarketUpdateDetailScreen = ({route, navigation}) => {
       navigation.goBack()
     };
 
-    useEffect(() => 
+    useEffect(async() =>
     {
+        await readMarketUpdates(route.params.id);
         setLoading(true);
         AsyncStorage.getItem('user_id').then((value) =>
         {
@@ -55,16 +57,16 @@ const MarketUpdateDetailScreen = ({route, navigation}) => {
                     setLastUpdate(json.LastUpdated);
                     setTitle(json.Title);
                     setDataHTML("<html><head><style>body{font-size:30;padding-left:35;padding-right:35;margin-top:90;width:'50%'}</style></head><body>"+json.Details.replace(/\: /gi,':').replace(/\; /gi,';').replace(/style\="[a-zA-Z0-9\#\:\;\.\s\(\)\-\,]*"/gi,'')+"</body></html>");
-                    setLoading(false);         
+                    setLoading(false);
                 });
-            });// End of encryption/decryption  
+            });// End of encryption/decryption
         });
     }, []);
 
   return (
     <SafeAreaView style={{flex: 1,backgroundColor:'#FDFDFD'}}>
       <Loader loading={loading} />
-      <View>    
+      <View>
         <Image
           source={require('AnRNApp/Image/bar.png')}
           style={{
@@ -79,20 +81,20 @@ const MarketUpdateDetailScreen = ({route, navigation}) => {
               {scaleX: 12*widthMultiplier}
             ]
           }}
-        />    
+        />
       </View>
       <View style={{ alignItems: 'center', position:'absolute', top:headerTopMargin, left:0, right:0 }}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={{position:'absolute',left:0,marginLeft:20,marginTop:0,}}
             onPress={goBackToPage}
           >
-            <Icon raised name="arrow-left" size={30} color="#FDFDFD"/>          
+            <Icon raised name="arrow-left" size={30} color="#FDFDFD"/>
           </TouchableOpacity>
           <Text style={{ marginTop:0,color:'#FDFDFD',fontSize:19}}>Market Update</Text>
       </View>
         {dataHTML != "" ? <Text style={{fontWeight:'bold',marginLeft:22, marginBottom:5, marginTop:10, fontSize:16, color:'#260679', fontFamily:'HelveticaNeue',}}>{title}</Text> : <></>}
         {dataHTML != "" ? <Text style={{fontWeight:'bold',marginLeft:22, marginTop:5, fontSize:12, color:'#ccc', fontFamily:'HelveticaNeue',}}>Updated on: {lastUpdate}</Text> : <></>}
-        {dataHTML != "" ? 
+        {dataHTML != "" ?
         (
              <WebView
                 source={{html:''+dataHTML}}

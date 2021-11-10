@@ -47,6 +47,7 @@ import BiometricAuthenticationScreen from './Screen/pages/BiometricAuthenticatio
 import AESEncryption from './Screen/Components/AESEncryption';
 
 import AsyncStorage from '@react-native-community/async-storage';
+import { fetchMarketUpdates, checkUnreadMarketUpdates } from './Screen/Components/marketUpdateUtils';
 
 const navigationRef = React.createRef();
 
@@ -56,6 +57,7 @@ const Tab = createBottomTabNavigator();
 
 const App = () => {
   const [ numberOfRemindedSurvey, setNumberOfRemindedSurvey ] = useState(-1);
+  const [ unreadMarketUpdates, setUnreadMarketUpdates ] = useState(-1);
   const [biometricKeyExists, setBiometricKeyExists] = useState(false);
   const [biometricsNotSupported, setBiometricsNotSupported] = useState(false);
 
@@ -68,7 +70,7 @@ const App = () => {
       (value) =>
       {
 
-        AESEncryption("decrypt",value).then((respp)=>
+        AESEncryption("decrypt",value).then(async (respp)=>
         {
           var dataToSend = {Token: JSON.parse(respp).data.Token};
 
@@ -88,9 +90,11 @@ const App = () => {
             },
           })
           .then((response) => response.json())
-          .then(json => {
+          .then((json) => {
             setNumberOfRemindedSurvey(json.length);
           });
+          await fetchMarketUpdates(JSON.parse(respp).data.Token);
+          setUnreadMarketUpdates(await checkUnreadMarketUpdates());
         });
       }
     );
@@ -267,7 +271,7 @@ const App = () => {
                 tabBarIcon: ({ color, size }) => (
                   <View>
                     {
-                    numberOfRemindedSurvey > 0 ?
+                    numberOfRemindedSurvey > 0 || unreadMarketUpdates > 0 ?
                       <Entypo
                         name="dot-single"
                         color="#FF3A3A"
@@ -332,7 +336,7 @@ const App = () => {
           </Stack.Navigator>
       );
     }else{
-      return (<></>)
+       return (<></>)
     }
   }
 

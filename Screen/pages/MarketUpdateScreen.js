@@ -25,11 +25,12 @@ import DeviceInfo from 'react-native-device-info';
 import LOGOSVG from 'AnRNApp/Image/svg_logo/emptystate_noresults.svg';
 
 import AESEncryption from './../Components/AESEncryption';
+import { fetchMarketUpdates } from './../Components/marketUpdateUtils';
 
 const { width } = Dimensions.get('window');
 const widthMultiplier = width / 400;
 
-const MarketUpdateScreen = ({route, navigation}) => 
+const MarketUpdateScreen = ({route, navigation}) =>
 {
     const [itemList, setItemList] = useState([]);
 
@@ -37,7 +38,7 @@ const MarketUpdateScreen = ({route, navigation}) =>
 
     DeviceInfo.getFontScale().then((fontScaleTemp) => {
       setFontScale(fontScaleTemp)
-    });        
+    });
 
     const goBackToPage = () => { navigation.goBack(); };
 
@@ -47,20 +48,20 @@ const MarketUpdateScreen = ({route, navigation}) =>
       parent.setOptions({
         tabBarVisible: true
       });
-      return () => parent.setOptions({ tabBarVisible: true });  
+      return () => parent.setOptions({ tabBarVisible: true });
     }
 
     const buildUpdateList = ({item}) => {
       return (
         <View
           style={{
-            flex: 1,                      
+            flex: 1,
             backgroundColor:'#FFFFFF',
             minHeight: 56,
             marginRight:((width <= 360 || fontScale > 1.2) ? 7 : 30),
-            marginLeft:((width <= 360 || fontScale > 1.2) ? 7 : 30), 
+            marginLeft:((width <= 360 || fontScale > 1.2) ? 7 : 30),
             color:'#000000',
-            marginBottom:10, 
+            marginBottom:10,
             marginTop:10,
           }}
           key="outstanding{item.OrderNumber}"
@@ -74,11 +75,11 @@ const MarketUpdateScreen = ({route, navigation}) =>
               overflow:'hidden',
               borderTopLeftRadius:12,
               borderTopRightRadius:12,
-              borderWidth:1,  
+              borderWidth:1,
               borderColor:'#fff',
             }}
           >
-            <Image 
+            <Image
               style={{
                 width: '100%',
                 height: '100%',
@@ -89,9 +90,9 @@ const MarketUpdateScreen = ({route, navigation}) =>
           :
           <></>
           }
-          <TouchableOpacity 
+          <TouchableOpacity
             style={{
-              flex: 1, 
+              flex: 1,
               backgroundColor:'#ffffff',
               borderBottomLeftRadius:12,
               borderBottomRightRadius:12,
@@ -100,7 +101,7 @@ const MarketUpdateScreen = ({route, navigation}) =>
               borderColor:'#ddd',
               borderWidth:1,
             }}
-            onPress={ () => { 
+            onPress={ () => {
               directToDetail(item.MarketUpdateId) }
             }
           >
@@ -119,50 +120,42 @@ const MarketUpdateScreen = ({route, navigation}) =>
                   <View style={{flex: 2, paddingLeft: 10, flexDirection:'row',marginTop:8, marginBottom:5}}>
                     <View style={{flex:1}}>
                       <Text style={{fontSize:12, color:'#000000',textAlign:'left',fontFamily:'HelveticaNeue-Bold'}}>Updated on</Text>
-                    </View>                    
+                    </View>
                     <View style={{flex:1}}>
                       <Text style={{fontSize:12, color:'#000000',textAlign:'right',fontFamily:'HelveticaNeue', marginRight:10}}>{item.LastUpdated}</Text>
                     </View>
-                  </View>                  
+                  </View>
                 </View>
               </View>
-            </View>            
+            </View>
           </TouchableOpacity>
         </View>
       )
     }
 
-    useEffect(() => 
+    useEffect(() =>
     {
       setLoading(true);
       AsyncStorage.getItem('user_id').then(
         (value) =>
         {
-          AESEncryption("decrypt",value).then((respp)=>{
-            var dataToSend = {Token: JSON.parse(respp).data.Token};
-            var formBody = [];
-            for (let key in dataToSend){ var encodedKey = encodeURIComponent(key); var encodedValue = encodeURIComponent(dataToSend[key]); formBody.push(encodedKey + '=' + encodedValue); }
-            formBody = formBody.join('&');
-            let url = `${ACCESS_API}/marketupdateslist`;
-            fetch(url, {method: 'POST', body: formBody,  headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', },})
-            .then((response) => response.json())
-            .then(json => {
-              setItemList(json);
-              setLoading(false);
-            });
+          AESEncryption("decrypt",value).then(async(respp)=>{
+            var json = await fetchMarketUpdates(JSON.parse(respp).data.Token);
+            setItemList(json);
+            setLoading(false);
           });// End of encryption/decryption
         }
-      );     
+      );
     }, []);
 
-    Moment.locale('en');  
-  
-    let [loading, setLoading] = useState(false);  
- 
+    Moment.locale('en');
+
+    let [loading, setLoading] = useState(false);
+
     return (
-      <SafeAreaView style={styles.mainBody}>      
-      <Loader loading={loading} />        
-      <ScrollView>        
+      <SafeAreaView style={styles.mainBody}>
+      <Loader loading={loading} />
+      <ScrollView>
       <Image
           source={require('AnRNApp/Image/bar.png')}
           style={{
@@ -185,7 +178,7 @@ const MarketUpdateScreen = ({route, navigation}) =>
           <Text style={{ marginTop:7,color:'#FDFDFD',fontSize:(fontScale < 1.2 ? 19 : 20/fontScale), fontFamily:'HelveticaNeue-Bold' }}>Market Update</Text>
       </View>
       {
-      itemList.length == 0 
+      itemList.length == 0
       ?
         <View>
               <LOGOSVG
@@ -199,37 +192,37 @@ const MarketUpdateScreen = ({route, navigation}) =>
                     alignItems:'center'
                   }}
               >No survey is available now</Text>
-        </View>      
+        </View>
       :
         <FlatList
             data={itemList}
             keyExtractor={(item, index) => "ItemList_" + index.toString()}
             renderItem={buildUpdateList}
-        />      
+        />
       }
       </ScrollView>
       {
-      (route.params) ? 
+      (route.params) ?
       (
-        (route.params.notificationText != "") ? 
+        (route.params.notificationText != "") ?
         (
         <View
         >
           <View>
             <TouchableOpacity
-              style={{bottom:60,right:10,position:'absolute',height:20,width:20,}} 
+              style={{bottom:60,right:10,position:'absolute',height:20,width:20,}}
               onPress={() => {
                 navigation.navigate('MarketUpdate',{notificationText:'',status:''});
               }}
-            > 
-              <AntDesign 
-                name="closesquare" 
-                size={20} 
-                color="#00854F" 
+            >
+              <AntDesign
+                name="closesquare"
+                size={20}
+                color="#00854F"
                 style={{borderRadius:5,}}
-              />          
-            </TouchableOpacity>          
-          </View>        
+              />
+            </TouchableOpacity>
+          </View>
           <View style={{ position:'absolute', bottom:10, left:10, right:10, height:50, borderRadius:7, backgroundColor:'#00854F', paddingTop:10, paddingBottom:10, }}>
             <AntDesign name={(route.params.status == "ok") ? "checkcircle" : "closecircle"} size={35} color="#FDFDFD" style={{margin:6,marginLeft:10,position:'absolute'}} />
             <Text style={{color:'#FDFDFD',position:'absolute',left:60,right:60, top:7, fontSize:12}}>{(route.params) ? route.params.notificationText : ''}</Text>
@@ -237,16 +230,16 @@ const MarketUpdateScreen = ({route, navigation}) =>
         </View>
         )
         :
-        (<></>)        
+        (<></>)
       )
       :
         (<></>)
       }
-      </SafeAreaView>              
+      </SafeAreaView>
     );
 };
 
-const styles = StyleSheet.create({  
+const styles = StyleSheet.create({
   mainBody: {
     flex: 1,
     backgroundColor: '#fdfdfd',
@@ -261,7 +254,7 @@ const styles = StyleSheet.create({
     marginBottom:15,
     borderWidth: 0.5,
     borderRadius: 10,
-    borderColor: '#685640',    
+    borderColor: '#685640',
   },
   searchIcon: {
     padding: 10,
@@ -279,10 +272,10 @@ const styles = StyleSheet.create({
     justifyContent:'center',
   },
   buttonTextStyle: {
-    fontFamily:'HelveticaNeue-Bold',    
+    fontFamily:'HelveticaNeue-Bold',
     color: '#FFFFFF',
     fontSize: 12,
-  },    
+  },
 });
 
 export default MarketUpdateScreen;
