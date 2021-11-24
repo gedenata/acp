@@ -24,7 +24,7 @@ const { width } = Dimensions.get('window');
 const widthMultiplier = width / 400;
 import AsyncStorage from '@react-native-community/async-storage';
 import AESEncryption from './../Components/AESEncryption';
-import { fetchMarketUpdates, checkUnreadMarketUpdates } from './../Components/marketUpdateUtils';
+import { fetchMarketUpdates, checkUnreadMarketUpdates, markReadMarketUpdates } from './../Components/marketUpdateUtils';
 
 const MoreScreen = ({route,navigation}) => {
 
@@ -47,7 +47,7 @@ const MoreScreen = ({route,navigation}) => {
     }
   };
 
-  useEffect(() =>
+  useEffect(async () =>
   {
     var timeoutCounter = setTimeout(() => {
       setNumberOfRemindedSurvey(0);
@@ -58,7 +58,7 @@ const MoreScreen = ({route,navigation}) => {
     AsyncStorage.getItem('user_id').then(
       (value) =>
       {
-        AESEncryption("decrypt",value).then(async(respp)=>{
+        AESEncryption("decrypt",value).then((respp)=>{
           var dataToSend = {Token: JSON.parse(respp).data.Token};
           var formBody = [];
           for (let key in dataToSend){ var encodedKey = encodeURIComponent(key); var encodedValue = encodeURIComponent(dataToSend[key]); formBody.push(encodedKey + '=' + encodedValue); }
@@ -85,16 +85,39 @@ const MoreScreen = ({route,navigation}) => {
           })
           .catch((error) => {
             clearTimeout(timeoutCounter);
-            clearTimeout(timeoutCounter2);
             setNumberOfRemindedSurvey(0);
             setLoading(false);
           });
-          await fetchMarketUpdates(JSON.parse(respp).data.Token);
-          setUnreadMarketUpdates(await checkUnreadMarketUpdates());
         });// End of encryption/decryption
       }
     );
+    await loadMarketUpdates();
   }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', async () => {
+      setLoading(true);
+      await loadMarketUpdates();
+      setLoading(false);
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
+  const loadMarketUpdates = async () => {
+    const value = await AsyncStorage.getItem('user_id');
+      if(value)
+      {
+        const respp = await AESEncryption("decrypt",value);
+        if(respp)
+        {
+          await markReadMarketUpdates();
+          await fetchMarketUpdates(JSON.parse(respp).data.Token);
+          const marketUpdatesCount = await checkUnreadMarketUpdates();
+          setUnreadMarketUpdates(marketUpdatesCount);
+        }
+      }
+  };
 
   return (
     <SafeAreaView style={styles.mainBody}>

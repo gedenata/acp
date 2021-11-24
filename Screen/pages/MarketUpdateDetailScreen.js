@@ -25,7 +25,6 @@ const headerTopMargin = Platform.OS === 'ios' ? 53 : 25;
 
 import AsyncStorage from '@react-native-community/async-storage';
 import AESEncryption from './../Components/AESEncryption';
-import { readMarketUpdates } from './../Components/marketUpdateUtils';
 
 const MarketUpdateDetailScreen = ({route, navigation}) => {
 
@@ -38,9 +37,8 @@ const MarketUpdateDetailScreen = ({route, navigation}) => {
       navigation.goBack()
     };
 
-    useEffect(async() =>
+    useEffect(() =>
     {
-        await readMarketUpdates(route.params.id);
         setLoading(true);
         AsyncStorage.getItem('user_id').then((value) =>
         {

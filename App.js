@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState } from 'react';
 import {ACCESS_API} from '@env';
 import { View } from 'react-native';
 
@@ -94,7 +94,8 @@ const App = () => {
             setNumberOfRemindedSurvey(json.length);
           });
           await fetchMarketUpdates(JSON.parse(respp).data.Token);
-          setUnreadMarketUpdates(await checkUnreadMarketUpdates());
+          const marketUpdatesCount = await checkUnreadMarketUpdates();
+          setUnreadMarketUpdates(marketUpdatesCount);
         });
       }
     );

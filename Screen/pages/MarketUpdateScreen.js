@@ -25,7 +25,8 @@ import DeviceInfo from 'react-native-device-info';
 import LOGOSVG from 'AnRNApp/Image/svg_logo/emptystate_noresults.svg';
 
 import AESEncryption from './../Components/AESEncryption';
-import { fetchMarketUpdates } from './../Components/marketUpdateUtils';
+//import {MarketUpdateContext} from './../Components/MarketUpdateContext';
+import { fetchMarketUpdates, readTempMarketUpdates } from './../Components/marketUpdateUtils';
 
 const { width } = Dimensions.get('window');
 const widthMultiplier = width / 400;
@@ -36,13 +37,16 @@ const MarketUpdateScreen = ({route, navigation}) =>
 
     const [ fontScale, setFontScale ] = useState(1);
 
+    //const [ unreadMarketUpdates, setUnreadMarketUpdates ] = useContext(MarketUpdateContext);
+
     DeviceInfo.getFontScale().then((fontScaleTemp) => {
       setFontScale(fontScaleTemp)
     });
 
     const goBackToPage = () => { navigation.goBack(); };
 
-    const directToDetail = (SurveyID) => {
+    const directToDetail = async(SurveyID) => {
+      await readTempMarketUpdates(SurveyID);
       navigation.navigate('MarketUpdateDetail', {id:SurveyID})
       const parent = navigation.dangerouslyGetParent();
       parent.setOptions({
