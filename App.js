@@ -61,7 +61,7 @@ const App = () => {
   const [biometricKeyExists, setBiometricKeyExists] = useState(false);
   const [biometricsNotSupported, setBiometricsNotSupported] = useState(false);
 
-  const checkUpdate = async () => {
+  const checkUpdate = async (fromMoreStack) => {
     const {keysExist} = await ReactNativeBiometrics.biometricKeysExist();
     setBiometricKeyExists(keysExist);
     const biometrics_not_supported = await AsyncStorage.getItem('biometrics_not_supported');
@@ -93,9 +93,12 @@ const App = () => {
           .then((json) => {
             setNumberOfRemindedSurvey(json.length);
           });
-          await fetchMarketUpdates(JSON.parse(respp).data.Token);
-          const marketUpdatesCount = await checkUnreadMarketUpdates();
-          setUnreadMarketUpdates(marketUpdatesCount);
+          if(!fromMoreStack)
+          {
+            await fetchMarketUpdates(JSON.parse(respp).data.Token);
+            const marketUpdatesCount = await checkUnreadMarketUpdates();
+            setUnreadMarketUpdates(marketUpdatesCount);
+          }
         });
       }
     );
@@ -385,7 +388,7 @@ const App = () => {
 
   function MoreStack() {
     let isFocused = useIsFocused();
-    if(isFocused){ checkUpdate(); }
+    if(isFocused){ checkUpdate(true); }
     return (
       <Stack.Navigator
         initialRouteName="More"

@@ -96,9 +96,9 @@ const MoreScreen = ({route,navigation}) => {
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
-      setLoading(true);
+      //setLoading(true);
       await loadMarketUpdates();
-      setLoading(false);
+      //setLoading(false);
     });
 
     return unsubscribe;
