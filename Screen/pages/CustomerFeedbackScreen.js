@@ -246,19 +246,15 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
 
     const handleFilePicker = async () => {
       //Opening Document Picker for selection of multiple file
-      try {
-        ImagePicker.openPicker({
-          width: 300,
-          height: 400,
-          multiple: true,
-          mediaType:'photo',
-        }).then(image => {
-          // console.log(image);
-          setMultipleFile(image);
-        });
-
-        //Setting the state to show multiple file attributes
-      } catch (err) {
+      ImagePicker.openPicker({
+        width: 300,
+        height: 400,
+        multiple: true,
+        mediaType:'photo',
+      }).then(image => {
+        // console.log(image);
+        setMultipleFile(image);
+      }).catch(err => {
         //Handling any exception (If any)
         if (DocumentPicker.isCancel(err)) {
           //If user canceled the document selection
@@ -270,7 +266,7 @@ const CustomerFeedbackScreen = ({route, navigation}) => {
           // alert('Unknown Error: ' + JSON.stringify(err));
           throw err;
         }
-      }
+      });
     }
 
     const takeOutOneFile = (fileUri) => {

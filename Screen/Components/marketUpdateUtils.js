@@ -26,12 +26,12 @@ const fetchMarketUpdates = async (tokenValue) => {
 
 const checkUnreadMarketUpdates = async () => {
   let syncedMarketUpdates = await AsyncStorage.getItem('synced_market_updates');
-  let readMarketUpdates = await AsyncStorage.getItem('read_market_updates');
+  let _readMarketUpdates = await AsyncStorage.getItem('read_market_updates');
   if (syncedMarketUpdates) {
     let syncedMarketUpdateIds = JSON.parse(syncedMarketUpdates);
     if (syncedMarketUpdateIds.length > 0) {
-      if (readMarketUpdates) {
-        let readMarketUpdateIds = JSON.parse(readMarketUpdates);
+      if (_readMarketUpdates) {
+        let readMarketUpdateIds = JSON.parse(_readMarketUpdates);
         if (readMarketUpdateIds.length > 0) {
           var filteredReadMarketUpdateIds = readMarketUpdateIds.filter(
             function (n) {
@@ -56,9 +56,9 @@ const checkUnreadMarketUpdates = async () => {
 
 const readMarketUpdates = async (id) => {
   let readMarketUpdateIds = [];
-  let readMarketUpdates = await AsyncStorage.getItem('read_market_updates');
-  if (readMarketUpdates) {
-    readMarketUpdateIds = JSON.parse(readMarketUpdates);
+  let _readMarketUpdates = await AsyncStorage.getItem('read_market_updates');
+  if (_readMarketUpdates) {
+    readMarketUpdateIds = JSON.parse(_readMarketUpdates);
     if (readMarketUpdateIds && readMarketUpdateIds.length > 0) {
       if (readMarketUpdateIds.indexOf(id) === -1) {
         readMarketUpdateIds.push(id);
@@ -77,11 +77,11 @@ const readMarketUpdates = async (id) => {
 
 const readTempMarketUpdates = async (id) => {
   let readMarketUpdateIds = [];
-  let readMarketUpdates = await AsyncStorage.getItem(
+  let _readMarketUpdates = await AsyncStorage.getItem(
     'read_temp_market_updates',
   );
-  if (readMarketUpdates) {
-    readMarketUpdateIds = JSON.parse(readMarketUpdates);
+  if (_readMarketUpdates) {
+    readMarketUpdateIds = JSON.parse(_readMarketUpdates);
     if (readMarketUpdateIds && readMarketUpdateIds.length > 0) {
       if (readMarketUpdateIds.indexOf(id) === -1) {
         readMarketUpdateIds.push(id);
@@ -100,11 +100,11 @@ const readTempMarketUpdates = async (id) => {
 
 const markReadMarketUpdates = async () => {
   let readMarketUpdateIds = [];
-  let readTempMarketUpdates = await AsyncStorage.getItem(
+  let _readTempMarketUpdates = await AsyncStorage.getItem(
     'read_temp_market_updates',
   );
-  if (readTempMarketUpdates) {
-    readMarketUpdateIds = JSON.parse(readTempMarketUpdates);
+  if (_readTempMarketUpdates) {
+    readMarketUpdateIds = JSON.parse(_readTempMarketUpdates);
     readMarketUpdateIds.map(async (val) => {
       await readMarketUpdates(val);
     });

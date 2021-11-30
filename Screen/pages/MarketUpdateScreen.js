@@ -13,7 +13,6 @@ import {
   TouchableOpacity,
   Dimensions
 } from 'react-native';
-import {ACCESS_API} from '@env';
 import Loader from './../Components/loader';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
