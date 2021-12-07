@@ -54,20 +54,22 @@ const checkUnreadMarketUpdates = async () => {
   return 0;
 };
 
-const readMarketUpdates = async (id) => {
+const readMarketUpdates = async (ids) => {
   let readMarketUpdateIds = [];
   let _readMarketUpdates = await AsyncStorage.getItem('read_market_updates');
   if (_readMarketUpdates) {
     readMarketUpdateIds = JSON.parse(_readMarketUpdates);
     if (readMarketUpdateIds && readMarketUpdateIds.length > 0) {
-      if (readMarketUpdateIds.indexOf(id) === -1) {
-        readMarketUpdateIds.push(id);
-      }
+      ids.map(async (id) => {
+        if (readMarketUpdateIds.indexOf(id) === -1) {
+          readMarketUpdateIds.push(id);
+        }
+      });
     } else {
-      readMarketUpdateIds = [id];
+      readMarketUpdateIds = ids;
     }
   } else {
-    readMarketUpdateIds = [id];
+    readMarketUpdateIds = ids;
   }
   await AsyncStorage.setItem(
     'read_market_updates',
@@ -87,10 +89,10 @@ const readTempMarketUpdates = async (id) => {
         readMarketUpdateIds.push(id);
       }
     } else {
-      readMarketUpdateIds = [id];
+      readMarketUpdateIds.push(id);
     }
   } else {
-    readMarketUpdateIds = [id];
+    readMarketUpdateIds.push(id);
   }
   await AsyncStorage.setItem(
     'read_temp_market_updates',
@@ -105,13 +107,13 @@ const markReadMarketUpdates = async () => {
   );
   if (_readTempMarketUpdates) {
     readMarketUpdateIds = JSON.parse(_readTempMarketUpdates);
-    readMarketUpdateIds.map(async (val) => {
-      await readMarketUpdates(val);
-    });
-    await AsyncStorage.setItem(
-      'read_temp_market_updates',
-      JSON.stringify([]),
-    );
+    if (readMarketUpdateIds.length > 0) {
+      await readMarketUpdates(readMarketUpdateIds);
+      await AsyncStorage.setItem(
+        'read_temp_market_updates',
+        JSON.stringify([]),
+      );
+    }
   }
 };
 
