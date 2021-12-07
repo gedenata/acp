@@ -2,15 +2,15 @@ import React, { useState, useEffect }  from 'react';
 import {
   TouchableOpacity,
   StyleSheet,
-  Image,  
+  Image,
   View,
   Text,
   SafeAreaView,
-  Dimensions,  
+  Dimensions,
   Modal,
   FlatList,
   ScrollView,
-  ActivityIndicator,    
+  ActivityIndicator,
 } from 'react-native';
 import { SliderBox } from 'react-native-image-slider-box';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -30,7 +30,7 @@ const HomeScreen = props => {
   const [isLoadingOutstanding, setLoadingOutstanding] = useState(true);
   const [isLoadingDelivered, setLoadingDelivered] = useState(true);
   const [isLoadingImage, setLoadingImage] = useState(true);
-  const [tokenValue, setTokenValue] = useState('');       
+  const [tokenValue, setTokenValue] = useState('');
   const [dataOutstanding, setOutstandingData] = useState([]);
   const [dataDelivered, setDeliveredData] = useState([]);
   const [firstScrollMarginLeftOutstanding, setFirstScrollMarginLeftOutstanding] = useState(0);
@@ -56,7 +56,7 @@ const HomeScreen = props => {
     AsyncStorage.getItem('user_id').then(
     (value) =>
     {
-        AESEncryption("decrypt",value).then((respp)=>{      
+        AESEncryption("decrypt",value).then((respp)=>{
             setTokenValue("" + ((JSON.parse(respp).data != null && (JSON.parse(respp).data)) ? JSON.parse(respp).data.Token : ""))
 
             let dataToSend = {Token: JSON.parse(respp).data.Token};
@@ -98,7 +98,7 @@ const HomeScreen = props => {
                   let marketQuestionURL = `${ACCESS_API}/marketsurveyquestion`;
                   fetch(marketQuestionURL, {
                       method: 'POST',
-                      body: formBody2, 
+                      body: formBody2,
                       headers: {
                       'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
                       },
@@ -136,13 +136,13 @@ const HomeScreen = props => {
               formBody.push(encodedKey + '=' + encodedValue);
             }
             formBody = formBody.join('&');
-          
+
             if(isLoadingImage)
             {
               let bannerURL = `${ACCESS_API}/banner`;
               fetch(bannerURL, {
                 method: 'POST',
-                body: formBody,      
+                body: formBody,
                 headers: {
                   //Header Defination
                   'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
@@ -158,14 +158,14 @@ const HomeScreen = props => {
                 setBannerImageLinks(imageLinks);
                 setLoadingImage(false);
               })
-              .catch((error) => console.error(error))    
+              .catch((error) => console.error(error))
             }
-          
+
             if(isLoadingDelivered) {
               let deliveredURL = `${ACCESS_API}/delivered`;
               fetch(deliveredURL,{
                 method: 'POST',
-                body: formBody,      
+                body: formBody,
                 headers: {
                   'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
                 },
@@ -182,13 +182,13 @@ const HomeScreen = props => {
               })
               .catch((error) => console.error(error))
             }
-          
+
             if(isLoadingOutstanding)
             {
               let outstandingURL = `${ACCESS_API}/outstanding`;
-              fetch(outstandingURL,{    
+              fetch(outstandingURL,{
                 method: 'POST',
-                body: formBody,      
+                body: formBody,
                 headers: {
                   'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
                 },
@@ -220,12 +220,12 @@ const HomeScreen = props => {
   const directToSurveyQuestion = (SurveyID) => {
     setIsLoadingSurvey(false);
     props.navigation.navigate('SurveyQuestion', {SurveyID:SurveyID})
-  }  
+  }
 
   const { width } = Dimensions.get('window');
-  
+
   const widthMultiplier = width / 400;
-  const widthMultiplierOutstandingOrder = width / 400;
+  const widthMultiplierOutstandingOrder = Math.round(width / 400);
 
   const images = [];
   const imageLinks = [];
@@ -233,7 +233,7 @@ const HomeScreen = props => {
   const renderItemDelivered = ({ item, index }) => {
 
     return (
-      <TouchableOpacity 
+      <TouchableOpacity
       style={{borderRadius:7,backgroundColor:'#091376',height:105,width:132,color:'#FDFDFD'}}
       onPress={() => showDetailOrder(''+(item.OrderNumber != "ALL" ? item.OrderNumber : ''))}
       key={item.OrderNumber}
@@ -241,25 +241,25 @@ const HomeScreen = props => {
       <Text style={{color:'#FDFDFD',paddingLeft:10,paddingTop:5,fontSize:(fontScale < 1.2 ? 12 : 12/fontScale),fontWeight:'bold'}}>{(item.OrderNumber != "ALL" ? "Order No" : "View All Orders")}</Text>
       <Text style={{color:'#FDFDFD',paddingLeft:10,paddingTop:0,fontSize:(fontScale < 1.2 ? 12 : 12/fontScale),fontWeight:'bold'}}>{(item.OrderNumber != "ALL" ? item.OrderNumber : "View All Orders")}</Text>
       <Text style={{position:'absolute',color:'#FDFDFD',paddingLeft:10,paddingRight:10,bottom:10,fontSize:(fontScale < 1.2 ? 11 : 11/fontScale),fontWeight:'normal'}}>{(item.CustomerName != "ALL" ? item.CustomerName : "")}</Text>
-    </TouchableOpacity> 
+    </TouchableOpacity>
   );
   };
 
   const renderItemOutstanding = ({ item, index }) => {
 
     return (
-        <TouchableOpacity 
+        <TouchableOpacity
         style={{borderRadius:7,backgroundColor:'#091376',height:105,width:132,color:'#FDFDFD'}}
         onPress={() => showDetailOrder(''+(item.OrderNumber != "ALL" ? item.OrderNumber : ''))}
-        key={item.OrderNumber}        
+        key={item.OrderNumber}
       >
       <Text style={{color:'#FDFDFD',paddingLeft:10,paddingTop:5,fontSize:(fontScale < 1.2 ? 12 : 12/fontScale),fontWeight:'bold'}}>{(item.OrderNumber != "ALL" ? "Order No" : "View All Orders")}</Text>
       <Text style={{color:'#FDFDFD',paddingLeft:10,paddingTop:0,fontSize:(fontScale < 1.2 ? 12 : 12/fontScale),fontWeight:'bold'}}>{(item.OrderNumber != "ALL" ? item.OrderNumber : "View All Orders")}</Text>
       <Text style={{position:'absolute',color:'#FDFDFD',paddingLeft:10,paddingRight:10,bottom:10,fontSize:(fontScale < 1.2 ? 11 : 11/fontScale),fontWeight:'normal'}}>{(item.CustomerName != "ALL" ? item.CustomerName : "")}</Text>
-      </TouchableOpacity> 
+      </TouchableOpacity>
     );
-  };    
- 
+  };
+
   const showDetailOrder = (SalesOrderID) => {
     if(SalesOrderID == "")
       props.navigation.navigate('AllOrders',{SalesOrderID:'',TokenValue:tokenValue})
@@ -294,7 +294,7 @@ const HomeScreen = props => {
   const choose = (questionChoiceIDTemp, userAnswerTemp) => {
 
         var timeoutCounter = setTimeout(() => {
-            setIsLoadingSurveyData(false); 
+            setIsLoadingSurveyData(false);
             setIsLoadingNotificationToUser(true);
             setNotificationStatus('failed');
             setNotificationToUser('Apps experiences some issue during send feedback, Please try again later');
@@ -303,18 +303,18 @@ const HomeScreen = props => {
         setIsLoadingSurveyData(true);
 
         let formBodyAnswers = "";
-        formBodyAnswers += "{" + 
-                        '"QuestionID":' + surveyQuestion[0].QuestionID + ',' + 
-                        '"AnswerChoices":[' + 
-                                "{" + 
+        formBodyAnswers += "{" +
+                        '"QuestionID":' + surveyQuestion[0].QuestionID + ',' +
+                        '"AnswerChoices":[' +
+                                "{" +
                                     '"AnswerChoiceID":' + questionChoiceIDTemp + ',"AnswerChoiceValue":"' + userAnswerTemp + '"' +
-                                "}"                                        
-                          + ']' + 
+                                "}"
+                          + ']' +
         "}"
 
         let formBody = "";
-        formBody = "{" + 
-                      '"Token":"' + tokenValue + '","SurveyID":"' + surveyData[0].SurveyID + '","Questions":[' + formBodyAnswers + ']' + 
+        formBody = "{" +
+                      '"Token":"' + tokenValue + '","SurveyID":"' + surveyData[0].SurveyID + '","Questions":[' + formBodyAnswers + ']' +
                     "}";
         let url = `${ACCESS_API}/submitmarketsurveyresponse`;
         fetch(url ,{
@@ -328,20 +328,20 @@ const HomeScreen = props => {
           clearTimeout(timeoutCounter);
           setIsLoadingSurveyData(false);
           setIsLoadingSurvey(false);
-          
+
           if(response.status == 200){
             setIsLoadingNotificationToUser(true);
             setNotificationStatus('ok');
             setNotificationToUser('Thank you for submission of the poll');
-          }     
+          }
           else
           {
             setIsLoadingNotificationToUser(true);
             setNotificationStatus('failed');
-            setNotificationToUser('Error during survey submission, Please try again later');                
+            setNotificationToUser('Error during survey submission, Please try again later');
           }
         })
-        .catch((error) => { 
+        .catch((error) => {
           clearTimeout(timeoutCounter);
           setIsLoadingNotificationToUser(true);
           setNotificationStatus('failed');
@@ -349,16 +349,16 @@ const HomeScreen = props => {
         })
 
         return false
-}  
+}
 
-  const buildInput = ({item}) => 
+  const buildInput = ({item}) =>
   {
       if((item.answer) && item.answer != "")
       {
           return (
               <TouchableOpacity
                   style={{
-                      marginBottom:5, 
+                      marginBottom:5,
                       marginTop:5,
                       paddingLeft:5,
                       paddingTop:9,
@@ -370,13 +370,13 @@ const HomeScreen = props => {
                   onPress={()=>{choose(item.QuestionChoiceID, item.QuestionChoiceValue)}}
               >
                   <MaterialIcons name="radio-button-checked" size={25} color="#002369"/>
-                  <Text 
+                  <Text
                       style={{
                           color:'#000',
                           fontSize:14,
-                          fontFamily: 'HelveticaNeue', 
-                          marginTop:2, 
-                          marginRight:25, 
+                          fontFamily: 'HelveticaNeue',
+                          marginTop:2,
+                          marginRight:25,
                           marginLeft:10,
                           opacity:0.6
                       }}
@@ -391,58 +391,58 @@ const HomeScreen = props => {
           return (
               <TouchableOpacity
                   style={{
-                      marginBottom:5, 
+                      marginBottom:5,
                       marginTop:5,
                       paddingLeft:5,
                       paddingTop:9,
                       paddingBottom:9,
                       flex:2,
                       flexDirection:'row',
-                      backgroundColor:'#00236930', 
+                      backgroundColor:'#00236930',
                       borderRadius:5,
                   }}
                   onPress={()=>{choose(item.QuestionChoiceID, item.QuestionChoiceID)}}
               >
                   <MaterialIcons name="radio-button-off" size={25}/>
-                  <Text 
+                  <Text
                       style={{
                           color:'#191E24',
                           fontSize:14,
-                          fontFamily: 'HelveticaNeue-Bold',                              
-                          marginTop:2, 
+                          fontFamily: 'HelveticaNeue-Bold',
+                          marginTop:2,
                           marginRight:25,
-                          marginLeft:5,                                 
+                          marginLeft:5,
                           opacity:0.6
                       }}
                   >
                       {item.QuestionChoiceValue}
                   </Text>
               </TouchableOpacity>
-          )            
+          )
       }
-  }  
+  }
 
   return (
     <SafeAreaView style={styles.mainBody}>
-      <ScrollView>        
-      <View>    
-        {(isLoadingSurvey) ? 
+      <ScrollView>
+      <View>
+        {(isLoadingSurvey) ?
           <Modal
             transparent={true}
             animationType={'none'}
             style={{ minHeight:200, }}
           >
-              <View 
+              <View
                 style={{
                   flex: 1,
                   alignItems: 'center',
                   justifyContent: 'space-around',
-                  backgroundColor: '#00000070',  
+                  backgroundColor: '#00000070',
                   minHeight:150,
               }}>
                 {
-                  isLoadingSurveyData 
-                  ? 
+                  isLoadingSurveyData
+                  ?
                   <ActivityIndicator
                     animating={true}
                     color="#000000"
@@ -454,12 +454,12 @@ const HomeScreen = props => {
                       borderRadius: 10,
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'space-around',                      
+                      justifyContent: 'space-around',
                     }}
                   />
                   :
                   (
-                    <View 
+                    <View
                       style={{
                         backgroundColor: '#FFFFFF',
                         borderRadius: 10,
@@ -469,10 +469,10 @@ const HomeScreen = props => {
                         alignItems: 'center',
                         justifyContent: 'space-around',
                       }}
-                    >                 
+                    >
                       {
                       (
-                        surveyData[0]) 
+                        surveyData[0])
                         ?
                           <View
                             style={{
@@ -495,7 +495,7 @@ const HomeScreen = props => {
                               :
                               <></>
                             }
-                            <TouchableOpacity 
+                            <TouchableOpacity
                               onPress={()=>{setIsLoadingSurvey(false)}}
                               style={{
                                 position:'absolute',
@@ -503,11 +503,11 @@ const HomeScreen = props => {
                                 padding:9,
                               }}
                             >
-                              <AntDesign 
+                              <AntDesign
                                 raised
-                                name="closecircle" 
-                                size={25} 
-                                color="#00854F" 
+                                name="closecircle"
+                                size={25}
+                                color="#00854F"
                                 onPress={()=>{setIsLoadingSurvey(false)}}
                               />
                             </TouchableOpacity>
@@ -521,10 +521,10 @@ const HomeScreen = props => {
                             <View style={{width:'95%', minHeight:180}}>
                             <ScrollView style={{width:'100%', maxHeight:160, }}>
                               <Text style={{color:'#002369', fontSize:18, textAlign:'center',fontFamily:'HelveticaNeue-Bold',}}>{(surveyData[0]) ? surveyData[0].SurveyTitle : ""}</Text>
-                              <Text style={{color:'#002369', fontSize:16, textAlign:'center',fontFamily:'HelveticaNeue'}}>{"\n"}{(surveyQuestion[0]) ? surveyQuestion[0].Question : ""}</Text>                        
+                              <Text style={{color:'#002369', fontSize:16, textAlign:'center',fontFamily:'HelveticaNeue'}}>{"\n"}{(surveyQuestion[0]) ? surveyQuestion[0].Question : ""}</Text>
                             </ScrollView>
-                              <Text style={{color:'#00854F', fontSize:16, textAlign:'left',fontFamily:'HelveticaNeue-Bold',marginLeft:10,}}>Poll Choices &bull;</Text>                              
-                            </View>                            
+                              <Text style={{color:'#00854F', fontSize:16, textAlign:'left',fontFamily:'HelveticaNeue-Bold',marginLeft:10,}}>Poll Choices &bull;</Text>
+                            </View>
                           :
                             <View style={{width:'95%', minHeight:100}}>
                               <Text style={{color:'#002369', fontSize:18, textAlign:'center',fontFamily:'HelveticaNeue-Bold'}}>{(surveyData[0]) ? surveyData[0].SurveyPopupTitle : ""}</Text>
@@ -581,22 +581,22 @@ const HomeScreen = props => {
                             <FlatList
                                 data={surveyQuestion[0].QuestionChoices}
                                 keyExtractor={(item, index) => "ItemList_" + index.toString()}
-                                renderItem={buildInput} 
+                                renderItem={buildInput}
                             />
                             </ScrollView>
                             :
                             <></>
                       }
-                        <Text style={{marginTop:15,marginBottom:15, color:'#191E24', fontSize:12, textAlign:'center',fontFamily:'HelveticaNeue-Bold',marginLeft:10,}}>Your participation is much appreciated</Text>                      
+                        <Text style={{marginTop:15,marginBottom:15, color:'#191E24', fontSize:12, textAlign:'center',fontFamily:'HelveticaNeue-Bold',marginLeft:10,}}>Your participation is much appreciated</Text>
                       </View>
-                    </View>                    
+                    </View>
                   )
                 }
             </View>
           </Modal>
           :
           <></>
-        } 
+        }
       <Image
             source={require('AnRNApp/Image/bar.png')}
             style={{
@@ -619,12 +619,12 @@ const HomeScreen = props => {
             height={40}
           />
       </View>
-      <View style={{ 
+      <View style={{
           position:'absolute',
           right:0,
           left:0,
           padding:0,
-          marginTop:40,      
+          marginTop:40,
       }}>
         {isLoadingImage ? <ActivityIndicator size="large" color="#00ff00"/> : (
           <SliderBox
@@ -673,7 +673,7 @@ const HomeScreen = props => {
             }}
           />
         )}
-      </View>        
+      </View>
       <View style={{justifyContent:'center',alignItems:'center', marginTop:55}}>
         <Text
           style={{textDecorationLine:'underline',color:'#00854F', fontFamily:'HelveticaNeue', fontSize:14}}
@@ -694,10 +694,10 @@ const HomeScreen = props => {
             onScrollEnd={(item) => onScrollEndHandlerOutstanding(item)}
             inActiveScale={1}
           />
-        </View>        
+        </View>
         )}
       </View>
-      { dataOutstanding.length == 0 ? 
+      { dataOutstanding.length == 0 ?
         <View style={{width:'85%',height:90,alignItem:'center',alignSelf:'center',borderWidth:2,borderStyle:'solid',borderRadius:10,borderColor:'#b57979'}}>
           <Text style={{alignItems:'center',alignSelf:'center',paddingTop:35,fontSize:11,color:'#b57979'}}>No Orders Made Yet</Text>
         </View> : (
@@ -707,7 +707,7 @@ const HomeScreen = props => {
       )}
       <View style={{justifyContent:'flex-start',alignItems:'stretch', marginTop:30, marginLeft:15, marginRight:15, marginBottom:2}}>
         <Text style={{fontWeight:'bold', fontSize:17, fontFamily:'HelveticaNeue-Bold'}}>Delivered Orders</Text>
-        {isLoadingDelivered ? <ActivityIndicator size="large" color="#00ff00"/> : (         
+        {isLoadingDelivered ? <ActivityIndicator size="large" color="#00ff00"/> : (
         <View style={{flexDirection:'row', marginTop:10}}>
           <Carousel
             data={dataDelivered}
@@ -720,41 +720,41 @@ const HomeScreen = props => {
         </View>
         )}
       </View>
-      { dataDelivered.length == 0 ? 
+      { dataDelivered.length == 0 ?
         <View style={{width:'85%',height:90,alignItem:'center',alignSelf:'center',borderWidth:2,borderStyle:'solid',borderRadius:10,borderColor:'#b57979'}}>
           <Text style={{alignItems:'center',alignSelf:'center',paddingTop:35,fontSize:11,color:'#b57979'}}>No Orders Delivered Yet</Text>
         </View> : (
       <View style={{width:100,height:4,backgroundColor:'#c9cddb',alignItems:'center',alignSelf:'center',marginTop:20, marginBottom:30,borderRadius:3,flexDirection:'row'}}>
           <View style={{width:35,height:4,backgroundColor:'#0f1a44',borderRadius:3,left:firstScrollMarginLeftDelivered}}/>
-      </View>      
+      </View>
       )}
       </ScrollView>
       {
-      (isLoadingNotificationToUser) ? 
+      (isLoadingNotificationToUser) ?
       (
-        (notificationToUser != "") ? 
+        (notificationToUser != "") ?
         (
         <View
         >
           <View>
             <TouchableOpacity
-              visible={isLoadingNotificationToUser}            
-              style={{bottom:60,right:10,position:'absolute',height:20,width:20,}} 
+              visible={isLoadingNotificationToUser}
+              style={{bottom:60,right:10,position:'absolute',height:20,width:20,}}
               onPress={() => {
                 setIsLoadingNotificationToUser(false);
               }}
-            > 
-              <AntDesign 
-                name="closesquare" 
-                size={20} 
-                color="#00854F" 
+            >
+              <AntDesign
+                name="closesquare"
+                size={20}
+                color="#00854F"
                 style={{
                   borderRadius:5,
                   zIndex:1000,
                 }}
-              />          
-            </TouchableOpacity>          
-          </View>        
+              />
+            </TouchableOpacity>
+          </View>
           <View
             visible={isLoadingNotificationToUser}
             style={{
@@ -775,11 +775,11 @@ const HomeScreen = props => {
         </View>
         )
         :
-        (<></>)        
+        (<></>)
       )
       :
         (<></>)
-      }      
+      }
     </SafeAreaView>
   );
 };
@@ -788,6 +788,6 @@ const styles = StyleSheet.create({
   mainBody: {
     flex: 1,
     backgroundColor: '#fdfdfd',
-  },  
+  },
 });
 export default HomeScreen;
