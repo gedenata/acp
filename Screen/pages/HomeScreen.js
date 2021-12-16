@@ -689,8 +689,8 @@ const HomeScreen = props => {
           <Carousel
             data={dataOutstanding}
             renderItem={renderItemOutstanding}
-            separatorWidth={(dataOutstanding.length == 2 ? 0 : (width <= 340 ? 0 : -45) )}
-            itemWidth={200*widthMultiplierOutstandingOrder}
+            separatorWidth={(dataOutstanding.length == 2 ? -145 : (width <= 340 ? 0 : -45) )}
+            itemWidth={dataOutstanding.length == 2 ? 300*widthMultiplierOutstandingOrder : 200*widthMultiplierOutstandingOrder}
             onScrollEnd={(item) => onScrollEndHandlerOutstanding(item)}
             inActiveScale={1}
           />
@@ -712,8 +712,8 @@ const HomeScreen = props => {
           <Carousel
             data={dataDelivered}
             renderItem={renderItemDelivered}
-            separatorWidth={(dataDelivered.length == 2 ? 0 : (width <= 340 ? 0 : -45) )}
-            itemWidth={200*widthMultiplierOutstandingOrder}
+            separatorWidth={(dataDelivered.length == 2 ? -145 : (width <= 340 ? 0 : -45) )}
+            itemWidth={dataDelivered.length == 2 ? 300*widthMultiplierOutstandingOrder : 200*widthMultiplierOutstandingOrder}
             onScrollEnd={(item) => onScrollEndHandlerDelivered(item)}
             inActiveScale={1}
           />
