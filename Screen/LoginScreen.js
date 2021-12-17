@@ -40,7 +40,7 @@ const LoginScreen = props => {
                   <Text style={styles.buttonTextStyle}>LOG IN</Text>
                 </TouchableOpacity>
                 <Text style={styles.originalTextStyle}>
-                  v2.6.3
+                  v2.6.7
                 </Text>
               </KeyboardAvoidingView>
             </View>
