@@ -134,71 +134,25 @@ const MoreScreen = ({route, navigation}) => {
           <View>
             <Image
               source={require('AnRNApp/Image/bar.png')}
-              style={{
-                width: '100%',
-                height: 100,
-                top: 0,
-                resizeMode: 'contain',
-                borderRadius: 1000,
-                borderTopLeftRadius: 0,
-                borderTopRightRadius: 0,
-                transform: [{scaleX: 7 * widthMultiplier}],
-              }}
+              style={styles.image}
             />
           </View>
-          <View
-            style={{
-              alignItems: 'center',
-              position: 'absolute',
-              top: 10,
-              left: 0,
-              right: 0,
-            }}>
+          <View style={styles.logoView}>
             <LOGOSVG width={150} height={40} />
           </View>
-          <TouchableOpacity
-            style={{
-              height: 25,
-              marginTop: 20,
-              width: '100%',
-              right: 2,
-              left: 2,
-              flexDirection: 'row',
-              borderStyle: 'solid',
-              borderWidth: 0,
-              borderColor: '#dbd4d4',
-              borderBottomWidth: 0.4,
-            }}>
-            <View style={{left: 0, position: 'absolute', marginLeft: 10}}>
-              <Text
-                style={{color: '#191E24', fontWeight: 'bold', opacity: 0.6}}>
-                For Our Customers
-              </Text>
+
+          {/* For Our Customers */}
+          <TouchableOpacity style={styles.menuLabel}>
+            <View style={styles.viewLabel}>
+              <Text style={styles.textLabel}>For Our Customers</Text>
             </View>
           </TouchableOpacity>
+
+          {/* Market Update */}
           <TouchableOpacity
-            style={{
-              height: 45,
-              width: '100%',
-              right: 2,
-              left: 2,
-              marginTop: 10,
-              flexDirection: 'row',
-              borderStyle: 'solid',
-              borderWidth: 0,
-              borderColor: '#dbd4d4',
-              borderBottomWidth: 1,
-            }}
+            style={styles.menuChildLabel}
             onPress={goToPage.bind(this, 'MarketUpdate')}>
-            <View
-              style={{
-                left: 0,
-                width: 25,
-                marginLeft: 12,
-                marginTop: 4,
-                marginBottom: 10,
-                position: 'absolute',
-              }}>
+            <View style={styles.viewChildIconLabel}>
               <Ionicons
                 raised
                 name="ios-book-outline"
@@ -206,348 +160,122 @@ const MoreScreen = ({route, navigation}) => {
                 color="#00854F"
               />
             </View>
-            <View
-              style={{
-                left: 40,
-                position: 'absolute',
-                marginLeft: 10,
-                marginTop: 8,
-                marginBottom: 8,
-              }}>
-              <Text
-                style={{
-                  fontFamily: 'HelveticaNeue',
-                  fontSize: 16,
-                  lineHeight: 24,
-                }}>
-                Market Update
-              </Text>
+            <View style={styles.viewChildLabel}>
+              <Text style={styles.textChildLabel}>Market Update</Text>
+            </View>
+            <View style={styles.viewChildBadge}>
               {unreadMarketUpdates > 0 ? (
-                <View
-                  style={{
-                    marginLeft: 116,
-                    marginTop: -27,
-                    height: 28,
-                    width: 28,
-                    borderRadius: 28,
-                    backgroundColor: '#FF3A3A',
-                    justifyContent: 'center',
-                  }}>
-                  <Text
-                    style={{
-                      fontFamily: 'HelveticaNeue-Bold',
-                      fontSize: 17,
-                      lineHeight: 24,
-                      textAlign: 'center',
-                      color: '#FFF',
-                    }}>
-                    {unreadMarketUpdates}
-                  </Text>
-                </View>
+                <Text style={styles.textChildBadge}>{unreadMarketUpdates}</Text>
               ) : (
                 <></>
               )}
             </View>
-            <View
-              style={{
-                right: 0,
-                marginTop: 10,
-                marginBottom: 10,
-                position: 'absolute',
-                marginRight: 20,
-              }}>
+            <View style={styles.viewChildIconNavigate}>
               <Icon raised name="navigate-next" size={21} />
             </View>
           </TouchableOpacity>
+
+          {/* Product Catalogue */}
           <TouchableOpacity
-            style={{
-              height: 45,
-              width: '100%',
-              right: 2,
-              left: 2,
-              marginTop: 10,
-              flexDirection: 'row',
-              borderStyle: 'solid',
-              borderWidth: 0,
-              borderColor: '#dbd4d4',
-              borderBottomWidth: 1,
-            }}
+            style={styles.menuChildLabel}
             onPress={goToPage.bind(this, 'ProductCatalogue')}>
-            <View
-              style={{
-                left: 0,
-                width: 25,
-                marginLeft: 10,
-                marginTop: 4,
-                marginBottom: 10,
-                position: 'absolute',
-              }}>
+            <View style={styles.viewChildIconLabel}>
               <Icon raised name="list-alt" size={28} color="#00854F" />
             </View>
-            <View
-              style={{
-                left: 40,
-                position: 'absolute',
-                marginLeft: 10,
-                marginTop: 8,
-                marginBottom: 8,
-              }}>
-              <Text
-                style={{
-                  fontFamily: 'HelveticaNeue',
-                  fontSize: 16,
-                  lineHeight: 24,
-                }}>
-                Product Catalogue
-              </Text>
+            <View style={styles.viewChildLabel}>
+              <Text style={styles.textChildLabel}>Product Catalogue</Text>
             </View>
-            <View
-              style={{
-                right: 0,
-                marginTop: 10,
-                marginBottom: 10,
-                position: 'absolute',
-                marginRight: 20,
-              }}>
+            <View style={styles.viewChildIconNavigate}>
               <Icon raised name="navigate-next" size={21} />
             </View>
           </TouchableOpacity>
+
+          {/* Rewards */}
           <TouchableOpacity
-            style={styles.MoreItemStyle}
+            style={styles.menuChildLabel}
             onPress={goToPage.bind(this, 'Rewards')}>
-            <View
-              style={{
-                left: 0,
-                width: 25,
-                marginLeft: 10,
-                marginTop: 4,
-                marginBottom: 10,
-                position: 'absolute',
-              }}>
+            <View style={styles.viewChildIconLabel}>
               <Icon raised name="star-outline" size={28} color="#00854F" />
             </View>
-            <View
-              style={{
-                left: 40,
-                position: 'absolute',
-                marginLeft: 10,
-                marginTop: 8,
-                marginBottom: 8,
-              }}>
-              <Text
-                style={{
-                  fontFamily: 'HelveticaNeue',
-                  fontSize: 16,
-                  lineHeight: 24,
-                }}>
-                Rewards
-              </Text>
+            <View style={styles.viewChildLabel}>
+              <Text style={styles.textChildLabel}>Rewards</Text>
             </View>
-            <View
-              style={{
-                right: 0,
-                marginTop: 10,
-                marginBottom: 10,
-                position: 'absolute',
-                marginRight: 20,
-              }}>
+            <View style={styles.viewChildIconNavigate}>
               <Icon raised name="navigate-next" size={21} />
             </View>
           </TouchableOpacity>
+
+          {/* Finance Matter */}
           <TouchableOpacity
-            style={styles.MoreItemStyle}
+            style={styles.menuChildLabel}
             onPress={goToPage.bind(this, 'Finance Matter')}>
-            <View
-              style={{
-                left: 0,
-                width: 25,
-                marginLeft: 10,
-                marginTop: 4,
-                marginBottom: 10,
-                position: 'absolute',
-              }}>
+            <View style={styles.viewChildIconLabel}>
               <Ionicons
                 raised
                 name="receipt-outline"
-                size={24}
+                size={25}
                 color="#00854F"
               />
             </View>
-            <View
-              style={{
-                left: 40,
-                position: 'absolute',
-                marginLeft: 10,
-                marginTop: 8,
-                marginBottom: 8,
-              }}>
-              <Text
-                style={{
-                  fontFamily: 'HelveticaNeue',
-                  fontSize: 16,
-                  lineHeight: 24,
-                }}>
-                Finance Matter
-              </Text>
+            <View style={styles.viewChildLabel}>
+              <Text style={styles.textChildLabel}>Finance Matter</Text>
             </View>
-            <View
-              style={{
-                right: 0,
-                marginTop: 10,
-                marginBottom: 10,
-                position: 'absolute',
-                marginRight: 20,
-              }}>
+            <View style={styles.viewChildIconNavigate}>
               <Icon raised name="navigate-next" size={21} />
             </View>
           </TouchableOpacity>
+
+          {/* Market Survey */}
           <TouchableOpacity
-            style={styles.MoreItemStyle}
+            style={styles.menuChildLabel}
             onPress={goToPage.bind(this, 'PulpAndPaperUpdate')}>
-            <View
-              style={{
-                left: 0,
-                width: 25,
-                marginLeft: 10,
-                marginTop: 4,
-                marginBottom: 10,
-                position: 'absolute',
-              }}>
+            <View style={styles.viewChildIconLabel}>
               <Icon raised name="content-paste" size={28} color="#00854F" />
             </View>
-            <View
-              style={{
-                left: 40,
-                position: 'absolute',
-                marginLeft: 10,
-                marginTop: 8,
-                marginBottom: 8,
-                flex: 2,
-                flexDirection: 'row',
-              }}>
-              <Text
-                style={{
-                  fontFamily: 'HelveticaNeue',
-                  fontSize: 16,
-                  lineHeight: 24,
-                }}>
-                Market Survey
-              </Text>
+            <View style={styles.viewChildLabel}>
+              <Text style={styles.textChildLabel}>Market Survey</Text>
+            </View>
+            <View style={styles.viewChildBadge}>
               {numberOfRemindedSurvey > 0 ? (
-                <View
-                  style={{
-                    marginLeft: 10,
-                    marginTop: -2,
-                    height: 28,
-                    width: 28,
-                    borderRadius: 28,
-                    backgroundColor: '#FF3A3A',
-                    justifyContent: 'center',
-                  }}>
-                  <Text
-                    style={{
-                      fontFamily: 'HelveticaNeue-Bold',
-                      fontSize: 17,
-                      lineHeight: 24,
-                      textAlign: 'center',
-                      color: '#FFF',
-                    }}>
-                    {numberOfRemindedSurvey}
-                  </Text>
-                </View>
+                <Text style={styles.textChildBadge}>
+                  {numberOfRemindedSurvey}
+                </Text>
               ) : (
                 <></>
               )}
             </View>
-            <View
-              style={{
-                right: 0,
-                marginTop: 10,
-                marginBottom: 10,
-                position: 'absolute',
-                marginRight: 20,
-              }}>
+            <View style={styles.viewChildIconNavigate}>
               <Icon raised name="navigate-next" size={21} />
             </View>
           </TouchableOpacity>
+
+          {/* Customer Support */}
           <TouchableOpacity
-            style={styles.MoreItemStyle}
+            style={styles.menuChildLabel}
             onPress={goToPage.bind(this, 'CustomerFeedback')}>
-            <View
-              style={{
-                left: 0,
-                width: 25,
-                marginLeft: 10,
-                marginTop: 4,
-                marginBottom: 10,
-                position: 'absolute',
-              }}>
+            <View style={styles.viewChildIconLabel}>
               <Icon raised name="insert-comment" size={28} color="#00854F" />
             </View>
-            <View
-              style={{
-                left: 40,
-                position: 'absolute',
-                marginLeft: 10,
-                marginTop: 8,
-                marginBottom: 8,
-              }}>
-              <Text
-                style={{
-                  fontFamily: 'HelveticaNeue',
-                  fontSize: 16,
-                  lineHeight: 24,
-                }}>
-                Customer Support
-              </Text>
+            <View style={styles.viewChildLabel}>
+              <Text style={styles.textChildLabel}>Customer Support</Text>
             </View>
-            <View
-              style={{
-                right: 0,
-                marginTop: 10,
-                marginBottom: 10,
-                position: 'absolute',
-                marginRight: 20,
-              }}>
+            <View style={styles.viewChildIconNavigate}>
               <Icon raised name="navigate-next" size={21} />
             </View>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              height: 25,
-              marginTop: 20,
-              width: '100%',
-              right: 2,
-              left: 5,
-              flexDirection: 'row',
-              borderStyle: 'solid',
-              borderWidth: 0,
-              borderColor: '#dbd4d4',
-              borderBottomWidth: 0.4,
-            }}>
-            <View style={{left: 0, position: 'absolute', marginLeft: 10}}>
-              <Text
-                style={{
-                  color: '#191E24',
-                  opacity: 0.6,
-                  fontFamily: 'HelveticaNeue-Bold',
-                }}>
-                Supports
-              </Text>
+
+          {/* Supports */}
+          <TouchableOpacity style={styles.menuLabel}>
+            <View style={styles.viewLabel}>
+              <Text style={styles.textLabel}>Supports</Text>
             </View>
           </TouchableOpacity>
+
+          {/* Contact Support */}
           <TouchableOpacity
-            style={styles.MoreItemStyle}
+            style={styles.menuChildLabel}
             onPress={goToPage.bind(this, 'ContactSupport')}>
-            <View
-              style={{
-                left: 0,
-                width: 25,
-                marginLeft: 18,
-                marginTop: 9,
-                marginBottom: 10,
-                position: 'absolute',
-              }}>
+            <View style={styles.viewChildIconLabel}>
               <SimpleLineIcons
                 raised
                 name="earphones-alt"
@@ -555,120 +283,45 @@ const MoreScreen = ({route, navigation}) => {
                 color="#00854F"
               />
             </View>
-            <View
-              style={{
-                left: 40,
-                position: 'absolute',
-                marginLeft: 10,
-                marginTop: 8,
-                marginBottom: 8,
-              }}>
-              <Text
-                style={{
-                  fontFamily: 'HelveticaNeue',
-                  fontSize: 16,
-                  lineHeight: 24,
-                }}>
-                Contact Support
-              </Text>
+            <View style={styles.viewChildLabel}>
+              <Text style={styles.textChildLabel}>Contact Support</Text>
             </View>
-            <View
-              style={{
-                right: 0,
-                marginTop: 10,
-                marginBottom: 10,
-                position: 'absolute',
-                marginRight: 20,
-              }}>
+            <View style={styles.viewChildIconNavigate}>
               <Icon raised name="navigate-next" size={21} />
             </View>
           </TouchableOpacity>
+
+          {/* Privacy Policy */}
           <TouchableOpacity
-            style={styles.MoreItemStyle}
+            style={styles.menuChildLabel}
             onPress={goToPage.bind(this, 'PhaseTwo')}>
-            <View
-              style={{
-                left: 0,
-                width: 25,
-                marginLeft: 18,
-                marginTop: 9,
-                marginBottom: 10,
-                position: 'absolute',
-              }}>
+            <View style={styles.viewChildIconLabel}>
               <Icon raised name="privacy-tip" size={20} color="#00854F" />
             </View>
-            <View
-              style={{
-                left: 40,
-                position: 'absolute',
-                marginLeft: 10,
-                marginTop: 8,
-                marginBottom: 8,
-              }}>
-              <Text
-                style={{
-                  fontFamily: 'HelveticaNeue',
-                  fontSize: 16,
-                  lineHeight: 24,
-                }}>
-                Privacy Policy
-              </Text>
+            <View style={styles.viewChildLabel}>
+              <Text style={styles.textChildLabel}>Privacy Policy</Text>
             </View>
-            <View
-              style={{
-                right: 0,
-                marginTop: 10,
-                marginBottom: 10,
-                position: 'absolute',
-                marginRight: 20,
-              }}>
+            <View style={styles.viewChildIconNavigate}>
               <Icon raised name="navigate-next" size={21} />
             </View>
           </TouchableOpacity>
+
+          {/* Terms of Service */}
           <TouchableOpacity
-            style={styles.MoreItemStyle}
+            style={styles.menuChildLabel}
             onPress={goToPage.bind(this, 'TermsofService')}>
-            <View
-              style={{
-                left: 0,
-                width: 25,
-                marginLeft: 18,
-                marginTop: 9,
-                marginBottom: 10,
-                position: 'absolute',
-              }}>
+            <View style={styles.viewChildIconLabel}>
               <Ionicons
                 raised
                 name="document-text-outline"
-                size={20}
+                size={25}
                 color="#00854F"
               />
             </View>
-            <View
-              style={{
-                left: 40,
-                position: 'absolute',
-                marginLeft: 10,
-                marginTop: 8,
-                marginBottom: 8,
-              }}>
-              <Text
-                style={{
-                  fontFamily: 'HelveticaNeue',
-                  fontSize: 16,
-                  lineHeight: 24,
-                }}>
-                Terms of Service
-              </Text>
+            <View style={styles.viewChildLabel}>
+              <Text style={styles.textChildLabel}>Terms of Service</Text>
             </View>
-            <View
-              style={{
-                right: 0,
-                marginTop: 10,
-                marginBottom: 10,
-                position: 'absolute',
-                marginRight: 20,
-              }}>
+            <View style={styles.viewChildIconNavigate}>
               <Icon raised name="navigate-next" size={21} />
             </View>
           </TouchableOpacity>
@@ -741,7 +394,47 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fdfdfd',
   },
-  MoreItemStyle: {
+  image: {
+    width: '100%',
+    height: 100,
+    top: 0,
+    resizeMode: 'contain',
+    borderRadius: 1000,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+    transform: [{scaleX: 7 * widthMultiplier}],
+  },
+  logoView: {
+    alignItems: 'center',
+    position: 'absolute',
+    top: 10,
+    left: 0,
+    right: 0,
+  },
+  menuLabel: {
+    height: 25,
+    marginTop: 20,
+    width: '100%',
+    right: 2,
+    left: 5,
+    flexDirection: 'row',
+    borderStyle: 'solid',
+    borderWidth: 0,
+    borderColor: '#dbd4d4',
+    borderBottomWidth: 0.4,
+  },
+  viewLabel: {
+    left: 0,
+    position: 'absolute',
+    marginLeft: 10,
+  },
+  textLabel: {
+    color: '#191E24',
+    opacity: 0.6,
+    fontWeight: 'bold',
+    fontFamily: 'HelveticaNeue-Bold',
+  },
+  menuChildLabel: {
     height: 45,
     width: '100%',
     right: 2,
@@ -753,5 +446,51 @@ const styles = StyleSheet.create({
     borderColor: '#dbd4d4',
     borderBottomWidth: 1,
   },
+  viewChildIconLabel: {
+    left: 0,
+    width: 25,
+    marginLeft: 10,
+    marginTop: 4,
+    marginBottom: 10,
+    position: 'absolute',
+  },
+  viewChildLabel: {
+    left: 40,
+    position: 'absolute',
+    marginLeft: 10,
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  textChildLabel: {
+    fontFamily: 'HelveticaNeue',
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  viewChildIconNavigate: {
+    right: 0,
+    marginTop: 10,
+    marginBottom: 10,
+    position: 'absolute',
+    marginRight: 20,
+  },
+  viewChildBadge: {
+    height: 24,
+    width: 24,
+    borderRadius: 24,
+    backgroundColor: '#FF3A3A',
+    justifyContent: 'center',
+    right: 50,
+    marginTop: 10,
+    marginBottom: 10,
+    position: 'absolute',
+  },
+  textChildBadge: {
+    fontFamily: 'HelveticaNeue-Bold',
+    fontSize: 14,
+    lineHeight: 24,
+    textAlign: 'center',
+    color: '#FFF',
+  },
 });
+
 export default MoreScreen;
