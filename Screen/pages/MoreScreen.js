@@ -41,73 +41,73 @@ const MoreScreen = ({route, navigation}) => {
   };
 
   const goToPage = (targetPage) => {
-    if (targetPage == 'TermsofService') {
+    if (targetPage === 'TermsofService') {
       navigation.navigate('TnC');
-    } else if (targetPage == 'ContactSupport') {
+    } else if (targetPage === 'ContactSupport') {
       openBrowser();
     } else {
       navigation.navigate(targetPage);
     }
   };
 
-  useEffect(async () => {
-    var timeoutCounter = setTimeout(() => {
-      setNumberOfRemindedSurvey(0);
-      setLoading(false);
-    }, 200000);
+  useEffect(() => {
+    (async () => {
+      var timeoutCounter = setTimeout(() => {
+        setNumberOfRemindedSurvey(0);
+        setLoading(false);
+      }, 200000);
 
-    setLoading(true);
-    AsyncStorage.getItem('user_id').then((value) => {
-      AESEncryption('decrypt', value).then((respp) => {
-        var dataToSend = {Token: JSON.parse(respp).data.Token};
-        var formBody = [];
-        for (let key in dataToSend) {
-          var encodedKey = encodeURIComponent(key);
-          var encodedValue = encodeURIComponent(dataToSend[key]);
-          formBody.push(encodedKey + '=' + encodedValue);
-        }
-        formBody = formBody.join('&');
-        let url = `${ACCESS_API}/marketsurveyqna`;
-        fetch(url, {
-          method: 'POST',
-          body: formBody,
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-          },
-        })
-          .then((response) => response.json())
-          .then((json) => {
-            clearTimeout(timeoutCounter);
-            setNumberOfRemindedSurvey(json.length);
-            setLoading(false);
-
-            var timeoutCounter2;
-            if (route.params) {
-              if (route.params.notificationText != '') {
-                setIsLoadingNotification(true);
-                timeoutCounter2 = setTimeout(() => {
-                  setIsLoadingNotification(false);
-                  setLoading(false);
-                  clearTimeout(timeoutCounter2);
-                }, 6000);
-              }
-            }
+      setLoading(true);
+      AsyncStorage.getItem('user_id').then((value) => {
+        AESEncryption('decrypt', value).then((respp) => {
+          var dataToSend = {Token: JSON.parse(respp).data.Token};
+          var formBody = [];
+          for (let key in dataToSend) {
+            var encodedKey = encodeURIComponent(key);
+            var encodedValue = encodeURIComponent(dataToSend[key]);
+            formBody.push(encodedKey + '=' + encodedValue);
+          }
+          formBody = formBody.join('&');
+          let url = `${ACCESS_API}/marketsurveyqna`;
+          fetch(url, {
+            method: 'POST',
+            body: formBody,
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+            },
           })
-          .catch((error) => {
-            clearTimeout(timeoutCounter);
-            setNumberOfRemindedSurvey(0);
-            setLoading(false);
-          });
-      }); // End of encryption/decryption
-    });
-    await loadMarketUpdates();
-  }, []);
+            .then((response) => response.json())
+            .then((json) => {
+              clearTimeout(timeoutCounter);
+              setNumberOfRemindedSurvey(json.length);
+              setLoading(false);
+
+              var timeoutCounter2;
+              if (route.params) {
+                if (route.params.notificationText !== '') {
+                  setIsLoadingNotification(true);
+                  timeoutCounter2 = setTimeout(() => {
+                    setIsLoadingNotification(false);
+                    setLoading(false);
+                    clearTimeout(timeoutCounter2);
+                  }, 6000);
+                }
+              }
+            })
+            .catch((error) => {
+              clearTimeout(timeoutCounter);
+              setNumberOfRemindedSurvey(0);
+              setLoading(false);
+            });
+        });
+      });
+      await loadMarketUpdates();
+    })();
+  }, [route.params]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
-      //setLoading(true);
       await loadMarketUpdates();
-      //setLoading(false);
     });
 
     return unsubscribe;
