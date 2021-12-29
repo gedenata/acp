@@ -332,13 +332,7 @@ const MoreScreen = ({route, navigation}) => {
           <View>
             <TouchableOpacity
               visible={isLoadingNotification}
-              style={{
-                bottom: 60,
-                right: 10,
-                position: 'absolute',
-                height: 20,
-                width: 20,
-              }}
+              style={styles.notificationViewMore}
               onPress={() => {
                 navigation.navigate('More', {notificationText: '', status: ''});
               }}>
@@ -346,38 +340,22 @@ const MoreScreen = ({route, navigation}) => {
                 name="closesquare"
                 size={20}
                 color="#686a4a"
-                style={{borderRadius: 5}}
+                style={styles.notificationCloseIcon}
               />
             </TouchableOpacity>
           </View>
           <View
             visible={isLoadingNotification}
-            style={{
-              position: 'absolute',
-              bottom: 10,
-              left: 10,
-              right: 10,
-              height: 50,
-              borderRadius: 7,
-              backgroundColor: '#686a4a',
-              paddingTop: 10,
-              paddingBottom: 10,
-            }}>
+            style={styles.notificationCircle}>
             <AntDesign
-              name={route.params.status == 'ok' ? 'checkcircle' : 'closecircle'}
+              name={
+                route.params.status === 'ok' ? 'checkcircle' : 'closecircle'
+              }
               size={35}
               color="#FDFDFD"
-              style={{margin: 6, marginLeft: 10, position: 'absolute'}}
+              style={styles.notificationCircleIcon}
             />
-            <Text
-              style={{
-                color: '#FDFDFD',
-                position: 'absolute',
-                left: 60,
-                right: 60,
-                top: 7,
-                fontSize: 12,
-              }}>
+            <Text style={styles.notificationCircleText}>
               {route.params ? route.params.notificationText : ''}
             </Text>
           </View>
@@ -490,6 +468,40 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     textAlign: 'center',
     color: '#FFF',
+  },
+  notificationViewMore: {
+    bottom: 60,
+    right: 10,
+    position: 'absolute',
+    height: 20,
+    width: 20,
+  },
+  notificationCloseIcon: {
+    borderRadius: 5,
+  },
+  notificationCircle: {
+    position: 'absolute',
+    bottom: 10,
+    left: 10,
+    right: 10,
+    height: 50,
+    borderRadius: 7,
+    backgroundColor: '#686a4a',
+    paddingTop: 10,
+    paddingBottom: 10,
+  },
+  notificationCircleIcon: {
+    margin: 6,
+    marginLeft: 10,
+    position: 'absolute',
+  },
+  notificationCircleText: {
+    color: '#FDFDFD',
+    position: 'absolute',
+    left: 60,
+    right: 60,
+    top: 7,
+    fontSize: 12,
   },
 });
 
