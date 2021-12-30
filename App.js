@@ -43,6 +43,7 @@ import MarketUpdateScreen from './Screen/pages/MarketUpdateScreen';
 import MarketUpdateDetailScreen from './Screen/pages/MarketUpdateDetailScreen';
 import SetupBiometricsScreen from './Screen/pages/SetupBiometricsScreen';
 import BiometricAuthenticationScreen from './Screen/pages/BiometricAuthenticationScreen';
+import FinanceMatterScreen from './Screen/pages/FinanceMatterScreen';
 
 import AESEncryption from './Screen/Components/AESEncryption';
 
@@ -388,6 +389,7 @@ const App = () => {
           }}
         />
         <Stack.Screen name="Rewards" component={RewardsScreen} />
+        <Stack.Screen name="FinanceMatter" component={FinanceMatterScreen} />
         <Stack.Screen name="PhaseTwo" component={PhaseTwoScreen} />
       </Stack.Navigator>
     );

@@ -208,7 +208,7 @@ const MoreScreen = ({route, navigation}) => {
           {/* Finance Matter */}
           <TouchableOpacity
             style={styles.menuChildLabel}
-            onPress={goToPage.bind(this, 'Finance Matter')}>
+            onPress={goToPage.bind(this, 'FinanceMatter')}>
             <View style={styles.viewChildIconLabel}>
               <Ionicons
                 raised
