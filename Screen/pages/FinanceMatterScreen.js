@@ -12,17 +12,36 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import DeviceInfo from 'react-native-device-info';
-import AntDesign from 'react-native-vector-icons/AntDesign';
 
 import Loader from './../Components/loader';
 
 const {width} = Dimensions.get('window');
 const widthMultiplier = width / 400;
 
-const FinanceMatterScreen = ({route, navigation}) => {
+const DATA = [
+  {
+    id: '1',
+    title: '1st - Reminder',
+  },
+  {
+    id: '2',
+    title: '2nd - Reminder',
+  },
+  {
+    id: '3',
+    title: '3rd - Reminder',
+  },
+];
+
+const Item = ({title}) => (
+  <View style={styles.item}>
+    <Text style={styles.title}>{title}</Text>
+  </View>
+);
+
+const FinanceMatterScreen = ({navigation}) => {
   const [loading] = useState(false);
   const [, setFontScale] = useState(1);
-  const [itemList, setItemList] = useState([]);
 
   const goBackToPage = () => {
     navigation.goBack();
@@ -32,8 +51,12 @@ const FinanceMatterScreen = ({route, navigation}) => {
     setFontScale(fontScaleTemp);
   });
 
+  const renderItem = ({item}) => {
+    <Item title={item.title} />;
+  };
+
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.container}>
       <Loader loading={loading} />
       <ScrollView>
         <Image
@@ -46,27 +69,12 @@ const FinanceMatterScreen = ({route, navigation}) => {
           </TouchableOpacity>
           <Text style={styles.textBar}>Finance Matter</Text>
         </View>
-        {itemList.length === 0 ? (
-          <View>
-            <Text style={{padding: 120}}>No data is available now</Text>
-          </View>
-        ) : (
-          <FlatList data={itemList} />
-        )}
+        <FlatList
+          data={DATA}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+        />
       </ScrollView>
-      {route.params ? (
-        route.params.notificationText !== '' ? (
-          <View>
-            <TouchableOpacity>
-              <AntDesign name="closesquare" size={20} color="#00854F" />
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <></>
-        )
-      ) : (
-        <></>
-      )}
     </SafeAreaView>
   );
 };
@@ -100,6 +108,18 @@ const styles = StyleSheet.create({
     color: '#FDFDFD',
     fontFamily: 'HelveticaNeue-Bold',
     fontSize: 20,
+  },
+  container: {
+    flex: 1,
+  },
+  item: {
+    backgroundColor: '#d3d3d3',
+    padding: 20,
+    marginVertical: 8,
+    marginHorizontal: 16,
+  },
+  title: {
+    fontSize: 32,
   },
 });
 
