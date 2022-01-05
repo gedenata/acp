@@ -20,7 +20,7 @@ import EmptyIcon from 'AnRNApp/Image/svg_logo/emptystate_noresults.svg';
 const {width} = Dimensions.get('window');
 const widthMultiplier = width / 400;
 
-const DATA = [
+export const DATA = [
   {
     id: '1',
     date: '21/12/2021',

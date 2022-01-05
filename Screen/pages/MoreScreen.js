@@ -29,6 +29,7 @@ import {
   checkUnreadMarketUpdates,
   markReadMarketUpdates,
 } from './../Components/marketUpdateUtils';
+import {DATA} from './FinanceMatterScreen';
 
 const MoreScreen = ({route, navigation}) => {
   const [isLoadingNotification, setIsLoadingNotification] = useState(false);
@@ -219,6 +220,13 @@ const MoreScreen = ({route, navigation}) => {
             </View>
             <View style={styles.viewChildLabel}>
               <Text style={styles.textChildLabel}>Finance Matter</Text>
+            </View>
+            <View style={styles.viewChildBadge}>
+              {DATA.length !== 0 ? (
+                <Text style={styles.textChildBadge}>{DATA.length}</Text>
+              ) : (
+                <></>
+              )}
             </View>
             <View style={styles.viewChildIconNavigate}>
               <Icon raised name="navigate-next" size={21} />
