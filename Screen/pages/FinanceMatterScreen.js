@@ -14,24 +14,25 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import DeviceInfo from 'react-native-device-info';
 
 import Loader from './../Components/loader';
+import EmptyIcon from 'AnRNApp/Image/svg_logo/emptystate_noresults.svg';
 
 const {width} = Dimensions.get('window');
 const widthMultiplier = width / 400;
 
-const DATA = [
-  {
-    id: '1',
-    title: '1st - Reminder',
-  },
-  {
-    id: '2',
-    title: '2nd - Reminder',
-  },
-  {
-    id: '3',
-    title: '3rd - Reminder',
-  },
-];
+// const DATA = [
+//   {
+//     id: '1',
+//     title: '1st - Reminder',
+//   },
+//   {
+//     id: '2',
+//     title: '2nd - Reminder',
+//   },
+//   {
+//     id: '3',
+//     title: '3rd - Reminder',
+//   },
+// ];
 
 const Item = ({title}) => (
   <View style={styles.item}>
@@ -42,6 +43,7 @@ const Item = ({title}) => (
 const FinanceMatterScreen = ({navigation}) => {
   const [loading] = useState(false);
   const [, setFontScale] = useState(1);
+  const [itemList, setItemList] = useState([]);
 
   const goBackToPage = () => {
     navigation.goBack();
@@ -52,7 +54,13 @@ const FinanceMatterScreen = ({navigation}) => {
   });
 
   const renderItem = ({item}) => {
-    <Item title={item.title} />;
+    return (
+      <View style={styles.renderItemView} key="">
+        <TouchableOpacity style={styles.itemTouch}>
+          <Item title={item.title} />
+        </TouchableOpacity>
+      </View>
+    );
   };
 
   return (
@@ -69,11 +77,18 @@ const FinanceMatterScreen = ({navigation}) => {
           </TouchableOpacity>
           <Text style={styles.textBar}>Finance Matter</Text>
         </View>
-        <FlatList
-          data={DATA}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-        />
+        {itemList.length === 0 ? (
+          <View>
+            <EmptyIcon style={styles.emptyIcon} width={300} height={140} />
+            <Text style={styles.emptyText}>No data is available now</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={itemList}
+            renderItem={renderItem}
+            keyExtractor={(index) => 'ItemList_' + index.toString()}
+          />
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -120,6 +135,25 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
+  },
+  emptyIcon: {
+    marginTop: 20,
+    alignSelf: 'center',
+    alignItems: 'center',
+  },
+  emptyText: {
+    alignSelf: 'center',
+    alignItems: 'center',
+  },
+  renderItemView: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    minHeight: 56,
+    marginRight: width <= 360 || 1 > 1.2 ? 7 : 30,
+    marginLeft: width <= 360 || 1 > 1.2 ? 7 : 30,
+    color: '#000000',
+    marginBottom: 10,
+    marginTop: 10,
   },
 });
 
