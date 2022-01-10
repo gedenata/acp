@@ -19,6 +19,7 @@ import EmptyIcon from 'AnRNApp/Image/svg_logo/emptystate_noresults.svg';
 
 const {width} = Dimensions.get('window');
 const widthMultiplier = width / 400;
+const API = 'https://m.averis.biz/WebApi1/access/api';
 
 export const DATA = [
   {
@@ -45,8 +46,16 @@ export const DATA = [
 ];
 
 const FinanceMatterScreen = ({navigation}) => {
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [, setFontScale] = useState(1);
+  const [tokenValue, setTokenValue] = useState('');
+  const [pdfItemName, setPdfItemName] = useState('');
+  const [pdfString, setPdfString] = useState('');
+  const [pdfSource, setPdfSource] = useState({});
+  const [
+    isLoadingPopupSendConfirmation,
+    setLoadingPopupSendConfirmation,
+  ] = useState(false);
 
   DeviceInfo.getFontScale().then((fontScaleTemp) => {
     setFontScale(fontScaleTemp);
@@ -67,7 +76,7 @@ const FinanceMatterScreen = ({navigation}) => {
         <TouchableOpacity
           style={styles.viewPdfButton}
           onPress={() => {
-            handleOpenFile();
+            handleViewPdf(Item.ID, Item.title);
           }}>
           <Ionicons raised name="md-open-outline" size={18} color="#00854F" />
           <Text style={styles.textPdfButton}>View PDF</Text>
@@ -78,46 +87,71 @@ const FinanceMatterScreen = ({navigation}) => {
 
   const renderFinanceMatterItem = ({item}) => {
     return (
-      <View>
-        <Item
-          date={item.date}
-          company={item.company}
-          title={item.title}
-          subTitle={item.subTitle}
-        />
-      </View>
+      <Item
+        date={item.date}
+        company={item.company}
+        title={item.title}
+        subTitle={item.subTitle}
+      />
     );
   };
 
-  const handleOpenFile = () => {};
+  const handleViewPdf = (id, title) => {
+    setLoading(true);
+    setPdfItemName(title);
+
+    const data = {Token: '' + tokenValue};
+    const body = [];
+    for (let key in data) {
+      const encodedKey = encodeURIComponent(key);
+      const encodedValue = encodeURIComponent(data[key]);
+      body.push(encodedKey + '=' + encodedValue);
+      body.push('ID' + '=' + id);
+    }
+
+    const url = `${API}/productcataloguefile`;
+    fetch(url, {
+      method: 'POST',
+      body: body.join('&'),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+      },
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        setPdfString(json[0].FileData);
+        setPdfSource({uri: 'data:application/pdf;base64,' + json[0].FileData});
+        setLoadingPopupSendConfirmation(true);
+        setLoading(false);
+      })
+      .catch((error) => console.error(error));
+
+    setLoading(false);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <Loader loading={loading} />
-      <ScrollView>
-        <Image
-          source={require('AnRNApp/Image/bar.png')}
-          style={styles.imgBar}
-        />
-        <View style={styles.viewOpacity}>
-          <TouchableOpacity style={styles.iconTouch} onPress={goBackToPage}>
-            <Icon raised name="arrow-left" size={30} color="#FDFDFD" />
-          </TouchableOpacity>
-          <Text style={styles.textBar}>Finance Matter</Text>
+      <Image source={require('AnRNApp/Image/bar.png')} style={styles.imgBar} />
+      <View style={styles.viewOpacity}>
+        <TouchableOpacity style={styles.iconTouch} onPress={goBackToPage}>
+          <Icon raised name="arrow-left" size={30} color="#FDFDFD" />
+        </TouchableOpacity>
+        <Text style={styles.textBar}>Finance Matter</Text>
+      </View>
+      {DATA.length === 0 ? (
+        <View>
+          <EmptyIcon style={styles.emptyIcon} width={300} height={140} />
+          <Text style={styles.emptyText}>No data is available now</Text>
         </View>
-        {DATA.length === 0 ? (
-          <View>
-            <EmptyIcon style={styles.emptyIcon} width={300} height={140} />
-            <Text style={styles.emptyText}>No data is available now</Text>
-          </View>
-        ) : (
-          <FlatList
-            data={DATA}
-            renderItem={renderFinanceMatterItem}
-            keyExtractor={(item) => item.id}
-          />
-        )}
-      </ScrollView>
+      ) : (
+        <FlatList
+          data={DATA}
+          nestedScrollEnabled={true}
+          renderItem={renderFinanceMatterItem}
+          keyExtractor={(item) => item.id}
+        />
+      )}
     </SafeAreaView>
   );
 };
