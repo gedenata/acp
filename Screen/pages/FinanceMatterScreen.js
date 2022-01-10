@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import DeviceInfo from 'react-native-device-info';
-import Pdf from 'react-native-pdf';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import Loader from './../Components/loader';
 import EmptyIcon from 'AnRNApp/Image/svg_logo/emptystate_noresults.svg';
@@ -44,59 +44,52 @@ export const DATA = [
   },
 ];
 
-const source = {
-  uri: 'http://samples.leanpub.com/thereactnativebook-sample.pdf',
-  cache: true,
-};
-
-const Item = ({date, company, title, subTitle}) => (
-  <View style={styles.item}>
-    <Text style={styles.date}>{date}</Text>
-    <Text style={styles.company}>{company}</Text>
-    <Text style={styles.title}>{title}</Text>
-    <Text style={styles.subTitle}>{subTitle}</Text>
-    <View style={styles.borderCard} />
-    <View>
-      <Pdf
-        source={source}
-        onPageChanged={(page, numberOfPages) => {
-          console.log(`Current page: ${page}`);
-        }}
-        onError={(error) => {
-          console.log(error);
-        }}
-        onPressLink={(uri) => {
-          console.log(`Link pressed: ${uri}`);
-        }}
-        style={styles.pdf}
-      />
-    </View>
-  </View>
-);
-
 const FinanceMatterScreen = ({navigation}) => {
   const [loading] = useState(false);
   const [, setFontScale] = useState(1);
-  const [itemList, setItemList] = useState([]);
-
-  const goBackToPage = () => {
-    navigation.goBack();
-  };
 
   DeviceInfo.getFontScale().then((fontScaleTemp) => {
     setFontScale(fontScaleTemp);
   });
 
-  const renderItem = ({item}) => {
+  const goBackToPage = () => {
+    navigation.goBack();
+  };
+
+  const Item = ({date, company, title, subTitle}) => (
+    <View style={styles.item}>
+      <View style={styles.tagItem} />
+      <Text style={styles.date}>{date}</Text>
+      <Text style={styles.company}>{company}</Text>
+      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.subTitle}>{subTitle}</Text>
+      <View>
+        <TouchableOpacity
+          style={styles.viewPdfButton}
+          onPress={() => {
+            handleOpenFile();
+          }}>
+          <Ionicons raised name="md-open-outline" size={18} color="#00854F" />
+          <Text style={styles.textPdfButton}>View PDF</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const renderFinanceMatterItem = ({item}) => {
     return (
-      <Item
-        date={item.date}
-        company={item.company}
-        title={item.title}
-        subTitle={item.subTitle}
-      />
+      <View>
+        <Item
+          date={item.date}
+          company={item.company}
+          title={item.title}
+          subTitle={item.subTitle}
+        />
+      </View>
     );
   };
+
+  const handleOpenFile = () => {};
 
   return (
     <SafeAreaView style={styles.container}>
@@ -120,22 +113,10 @@ const FinanceMatterScreen = ({navigation}) => {
         ) : (
           <FlatList
             data={DATA}
-            renderItem={renderItem}
+            renderItem={renderFinanceMatterItem}
             keyExtractor={(item) => item.id}
           />
         )}
-        {/* {itemList.length === 0 ? (
-          <View>
-            <EmptyIcon style={styles.emptyIcon} width={300} height={140} />
-            <Text style={styles.emptyText}>No data is available now</Text>
-          </View>
-        ) : (
-          <FlatList
-            data={itemList}
-            renderItem={renderItem}
-            keyExtractor={(index) => 'ItemList_' + index.toString()}
-          />
-        )} */}
       </ScrollView>
     </SafeAreaView>
   );
@@ -177,13 +158,20 @@ const styles = StyleSheet.create({
   item: {
     backgroundColor: '#FFFFFF',
     paddingTop: 20,
-    paddingBottom: 58,
-    marginVertical: 25,
+    paddingBottom: 20,
+    marginVertical: 16,
     marginHorizontal: 32,
     borderRadius: 16,
-    shadowOffset: {width: 10, height: 10},
-    shadowColor: 'black',
-    shadowOpacity: 0.5,
+    borderWidth: 0.4,
+    borderColor: '#75787C',
+  },
+  tagItem: {
+    position: 'absolute',
+    height: 30,
+    marginTop: 22,
+    borderBottomRightRadius: 2,
+    borderTopRightRadius: 2,
+    backgroundColor: '#00854F',
   },
   date: {
     fontSize: 14,
@@ -218,11 +206,9 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     paddingLeft: 28,
     paddingRight: 28,
-  },
-  borderCard: {
-    height: 40,
+    paddingBottom: 20,
+    borderBottomWidth: 0.4,
     borderBottomColor: '#75787C',
-    borderBottomWidth: 0.2,
   },
   pdf: {
     flex: 1,
@@ -239,15 +225,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     color: '#75787C',
   },
-  renderItemView: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    minHeight: 56,
-    marginRight: width <= 360 || 1 > 1.2 ? 7 : 30,
-    marginLeft: width <= 360 || 1 > 1.2 ? 7 : 30,
-    color: '#000000',
-    marginBottom: 10,
-    marginTop: 10,
+  viewPdfButton: {
+    paddingTop: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  textPdfButton: {
+    fontWeight: 'bold',
+    fontSize: 14,
+    color: '#00854F',
+    paddingLeft: 4,
+    fontFamily: 'HelveticaNeue',
   },
 });
 
