@@ -5,7 +5,6 @@ import {
   FlatList,
   StyleSheet,
   SafeAreaView,
-  ScrollView,
   View,
   Text,
   TouchableOpacity,
@@ -27,21 +26,21 @@ export const DATA = [
     date: '21/12/2021',
     company: 'PT. Bintang Obormas Jaya',
     title: '1st Reminder',
-    subTitle: '(Payment overdue statement of November)',
+    description: '(Payment overdue statement of November)',
   },
   {
     id: '2',
     date: '22/12/2021',
     company: 'PT. Bintang Obormas Jaya',
     title: '2nd Reminder',
-    subTitle: '(Payment overdue statement of November)',
+    description: '(Payment overdue statement of November)',
   },
   {
     id: '3',
     date: '23/12/2021',
     company: 'PT. Bintang Obormas Jaya',
     title: '3rd Reminder',
-    subTitle: '(Payment overdue statement of November)',
+    description: '(Payment overdue statement of November)',
   },
 ];
 
@@ -65,13 +64,13 @@ const FinanceMatterScreen = ({navigation}) => {
     navigation.goBack();
   };
 
-  const Item = ({date, company, title, subTitle}) => (
+  const Item = ({date, company, title, description}) => (
     <View style={styles.item}>
       <View style={styles.tagItem} />
       <Text style={styles.date}>{date}</Text>
       <Text style={styles.company}>{company}</Text>
       <Text style={styles.title}>{title}</Text>
-      <Text style={styles.subTitle}>{subTitle}</Text>
+      <Text style={styles.description}>{description}</Text>
       <View>
         <TouchableOpacity
           style={styles.viewPdfButton}
@@ -91,7 +90,7 @@ const FinanceMatterScreen = ({navigation}) => {
         date={item.date}
         company={item.company}
         title={item.title}
-        subTitle={item.subTitle}
+        description={item.description}
       />
     );
   };
@@ -233,7 +232,7 @@ const styles = StyleSheet.create({
     paddingLeft: 28,
     paddingRight: 28,
   },
-  subTitle: {
+  description: {
     fontSize: 14,
     fontFamily: 'HelveticaNeue',
     fontWeight: 'normal',
