@@ -24,12 +24,12 @@ const SearchOrdersResultETAProductDescScreen = ({route, navigation}) => {
 
     const [searchDataResult, setSearchDataResult] = useState([]);
     const [skipValue, setSkipValue] = useState(0);
-  
+
     const showDetailOrder = (SalesOrderID, category) => {
         navigation.navigate('Details', {SalesOrderID:SalesOrderID,Category:category,TokenValue:route.params.TokenValue})
-    };    
+    };
 
-    Moment.locale('en');  
+    Moment.locale('en');
 
     const [ fontScale, setFontScale ] = useState(1);
 
@@ -37,17 +37,20 @@ const SearchOrdersResultETAProductDescScreen = ({route, navigation}) => {
       setFontScale(fontScaleTemp)
     });
 
-    const getData = () => { 
+    const getData = () => {
 
         var APITarget = `${ACCESS_API}/prodec`;
-        var dataToSend = { 
-            ProductType: route.params.productDescriptionCategory, 
-            ProductDes:route.params.productDescriptionKeyword, 
-            Token: route.params.TokenValue, 
-            Skip:skipValue /* route.params.SalesOrderID */ 
+        var dataToSend = {
+            ProductType: route.params.productDescriptionCategory,
+            ProductDes:route.params.productDescriptionKeyword,
+            Token: route.params.TokenValue,
+            Skip:skipValue /* route.params.SalesOrderID */
         };
 
-        if (route.params.year != "" && route.params.month != ""){
+        if(route.params.SearchedLocation && route.params.SearchedLocation !== ""){ // zero means Order Number
+          APITarget = `${ACCESS_API}/locsearch`;
+          dataToSend = { LocationName: route.params.SearchedLocation, Token: route.params.TokenValue };
+        } else if (route.params.year != "" && route.params.month != ""){
             APITarget = `${ACCESS_API}/eta`;
             dataToSend = { month: ((route.params.month.length == 1) ? "0" + route.params.month : route.params.month), year: route.params.year, Token: route.params.TokenValue, Skip:skipValue /* route.params.SalesOrderID */ };
         }
@@ -71,27 +74,27 @@ const SearchOrdersResultETAProductDescScreen = ({route, navigation}) => {
                     if(skipValue == 0){ var notFoundData = []; notFoundData.push("notFound=true"); setSearchDataResult(notFoundData); }
                     setIsListEnd(true);
                 }
-                setLoading(false);                     
+                setLoading(false);
             })
             .catch((error) => console.error(error))
         }
     };
-  
-    const renderFooter = () => { return ( 
+
+    const renderFooter = () => { return (
       <View style={styles.footer}>{loading?(<ActivityIndicator color="black" style={{margin: 15}} />):<></>}</View>);
     };
-  
+
     const ItemView = ({item}) => {
         var ETA = "" + Moment(item.ETA).format('DD MMMM YYYY');
         var orderTaken = "" + Moment(item.OrderTaken).format('DD MMMM YYYY');
 
-        if(item == "notFound=true"){ 
+        if(item == "notFound=true"){
           return ( <View><LOGOSVG style={{marginTop:20,alignSelf:'center',alignItems:'center'}} width={300} height={140}/><Text style={{alignSelf:'center', alignItems:'center'}}>No Result Found</Text></View>)
         }
 
         return (
             <View style={{overflow: "hidden"}} key={item.OrderNumber}>
-              <TouchableOpacity 
+              <TouchableOpacity
                   key="Touchable{item.OrderNumber}"
                   style={{
                     borderRadius:12,
@@ -99,10 +102,10 @@ const SearchOrdersResultETAProductDescScreen = ({route, navigation}) => {
                     height:190,
                     borderColor:'#ccc',
                     borderWidth:1,
-                    marginRight:(fontScale > 1.2 ? 4 : 25), 
-                    marginLeft:(fontScale > 1.2 ? 4 : 25), 
+                    marginRight:(fontScale > 1.2 ? 4 : 25),
+                    marginLeft:(fontScale > 1.2 ? 4 : 25),
                     color:'#000000',
-                    marginBottom:5, 
+                    marginBottom:5,
                     marginTop:5,
                     paddingLeft:20,
                   }}
@@ -112,7 +115,7 @@ const SearchOrdersResultETAProductDescScreen = ({route, navigation}) => {
                 <Text style={{color:'#000000',paddingLeft:5,paddingTop:5,fontSize:13,fontWeight:'bold'}}>Order Number {item.OrderNumber}</Text>
                 <Text style={{color:'#b58e8e',paddingLeft:5,paddingTop:2,fontSize:11,}}>PO Number: {item.PONumber}</Text>
                 <Text style={{color:'#b58e8e',paddingLeft:5,paddingTop:2,fontSize:11,}}>Total Quantity: {item.Quantity}</Text>
-                <View 
+                <View
                     style={{
                     justifyContent:'flex-start',
                     flexDirection:'row',
@@ -135,22 +138,22 @@ const SearchOrdersResultETAProductDescScreen = ({route, navigation}) => {
                     </View>
                 </View>
                 </View>
-            </TouchableOpacity>                     
+            </TouchableOpacity>
             </View>
         );
     };
-  
+
     const ItemSeparatorView = () => { return ( <></> ); };
 
     useEffect(() => { getData(); }, [])
-  
+
     return (
       <SafeAreaView style={{flex: 1}}>
         <FlatList data={searchDataResult} keyExtractor={(item, index) => index.toString()} ItemSeparatorComponent={ItemSeparatorView} renderItem={ItemView} ListFooterComponent={renderFooter} onEndReached={getData} onEndReachedThreshold={0.5}/>
       </SafeAreaView>
     );
 };
-  
+
 const styles = StyleSheet.create({ footer: { padding: 10, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', }, });
 
 export default SearchOrdersResultETAProductDescScreen;
