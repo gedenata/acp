@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Keyboard,
   TouchableOpacity,
@@ -14,6 +14,7 @@ import {
   ActivityIndicator,
   Platform
 } from 'react-native';
+import * as gestureHandler from 'react-native-gesture-handler';
 import {ACCESS_API} from '@env';
 import AsyncStorage from '@react-native-community/async-storage';
 import MyInputSpinner from '../Components/MyInputSpinner';
@@ -84,6 +85,16 @@ const SearchScreen = props => {
   const [inputColorDropdown, setInputColorDropdown] = useState("#ae8b8b");
   const [inputColorSpinner, setInputColorSpinner] = useState("#000000");
   let controller;
+
+  useEffect(() => {
+    const unsubscribe = props.navigation.addListener('blur', async () => {
+      //setLoading(true);
+      clearSelection();
+      //setLoading(false);
+    });
+
+    return unsubscribe;
+  }, [props.navigation]);
 
   AsyncStorage.getItem('user_id').then(
     (value) =>
@@ -195,7 +206,7 @@ const SearchScreen = props => {
   function setPOOrderNumberChange(POOrOrderNumberKeywordTemp){
     setPOOrOrderNumberKeyword(POOrOrderNumberKeywordTemp);
     setPOOrOrderNumberKeywordTemporary(POOrOrderNumberKeywordTemp);
-    getDataAutoCompleteData();
+    getDataAutoCompleteData(POOrOrderNumberKeywordTemp);
   }
 
   function setFocusProductDesription(){
@@ -259,6 +270,9 @@ const SearchScreen = props => {
     setProductDescriptionKeywordTemporary('');
     setProductDescriptionCategoryTemporary('');
     setMonthTemp('');
+    setAutoSearchData([]);
+    setPickerLocOpen(false);
+    setPickerOpen(false);
 
     if(controller)
       controller.selectItem('Choose Product Description Category');
@@ -281,20 +295,20 @@ const SearchScreen = props => {
     )
   };
 
-  const getDataAutoCompleteData = () => {
-    if (POOrOrderNumberKeyword && POOrOrderNumberKeyword !== '') {
+  const getDataAutoCompleteData = (POOrOrderNumberKeywordTemp) => {
+    if (POOrOrderNumberKeywordTemp && POOrOrderNumberKeywordTemp !== '') {
       setIsLoadingAutoSearch(true);
       var dataToSend = {};
       if (!POOrOrderNumber || POOrOrderNumber === '' || POOrOrderNumber === 0) {
         dataToSend = {
           Token: '' + tokenValue,
-          OrderNumber: '' + POOrOrderNumberKeyword,
+          OrderNumber: '' + POOrOrderNumberKeywordTemp,
         };
       }
       if (POOrOrderNumber && POOrOrderNumber === 1) {
         dataToSend = {
           Token: '' + tokenValue,
-          PONumber: '' + POOrOrderNumberKeyword,
+          PONumber: '' + POOrOrderNumberKeywordTemp,
         };
       }
       //console.log({dataToSend, POOrOrderNumber, POOrOrderNumberKeyword});
@@ -411,6 +425,7 @@ const SearchScreen = props => {
           blurOnSubmit={false}
         />
         </View> */}
+      <View>
         <Autocomplete
           listContainerStyle={{
             flex: 1,
@@ -418,18 +433,19 @@ const SearchScreen = props => {
             left: 10,
             top: 45,
             right: 0,
-            minHeight:50,
+            minHeight:40,
             maxHeight:250,
             padding: 0,
             marginLeft:5,
             marginRight:15,
             marginBottom:5,
             marginTop:8,
+            zIndex:2,
           }}
           containerStyle={{
             flex: 1,
             padding: 5,
-            zIndex:12,
+            zIndex:2,
           }}
           inputContainerStyle={{
             height:40,
@@ -448,26 +464,28 @@ const SearchScreen = props => {
             keyboardShouldPersistTaps: 'always',
             keyExtractor: (_, idx) => idx,
             renderItem: ({ item }) => (
-              <TouchableOpacity style={{
-                padding:2,
-                borderTopColor:'grey',
-                borderTopWidth:1,
-                borderBottomColor:'grey',
-                borderBottomWidth:1,
-              }} onPress={() => {
-                setPOOrOrderNumberKeyword(item);
-                setPOOrOrderNumberKeywordTemporary(item);
-                setAutoSearchData([]);
-              }}>
+              <gestureHandler.TouchableOpacity
+                style={{
+                  padding:2,
+                  borderTopColor:'grey',
+                  borderTopWidth:1,
+                  borderBottomColor:'grey',
+                  borderBottomWidth:1,
+                  zIndex:2,
+                }}
+                onPress={() => {
+                  setPOOrOrderNumberKeyword(item);
+                  setPOOrOrderNumberKeywordTemporary(item);
+                  setAutoSearchData([]);
+                }}>
                 <Text style={{fontSize: 15,margin: 2,}}>{item}</Text>
-              </TouchableOpacity>
+              </gestureHandler.TouchableOpacity>
             ),
           }}
           hideResults={false}
           renderTextInput={()=>{
             return (
               <TextInput
-                style={{border: 'none'}}
                 placeholder="Order/PO Number" //12345
                 placeholderTextColor="#191E2460"
                 keyboardType="default"
@@ -480,7 +498,7 @@ const SearchScreen = props => {
             );
           }}
         />
-
+      </View>
       <View
         style={{
           marginTop:10,
@@ -506,7 +524,7 @@ const SearchScreen = props => {
             listMode="SCROLLVIEW"
             containerProps={{
               marginLeft: -2,
-              zIndex:11
+              ...(pickerOpen ? {zIndex:2} : {zIndex:1})
             }}
             onChangeValue={(ProductDescription) => {
               setDropdownChange(ProductDescription)
@@ -570,7 +588,7 @@ const SearchScreen = props => {
             listMode="SCROLLVIEW"
             containerProps={{
               marginLeft: -2,
-              zIndex:11
+              ...(pickerLocOpen ? {zIndex:2} : {zIndex:1})
             }}
             onChangeValue={(Location) => {
               setDropdownLocChange(Location);
