@@ -1,10 +1,10 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Keyboard,
   TouchableOpacity,
   KeyboardAvoidingView,
   StyleSheet,
-  Image,  
+  Image,
   View,
   Text,
   TextInput,
@@ -14,11 +14,13 @@ import {
   ActivityIndicator,
   Platform
 } from 'react-native';
+import * as gestureHandler from 'react-native-gesture-handler';
 import {ACCESS_API} from '@env';
 import AsyncStorage from '@react-native-community/async-storage';
 import MyInputSpinner from '../Components/MyInputSpinner';
 import RadioForm from 'react-native-simple-radio-button';
 import DropDownPicker from 'react-native-dropdown-picker';
+import Autocomplete from 'react-native-autocomplete-input';
 
 import LOGOSVG from 'AnRNApp/Image/aprilconnect_horinzontallogo.svg';
 import AESEncryption from './../Components/AESEncryption';
@@ -37,21 +39,32 @@ const SearchScreen = props => {
   const [year, setYear] = useState(new Date().getFullYear());
   const [yearTemp, setYearTemp] = useState(new Date().getFullYear());
 
-  const [POOrOrderNumber, setPOOrOrderNumber] = useState('');    
+  const [POOrOrderNumber, setPOOrOrderNumber] = useState('');
   const [POOrOrderNumberTemporary, setPOOrOrderNumberTemporary] = useState('');
   const [POOrOrderNumberKeyword, setPOOrOrderNumberKeyword] = useState('');
-  const [POOrOrderNumberKeywordTemporary, setPOOrOrderNumberKeywordTemporary] = useState('');    
+  const [POOrOrderNumberKeywordTemporary, setPOOrOrderNumberKeywordTemporary] = useState('');
 
   const [productDescriptionCategory, setProductDescriptionCategory] = useState('');
-  const [productDescriptionCategoryTemporary, setProductDescriptionCategoryTemporary] = useState('');  
+  const [productDescriptionCategoryTemporary, setProductDescriptionCategoryTemporary] = useState('');
+
+  const [searchLocation, setSearchLocation] = useState('');
+  const [searchLocationTemporary, setSearchLocationTemporary] = useState('');
 
   const [productDescriptionKeyword, setProductDescriptionKeyword] = useState('');
   const [productDescriptionKeywordTemporary, setProductDescriptionKeywordTemporary] = useState('');
-  
-  const [isLoadingPicker, setLoadingPicker] = useState(true);  
+
+  const [isLoadingPicker, setLoadingPicker] = useState(true);
   const [pickerItems, setPickerItems] = useState([]);
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [pickerValue, setPickerValue] = useState(null);  
+  const [pickerValue, setPickerValue] = useState(null);
+
+  const [isLoadingLocPicker, setLoadingLocPicker] = useState(true);
+  const [pickerLocItems, setPickerLocItems] = useState([]);
+  const [pickerLocOpen, setPickerLocOpen] = useState(false);
+  const [pickerLocValue, setPickerLocValue] = useState(null);
+
+  const [isLoadingAutoSearch, setIsLoadingAutoSearch] = useState(false);
+  const [autoSearchData, setAutoSearchData] = useState([]);
 
   const [colourOne, setColourOne] = useState('#d4e7f2');
   const [colourTwo, setColourTwo] = useState('#d4e7f2');
@@ -70,8 +83,18 @@ const SearchScreen = props => {
   const [inputColorProductDescription, setInputColorProductDescription] = useState("#000000");
   const [inputColorRadio, setInputColorRadio] = useState("#000000");
   const [inputColorDropdown, setInputColorDropdown] = useState("#ae8b8b");
-  const [inputColorSpinner, setInputColorSpinner] = useState("#000000"); 
+  const [inputColorSpinner, setInputColorSpinner] = useState("#000000");
   let controller;
+
+  useEffect(() => {
+    const unsubscribe = props.navigation.addListener('blur', async () => {
+      //setLoading(true);
+      clearSelection();
+      //setLoading(false);
+    });
+
+    return unsubscribe;
+  }, [props.navigation]);
 
   AsyncStorage.getItem('user_id').then(
     (value) =>
@@ -90,7 +113,7 @@ const SearchScreen = props => {
         }
         formBody = formBody.join('&');
         const loadingItems = [];
-  
+
         if(isLoadingPicker)
         {
           let url = `${ACCESS_API}/producttype`;
@@ -104,7 +127,21 @@ const SearchScreen = props => {
           })
           .catch((error) => console.error(error))
         }
-      });// End of encryption/decryption  
+        const loadingLocItems = [];
+        if(isLoadingLocPicker)
+        {
+          let url = `${ACCESS_API}/locationlist`;
+          fetch(url ,{method: 'POST', body: formBody, headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',},})
+          .then((response) => response.json())
+          .then(json => {
+            loadingLocItems.push({"label":"Choose Location","value":"Choose Location"});
+            for(var i = 0; i < json.length; i++){ loadingLocItems.push({"label":json[i],"value":json[i]}); }
+            setPickerLocItems(loadingLocItems);
+            setLoadingLocPicker(false);
+          })
+          .catch((error) => console.error(error))
+        }
+      });// End of encryption/decryption
 
     },
   );
@@ -126,14 +163,14 @@ const SearchScreen = props => {
     setColourFive('#d4e7f2'); setColourSix('#d4e7f2');setColourSeven('#d4e7f2');setColourEight('#d4e7f2');
     setColourNine('#d4e7f2'); setColourTen('#d4e7f2');setColourEleven('#d4e7f2');setColourTwelve('#d4e7f2');
 
-    setPOOrOrderNumber('');    
+    setPOOrOrderNumber('');
     setPOOrOrderNumberKeyword('');
     setProductDescriptionCategory('');
     setProductDescriptionKeyword('');
     setMonth(0);
     setYear(0);
 
-    setPOOrOrderNumberTemporary(POOrderNumberTemporary2);    
+    setPOOrOrderNumberTemporary(POOrderNumberTemporary2);
     setPOOrOrderNumberKeywordTemporary(POOrOrderNumberKeywordTemporary2);
     setProductDescriptionKeywordTemporary(productDescriptionKeywordTemporary2);
     setProductDescriptionCategoryTemporary(productDescriptionCategoryTemporary2);
@@ -169,6 +206,7 @@ const SearchScreen = props => {
   function setPOOrderNumberChange(POOrOrderNumberKeywordTemp){
     setPOOrOrderNumberKeyword(POOrOrderNumberKeywordTemp);
     setPOOrOrderNumberKeywordTemporary(POOrOrderNumberKeywordTemp);
+    getDataAutoCompleteData(POOrOrderNumberKeywordTemp);
   }
 
   function setFocusProductDesription(){
@@ -179,16 +217,22 @@ const SearchScreen = props => {
 
     setProductDescriptionCategory(productDescriptionCategoryTemporary);
     setProductDescriptionKeyword(productDescriptionKeywordTemporary);
-  }  
+  }
 
   function setDropdownChange(ProductDescription){
     setTransparentColor();
 
-    setInputColorDropdown("#000000");    
+    setInputColorDropdown("#000000");
     setInputColorProductDescription("#000000");
 
     setProductDescriptionCategory(ProductDescription);
     setProductDescriptionCategoryTemporary(ProductDescription);
+  }
+
+  function setDropdownLocChange(Location){
+    setTransparentColor();
+    setSearchLocation(Location);
+    setSearchLocationTemporary(Location);
   }
 
   function setProductDescriptionKeywordChange(keyword){
@@ -221,29 +265,82 @@ const SearchScreen = props => {
 
   function clearSelection(){
     setTransparentColor();
-    setPOOrOrderNumberTemporary('');    
+    setPOOrOrderNumberTemporary('');
     setPOOrOrderNumberKeywordTemporary('');
     setProductDescriptionKeywordTemporary('');
     setProductDescriptionCategoryTemporary('');
     setMonthTemp('');
+    setAutoSearchData([]);
+    setPickerLocOpen(false);
+    setPickerOpen(false);
 
     if(controller)
-      controller.selectItem('Choose Product Description Category');    
+      controller.selectItem('Choose Product Description Category');
   }
 
   const handleSubmitPress = () => {
-    // console.log("year => " + year + "::month => " + month + ":: POOrOrderNumber => " + POOrOrderNumber + ":: POOrOrderNumberKeyword => " + POOrOrderNumberKeyword + ":: productDescriptionCategory => " + productDescriptionCategory + ":: productDescriptionKeyword => " + productDescriptionKeyword);
-    props.navigation.navigate((productDescriptionCategory == "" && year == "" && month == "") ? 'SearchResult' : 'SearchResultETAProductDesc', {
-        year:year, 
-        month:month, 
+    //console.log("year => " + year + "::month => " + month + ":: POOrOrderNumber => " + POOrOrderNumber + ":: POOrOrderNumberKeyword => " + POOrOrderNumberKeyword + ":: productDescriptionCategory => " + productDescriptionCategory + ":: productDescriptionKeyword => " + productDescriptionKeyword + ":: searchLocation => " + searchLocation);
+    let navigateToScreen = ((productDescriptionCategory == "" || !productDescriptionCategory) && (year == "" || year == '0') && (month == "" || month == '0') && (searchLocation == "" || !searchLocation)) ? 'SearchResult' : 'SearchResultETAProductDesc';
+    console.log(navigateToScreen);
+    props.navigation.navigate(navigateToScreen, {
+        year:year,
+        month:month,
         POOrOrderNumber:POOrOrderNumber,
-        POOrOrderNumberKeyword:POOrOrderNumberKeyword, 
+        POOrOrderNumberKeyword:POOrOrderNumberKeyword,
         productDescriptionCategory:productDescriptionCategory,
         productDescriptionKeyword:productDescriptionKeyword,
-        TokenValue:tokenValue
+        TokenValue:tokenValue,
+        SearchedLocation:searchLocation,
       }
     )
-  };  
+  };
+
+  const getDataAutoCompleteData = (POOrOrderNumberKeywordTemp) => {
+    if (POOrOrderNumberKeywordTemp && POOrOrderNumberKeywordTemp !== '') {
+      setIsLoadingAutoSearch(true);
+      var dataToSend = {};
+      if (!POOrOrderNumber || POOrOrderNumber === '' || POOrOrderNumber === 0) {
+        dataToSend = {
+          Token: '' + tokenValue,
+          OrderNumber: '' + POOrOrderNumberKeywordTemp,
+        };
+      }
+      if (POOrOrderNumber && POOrOrderNumber === 1) {
+        dataToSend = {
+          Token: '' + tokenValue,
+          PONumber: '' + POOrOrderNumberKeywordTemp,
+        };
+      }
+      //console.log({dataToSend, POOrOrderNumber, POOrOrderNumberKeyword});
+      var formBody = [];
+      for (let key in dataToSend) {
+        var encodedKey = encodeURIComponent(key);
+        var encodedValue = encodeURIComponent(dataToSend[key]);
+        formBody.push(encodedKey + '=' + encodedValue);
+      }
+      formBody = formBody.join('&');
+      let url = `${ACCESS_API}/autocompletesearch`;
+      fetch(url, {
+        method: 'POST',
+        body: formBody,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        },
+      })
+        .then((response) => response.json())
+        .then((json) => {
+          setAutoSearchData(json);
+          setIsLoadingAutoSearch(false);
+        })
+        .catch((error) => {
+          console.error(error);
+          setIsLoadingAutoSearch(false);
+        });
+    }
+    else{
+      setAutoSearchData([]);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.mainBody}>
@@ -271,18 +368,18 @@ const SearchScreen = props => {
             width={150}
             height={40}
           />
-      </View>      
+      </View>
       <View  style={{marginTop:10, marginLeft:20, alignItems:'stretch',justifyContent:'flex-start'}}>
-          <Text style={{fontFamily:'HelveticaNeue'}}>Choose one of the search filters below:</Text>            
+          <Text style={{fontFamily:'HelveticaNeue'}}>Choose one of the search filters below:</Text>
       </View>
       <TouchableOpacity  style={{marginTop:10, marginLeft:20, marginRight:20, alignItems:'stretch',justifyContent:'flex-start'}} onPress={() => clearSelection()}>
           <Text style={{alignSelf:'center',alignItems:'center',textDecorationLine:'underline', fontFamily:'HelveticaNeue'}}>Clear Selections</Text>
-      </TouchableOpacity>      
+      </TouchableOpacity>
       <View style={{marginTop:20, marginLeft:22, alignItems:'stretch',justifyContent:'flex-start'}}>
-        <RadioForm 
+        <RadioForm
           formHorizontal={true}
           labelStyle={{
-            fontSize: 12, 
+            fontSize: 12,
             color: inputColorRadio,
             fontFamily:'HelveticaNeue'
           }}
@@ -298,8 +395,8 @@ const SearchScreen = props => {
             (RadioValue) => setRadioPress(RadioValue)
           }
         />
-      </View>       
-      <View style={{
+      </View>
+      {/*<View style={{
         flex:1,
         flexDirection: 'row',
         alignItems:'center',
@@ -310,34 +407,108 @@ const SearchScreen = props => {
         marginTop:8,
         borderWidth: 1,
         borderRadius: 7,
-        borderColor: inputColorTextPONumber,         
+        borderColor: inputColorTextPONumber,
       }}>
-        <TextInput
-          style={{  
+         <TextInput
+          style={{
             flex: 1,
             paddingLeft: 5,
             paddingRight: 15,
-          }} 
+          }}
           placeholder="Order/PO Number" //12345
           placeholderTextColor="#191E2460"
           keyboardType="default"
           value={POOrOrderNumberKeyword}
-          onFocus={setFocusOrderNumber} 
+          onFocus={setFocusOrderNumber}
           onChangeText={TextInputValue => setPOOrderNumberChange(TextInputValue)}
           onSubmitEditing={Keyboard.dismiss}
           blurOnSubmit={false}
-        />        
+        />
+        </View> */}
+      <View>
+        <Autocomplete
+          listContainerStyle={{
+            flex: 1,
+            position: 'absolute',
+            left: 10,
+            top: 45,
+            right: 0,
+            minHeight:40,
+            maxHeight:250,
+            padding: 0,
+            marginLeft:5,
+            marginRight:15,
+            marginBottom:5,
+            marginTop:8,
+            zIndex:2,
+          }}
+          containerStyle={{
+            flex: 1,
+            padding: 5,
+            zIndex:2,
+          }}
+          inputContainerStyle={{
+            height:40,
+            marginLeft:20,
+            marginRight:20,
+            marginBottom:5,
+            marginTop:8,
+            borderWidth: 1,
+            borderRadius: 7,
+            borderColor: inputColorTextPONumber,
+          }}
+          editable={!isLoadingAutoSearch}
+          value={POOrOrderNumberKeyword}
+          data={autoSearchData}
+          flatListProps={{
+            keyboardShouldPersistTaps: 'always',
+            keyExtractor: (_, idx) => idx,
+            renderItem: ({ item }) => (
+              <gestureHandler.TouchableOpacity
+                style={{
+                  padding:2,
+                  borderTopColor:'grey',
+                  borderTopWidth:1,
+                  borderBottomColor:'grey',
+                  borderBottomWidth:1,
+                  zIndex:2,
+                }}
+                onPress={() => {
+                  setPOOrOrderNumberKeyword(item);
+                  setPOOrOrderNumberKeywordTemporary(item);
+                  setAutoSearchData([]);
+                }}>
+                <Text style={{fontSize: 15,margin: 2,}}>{item}</Text>
+              </gestureHandler.TouchableOpacity>
+            ),
+          }}
+          hideResults={false}
+          renderTextInput={()=>{
+            return (
+              <TextInput
+                placeholder="Order/PO Number" //12345
+                placeholderTextColor="#191E2460"
+                keyboardType="default"
+                value={POOrOrderNumberKeyword}
+                onFocus={setFocusOrderNumber}
+                onChangeText={TextInputValue => setPOOrderNumberChange(TextInputValue)}
+                onSubmitEditing={Keyboard.dismiss}
+                blurOnSubmit={false}
+              />
+            );
+          }}
+        />
       </View>
-      <View 
+      <View
         style={{
-          marginTop:10, 
-          marginLeft:22, 
-          height:50, 
-          marginBottom:20, 
-          marginRight:20, 
+          marginTop:10,
+          marginLeft:22,
+          height:50,
+          marginBottom:20,
+          marginRight:20,
           alignItems:'stretch',
-          justifyContent:'flex-start', 
-          ...(Platform.OS !== 'android' && {zIndex:10}) 
+          justifyContent:'flex-start',
+          ...(Platform.OS !== 'android' && {zIndex:10})
         }}
       >
         <Text style={{marginBottom:10,fontFamily:'HelveticaNeue'}}>Product Description</Text>
@@ -352,13 +523,14 @@ const SearchScreen = props => {
             setItems={setPickerItems}
             listMode="SCROLLVIEW"
             containerProps={{
-              marginLeft: -2
+              marginLeft: -2,
+              ...(pickerOpen ? {zIndex:2} : {zIndex:1})
             }}
             onChangeValue={(ProductDescription) => {
               setDropdownChange(ProductDescription)
             }}
             />
-        )}  
+        )}
       </View>
       <View
         style={{
@@ -376,7 +548,7 @@ const SearchScreen = props => {
           borderColor: inputColorProductDescription,
         }}>
         <TextInput
-          style={{  
+          style={{
             flex: 1,
             paddingLeft: 5,
             paddingRight: 15,
@@ -389,8 +561,41 @@ const SearchScreen = props => {
           onChangeText={TextInputValue => setProductDescriptionKeywordChange(TextInputValue)}
           onSubmitEditing={Keyboard.dismiss}
           blurOnSubmit={false}
-        />        
-      </View>      
+        />
+      </View>
+      <View
+        style={{
+          marginTop:10,
+          marginLeft:22,
+          height:50,
+          marginBottom:20,
+          marginRight:20,
+          alignItems:'stretch',
+          justifyContent:'flex-start',
+          ...(Platform.OS !== 'android' && {zIndex:10})
+        }}
+      >
+        <Text style={{marginBottom:10,fontFamily:'HelveticaNeue'}}>Final Destination</Text>
+        {isLoadingLocPicker ? <ActivityIndicator size="large" color="#00ff00"/> : (
+          <DropDownPicker
+            placeholder="Choose Final Destination"
+            open={pickerLocOpen}
+            value={pickerLocValue}
+            items={pickerLocItems}
+            setOpen={setPickerLocOpen}
+            setValue={setPickerLocValue}
+            setItems={setPickerLocItems}
+            listMode="SCROLLVIEW"
+            containerProps={{
+              marginLeft: -2,
+              ...(pickerLocOpen ? {zIndex:2} : {zIndex:1})
+            }}
+            onChangeValue={(Location) => {
+              setDropdownLocChange(Location);
+            }}
+            />
+        )}
+      </View>
       <View style={{alignItems:'stretch',justifyContent:'flex-start'}}>
         <Text style={{marginLeft:20, marginBottom:10, marginTop:20,fontWeight:'bold',fontSize:15}}>Estimated Time Arrival</Text>
       </View>
@@ -398,7 +603,7 @@ const SearchScreen = props => {
         <MyInputSpinner max={2050} min={2000} value={year} onChange={(num) => setSpinnerChange(num)}/>
       </View>
       <View style={{marginTop:8, alignItems:'stretch',justifyContent:'flex-start', flexDirection:'row'}}>
-      <TouchableOpacity style={[styles.monthFirstRow, {backgroundColor:colourOne}]} onPress={handleClick.bind(this,'1')}><Text style={{color:'#c97d7d', fontFamily:'HelveticaNeue'}}>January</Text></TouchableOpacity>  
+      <TouchableOpacity style={[styles.monthFirstRow, {backgroundColor:colourOne}]} onPress={handleClick.bind(this,'1')}><Text style={{color:'#c97d7d', fontFamily:'HelveticaNeue'}}>January</Text></TouchableOpacity>
         <TouchableOpacity style={[styles.monthSecondRow, {backgroundColor:colourTwo}]} onPress={handleClick.bind(this,'2')}><Text style={{color:'#c97d7d', fontFamily:'HelveticaNeue'}}>February</Text></TouchableOpacity>
         <TouchableOpacity  style={[styles.monthThirdRow, {backgroundColor:colourThree}]} onPress={handleClick.bind(this,'3')}><Text style={{color:'#c97d7d', fontFamily:'HelveticaNeue'}}>March</Text></TouchableOpacity>
       </View>
@@ -416,7 +621,7 @@ const SearchScreen = props => {
         <TouchableOpacity style={[styles.monthFirstRow, {backgroundColor:colourTen}]} onPress={handleClick.bind(this,'10')}><Text  style={{color:'#c97d7d', fontFamily:'HelveticaNeue'}}>October</Text></TouchableOpacity>
         <TouchableOpacity style={[styles.monthSecondRow, {backgroundColor:colourEleven}]} onPress={handleClick.bind(this,'11')}><Text  style={{color:'#c97d7d', fontFamily:'HelveticaNeue'}}>November</Text></TouchableOpacity>
         <TouchableOpacity style={[styles.monthThirdRow, {backgroundColor:colourTwelve}]} onPress={handleClick.bind(this,'12')}><Text  style={{color:'#c97d7d', fontFamily:'HelveticaNeue'}}>December</Text></TouchableOpacity>
-      </View>        
+      </View>
       <View style={{marginTop:0, alignItems:'stretch',justifyContent:'flex-start'}}>
         <TouchableOpacity
           style={styles.buttonStyle}
@@ -425,9 +630,9 @@ const SearchScreen = props => {
         >
           <Text style={styles.buttonTextStyle}>SUBMIT</Text>
         </TouchableOpacity>
-      </View>      
+      </View>
       </KeyboardAvoidingView>
-      </ScrollView>            
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -437,8 +642,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fdfdfd',
   },
-  SectionStyle: {   
-  },    
+  SectionStyle: {
+  },
   container: {
     height : 100,
     width : '50%',
@@ -447,7 +652,7 @@ const styles = StyleSheet.create({
     borderBottomEndRadius : 1000,
     overflow : 'hidden',
   },
-  background: { // this shape is a circle 
+  background: { // this shape is a circle
     flex : 1,
     transform : [ { scaleX : 2 } ],
     backgroundColor : '#061368',
@@ -468,7 +673,7 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     color: '#000000',
     borderColor: '#228B22',
-    fontFamily:'HelveticaNeue-Bold',    
+    fontFamily:'HelveticaNeue-Bold',
     height: 40,
     alignItems: 'center',
     borderRadius: 40,
@@ -478,59 +683,59 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   buttonTextStyle: {
-    fontFamily:'HelveticaNeue-Bold',        
+    fontFamily:'HelveticaNeue-Bold',
     color: '#FFFFFF',
     paddingVertical: 10,
     fontSize: 13,
   },
   monthFirstRow: {
-      borderStyle:'solid', 
+      borderStyle:'solid',
       marginLeft:'5%',
       justifyContent:'center',
       alignItems:'center',
-      textAlign:'center', 
+      textAlign:'center',
       fontFamily:'HelveticaNeue-Bold',
-      width:'30%', 
-      height:40, 
-      borderRadius:5, 
-      borderWidth:1,          
+      width:'30%',
+      height:40,
+      borderRadius:5,
+      borderWidth:1,
       borderColor:'#e3ecf2',
       borderBottomColor:'#f5dddd',
       marginTop:8,
-      color:'#000102',  
+      color:'#000102',
   },
   monthSecondRow: {
-    borderStyle:'solid', 
+    borderStyle:'solid',
     marginLeft:2,
-    textAlign:'center', 
+    textAlign:'center',
     justifyContent:'center',
-    alignItems:'center',    
+    alignItems:'center',
     fontFamily:'HelveticaNeue-Bold',
-    width:'30%', 
-    height:40, 
-    borderRadius:5, 
+    width:'30%',
+    height:40,
+    borderRadius:5,
     marginTop:8,
     color:'#000102',
-    borderWidth:1,          
+    borderWidth:1,
     borderColor:'#e3ecf2',
-    borderBottomColor:'#f5dddd',          
+    borderBottomColor:'#f5dddd',
   },
   monthThirdRow:{
-    borderStyle:'solid', 
+    borderStyle:'solid',
     marginLeft:2,
     marginRight:'5%',
     justifyContent:'center',
-    alignItems:'center',    
+    alignItems:'center',
     fontFamily:'HelveticaNeue-Bold',
-    textAlign:'center', 
-    width:'30%', 
-    height:40, 
-    borderRadius:5, 
+    textAlign:'center',
+    width:'30%',
+    height:40,
+    borderRadius:5,
     marginTop:8,
     color:'#000102',
-    borderWidth:1,          
+    borderWidth:1,
     borderColor:'#e3ecf2',
-    borderBottomColor:'#f5dddd',          
+    borderBottomColor:'#f5dddd',
   }
 });
 export default SearchScreen;
