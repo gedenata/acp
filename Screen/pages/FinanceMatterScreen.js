@@ -138,7 +138,7 @@ const FinanceMatterScreen = ({navigation}) => {
           <Text style={styles.textBar}>Finance Matter</Text>
         </View>
         <View style={styles.viewObject}>
-          {isEnable && data.length !== 0 ? (
+          {data.length === 0 ? (
             <View style={styles.emptyData}>
               <Image source={assets.emptyIcon} />
               <Text style={styles.emptyText}>No data is available now</Text>
