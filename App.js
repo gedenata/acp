@@ -60,8 +60,9 @@ const RootStack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const App = () => {
-  const [numberOfRemindedSurvey, setNumberOfRemindedSurvey] = useState(-1);
   const [unreadMarketUpdates, setUnreadMarketUpdates] = useState(-1);
+  const [numberOfFinanceMatter, setNumberOfFinanceMatter] = useState(-1);
+  const [numberOfRemindedSurvey, setNumberOfRemindedSurvey] = useState(-1);
   const [biometricKeyExists, setBiometricKeyExists] = useState(false);
   const [biometricsNotSupported, setBiometricsNotSupported] = useState(false);
 
@@ -74,26 +75,37 @@ const App = () => {
     setBiometricsNotSupported(biometrics_not_supported === 'true');
     AsyncStorage.getItem('user_id').then((value) => {
       AESEncryption('decrypt', value).then(async (respp) => {
-        var dataToSend = {Token: JSON.parse(respp).data.Token};
-
-        var formBody = [];
-        for (let key in dataToSend) {
-          var encodedKey = encodeURIComponent(key);
-          var encodedValue = encodeURIComponent(dataToSend[key]);
-          formBody.push(encodedKey + '=' + encodedValue);
+        const dataSend = {Token: JSON.parse(respp).data.Token};
+        const formBody = [];
+        for (let key in dataSend) {
+          const encodedKey = encodeURIComponent(key);
+          const encodedValue = encodeURIComponent(dataSend[key]);
+          [].push(encodedKey + '=' + encodedValue);
         }
-        formBody = formBody.join('&');
-        let url = `${ACCESS_API}/marketsurveyqna`;
-        fetch(url, {
+
+        const urlFinanceMatterAPI = `${ACCESS_API}/financematterinfo`;
+        const urlMarketSurveyAPI = `${ACCESS_API}/marketsurveyqna`;
+        const urlParams = {
           method: 'POST',
-          body: formBody,
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
           },
-        })
+          body: formBody.join('&'),
+        };
+        fetch(urlMarketSurveyAPI, urlParams)
           .then((response) => response.json())
           .then((json) => {
             setNumberOfRemindedSurvey(json.length);
+          });
+        if (!fromMoreStack) {
+          await fetchMarketUpdates(JSON.parse(respp).data.Token);
+          const marketUpdatesCount = await checkUnreadMarketUpdates();
+          setUnreadMarketUpdates(marketUpdatesCount);
+        }
+        fetch(urlFinanceMatterAPI, urlParams)
+          .then((response) => response.json())
+          .then((json) => {
+            setNumberOfFinanceMatter(json.Data.length);
           });
         if (!fromMoreStack) {
           await fetchMarketUpdates(JSON.parse(respp).data.Token);
@@ -247,7 +259,9 @@ const App = () => {
             tabBarLabel: 'More',
             tabBarIcon: ({color, size}) => (
               <View>
-                {numberOfRemindedSurvey > 0 || unreadMarketUpdates > 0 ? (
+                {numberOfRemindedSurvey > 0 ||
+                unreadMarketUpdates > 0 ||
+                numberOfFinanceMatter > 0 ? (
                   <Entypo
                     name="dot-single"
                     color="#FF3A3A"

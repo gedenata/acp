@@ -23,34 +23,9 @@ const assets = {
   topBar: require('../../Image/top-bar.png'),
 };
 
-const DATA = [
-  {
-    FinanceMatterID: '1',
-    OverdueDate: '2020-01-01',
-    Company: 'PT. Bintang Obormas Jaya',
-    Reminder: '1st Reminder',
-    Description: '(Payment overdue statement on January)',
-  },
-  {
-    FinanceMatterID: '2',
-    OverdueDate: '2020-01-02',
-    Company: 'PT. Bintang Obormas Jaya',
-    Reminder: '2nd Reminder',
-    Description: '(Payment overdue statement on January)',
-  },
-  {
-    FinanceMatterID: '3',
-    OverdueDate: '2020-01-03',
-    Company: 'PT. Bintang Obormas Jaya',
-    Reminder: '3rd Reminder',
-    Description: '(Payment overdue statement on January)',
-  },
-];
-
 const FinanceMatterScreen = ({navigation}) => {
   const [data, setData] = useState([]);
   const [token, setToken] = useState('');
-  const [isEnable, setEnable] = useState(false);
   const [isLoading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -58,7 +33,6 @@ const FinanceMatterScreen = ({navigation}) => {
     AsyncStorage.getItem('user_id').then((value) => {
       AESEncryption('decrypt', value).then((res) => {
         setToken('' + JSON.parse(res).data.Token);
-
         const dataSend = {Token: '' + JSON.parse(res).data.Token};
         const formBody = [];
         for (let key in dataSend) {
@@ -75,20 +49,19 @@ const FinanceMatterScreen = ({navigation}) => {
           },
           body: formBody.join('&'),
         };
-        console.log('url =>', url);
-        console.log('urlParams =>', urlParams);
-
-        fetch(url, urlParams)
-          .then((response) => response.json())
-          .then(() => {
-            setEnable(true);
-            setData([]);
+        const fetchFinanceMatter = fetch(url, urlParams)
+          .then((response) => {
+            return response.json();
+          })
+          .then((responseJson) => {
+            setData(responseJson);
             setLoading(false);
           })
-          .catch((error) => {
-            console.error(error);
+          .catch(() => {
+            setData([]);
             setLoading(false);
           });
+        return fetchFinanceMatter;
       });
     });
     setLoading(false);
@@ -145,7 +118,7 @@ const FinanceMatterScreen = ({navigation}) => {
             </View>
           ) : (
             <FlatList
-              data={data}
+              data={data.Data}
               nestedScrollEnabled={true}
               renderItem={renderListItem}
               keyExtractor={(item) => item.FinanceMatterID}

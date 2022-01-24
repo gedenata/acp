@@ -32,78 +32,73 @@ import {
 
 const MoreScreen = ({route, navigation}) => {
   const [isLoadingNotification, setIsLoadingNotification] = useState(false);
-  const [numberOfRemindedSurvey, setNumberOfRemindedSurvey] = useState(0);
   const [unreadMarketUpdates, setUnreadMarketUpdates] = useState(0);
-  let [loading, setLoading] = useState(false);
-
-  const openBrowser = () => {
-    InternetLinkHandler(CONTACT_US_URL);
-  };
+  const [numberOfMarketSurvey, setNumberOfMarketSurvey] = useState([]);
+  const [numberOfFinanceMatter, setNumberOfFinanceMatter] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const goToPage = (targetPage) => {
     if (targetPage === 'TermsofService') {
       navigation.navigate('TnC');
     } else if (targetPage === 'ContactSupport') {
-      openBrowser();
+      InternetLinkHandler(CONTACT_US_URL);
     } else {
       navigation.navigate(targetPage);
     }
   };
 
   useEffect(() => {
-    (async () => {
-      var timeoutCounter = setTimeout(() => {
-        setNumberOfRemindedSurvey(0);
-        setLoading(false);
-      }, 200000);
+    setLoading(true);
+    AsyncStorage.getItem('user_id').then((value) => {
+      AESEncryption('decrypt', value).then((res) => {
+        const dataSend = {Token: '' + JSON.parse(res).data.Token};
+        const formBody = [];
+        for (let key in dataSend) {
+          const encodedKey = encodeURIComponent(key);
+          const encodedValue = encodeURIComponent(dataSend[key]);
+          formBody.push(encodedKey + '=' + encodedValue);
+        }
 
-      setLoading(true);
-      AsyncStorage.getItem('user_id').then((value) => {
-        AESEncryption('decrypt', value).then((respp) => {
-          var dataToSend = {Token: JSON.parse(respp).data.Token};
-          var formBody = [];
-          for (let key in dataToSend) {
-            var encodedKey = encodeURIComponent(key);
-            var encodedValue = encodeURIComponent(dataToSend[key]);
-            formBody.push(encodedKey + '=' + encodedValue);
-          }
-          formBody = formBody.join('&');
-          let url = `${ACCESS_API}/marketsurveyqna`;
-          fetch(url, {
-            method: 'POST',
-            body: formBody,
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-            },
+        const urlFinanceMatterAPI = `${ACCESS_API}/financematterinfo`;
+        const urlMarketSurveyAPI = `${ACCESS_API}/marketsurveyqna`;
+        const urlParams = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+          },
+          body: formBody.join('&'),
+        };
+
+        const fetchFinanceMatterNumber = fetch(urlFinanceMatterAPI, urlParams)
+          .then((response) => {
+            return response.json();
           })
-            .then((response) => response.json())
-            .then((json) => {
-              clearTimeout(timeoutCounter);
-              setNumberOfRemindedSurvey(json.length);
-              setLoading(false);
+          .then((json) => {
+            setNumberOfFinanceMatter(json.Data.length);
+            setLoading(false);
+          })
+          .catch(() => {
+            setNumberOfFinanceMatter([]);
+            setLoading(false);
+          });
 
-              var timeoutCounter2;
-              if (route.params) {
-                if (route.params.notificationText !== '') {
-                  setIsLoadingNotification(true);
-                  timeoutCounter2 = setTimeout(() => {
-                    setIsLoadingNotification(false);
-                    setLoading(false);
-                    clearTimeout(timeoutCounter2);
-                  }, 6000);
-                }
-              }
-            })
-            .catch((error) => {
-              clearTimeout(timeoutCounter);
-              setNumberOfRemindedSurvey(0);
-              setLoading(false);
-            });
-        });
+        const fetchMarketSurveyNumber = fetch(urlMarketSurveyAPI, urlParams)
+          .then((response) => {
+            return response.json();
+          })
+          .then((json) => {
+            setNumberOfFinanceMatter(json.length);
+            setLoading(false);
+          })
+          .catch(() => {
+            setNumberOfMarketSurvey([]);
+            setLoading(false);
+          });
+        return [fetchFinanceMatterNumber, fetchMarketSurveyNumber];
       });
-      await loadMarketUpdates();
-    })();
-  }, [route.params]);
+    });
+    loadMarketUpdates();
+  }, []);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
@@ -163,13 +158,13 @@ const MoreScreen = ({route, navigation}) => {
             <View style={styles.viewChildLabel}>
               <Text style={styles.textChildLabel}>Market Update</Text>
             </View>
-            <View style={styles.viewChildBadge}>
-              {unreadMarketUpdates > 0 ? (
+            {unreadMarketUpdates > 0 ? (
+              <View style={styles.viewChildBadge}>
                 <Text style={styles.textChildBadge}>{unreadMarketUpdates}</Text>
-              ) : (
-                <></>
-              )}
-            </View>
+              </View>
+            ) : (
+              <></>
+            )}
             <View style={styles.viewChildIconNavigate}>
               <Icon raised name="navigate-next" size={21} />
             </View>
@@ -220,13 +215,15 @@ const MoreScreen = ({route, navigation}) => {
             <View style={styles.viewChildLabel}>
               <Text style={styles.textChildLabel}>Finance Matter</Text>
             </View>
-            {/* <View style={styles.viewChildBadge}>
-              {DATA.length !== 0 ? (
-                <Text style={styles.textChildBadge}>{DATA.length}</Text>
-              ) : (
-                <></>
-              )}
-            </View> */}
+            {numberOfFinanceMatter > 0 ? (
+              <View style={styles.viewChildBadge}>
+                <Text style={styles.textChildBadge}>
+                  {numberOfFinanceMatter}
+                </Text>
+              </View>
+            ) : (
+              <></>
+            )}
             <View style={styles.viewChildIconNavigate}>
               <Icon raised name="navigate-next" size={21} />
             </View>
@@ -242,15 +239,15 @@ const MoreScreen = ({route, navigation}) => {
             <View style={styles.viewChildLabel}>
               <Text style={styles.textChildLabel}>Market Survey</Text>
             </View>
-            <View style={styles.viewChildBadge}>
-              {numberOfRemindedSurvey > 0 ? (
+            {numberOfMarketSurvey > 0 ? (
+              <View style={styles.viewChildBadge}>
                 <Text style={styles.textChildBadge}>
-                  {numberOfRemindedSurvey}
+                  {numberOfMarketSurvey}
                 </Text>
-              ) : (
-                <></>
-              )}
-            </View>
+              </View>
+            ) : (
+              <></>
+            )}
             <View style={styles.viewChildIconNavigate}>
               <Icon raised name="navigate-next" size={21} />
             </View>
