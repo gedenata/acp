@@ -151,6 +151,7 @@ const SearchScreen = props => {
     let POOrderNumberTemporary2 = POOrOrderNumberTemporary;
     let productDescriptionKeywordTemporary2 = productDescriptionKeywordTemporary;
     let productDescriptionCategoryTemporary2 = productDescriptionCategoryTemporary;
+    let searchLocationTemporary2 = searchLocationTemporary;
     let monthTemp2 = monthTemp;
     let yearTemp2 = yearTemp;
 
@@ -167,6 +168,7 @@ const SearchScreen = props => {
     setPOOrOrderNumberKeyword('');
     setProductDescriptionCategory('');
     setProductDescriptionKeyword('');
+    setSearchLocation('');
     setMonth(0);
     setYear(0);
 
@@ -174,6 +176,7 @@ const SearchScreen = props => {
     setPOOrOrderNumberKeywordTemporary(POOrOrderNumberKeywordTemporary2);
     setProductDescriptionKeywordTemporary(productDescriptionKeywordTemporary2);
     setProductDescriptionCategoryTemporary(productDescriptionCategoryTemporary2);
+    setSearchLocationTemporary(searchLocationTemporary2);
     setYearTemp(yearTemp2);
     setMonthTemp(monthTemp2);
   }
@@ -522,9 +525,10 @@ const SearchScreen = props => {
             setValue={setPickerValue}
             setItems={setPickerItems}
             listMode="SCROLLVIEW"
+            zIndex ={pickerOpen ? 2 : 1}
             containerProps={{
               marginLeft: -2,
-              ...(pickerOpen ? {zIndex:2} : {zIndex:1})
+              //...(pickerOpen ? {zIndex:2} : {zIndex:1})
             }}
             onChangeValue={(ProductDescription) => {
               setDropdownChange(ProductDescription)
@@ -586,9 +590,10 @@ const SearchScreen = props => {
             setValue={setPickerLocValue}
             setItems={setPickerLocItems}
             listMode="SCROLLVIEW"
+            zIndex ={pickerLocOpen ? 2 : 1}
             containerProps={{
               marginLeft: -2,
-              ...(pickerLocOpen ? {zIndex:2} : {zIndex:1})
+              //...(pickerLocOpen ? {zIndex:2} : {zIndex:1})
             }}
             onChangeValue={(Location) => {
               setDropdownLocChange(Location);

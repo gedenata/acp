@@ -49,7 +49,7 @@ const SearchOrdersResultETAProductDescScreen = ({route, navigation}) => {
 
         if(route.params.SearchedLocation && route.params.SearchedLocation !== ""){ // zero means Order Number
           APITarget = `${ACCESS_API}/locsearch`;
-          dataToSend = { LocationName: route.params.SearchedLocation, Token: route.params.TokenValue };
+          dataToSend = { LocationName: route.params.SearchedLocation, Token: route.params.TokenValue, Skip:skipValue };
         } else if (route.params.year != "" && route.params.month != ""){
             APITarget = `${ACCESS_API}/eta`;
             dataToSend = { month: ((route.params.month.length == 1) ? "0" + route.params.month : route.params.month), year: route.params.year, Token: route.params.TokenValue, Skip:skipValue /* route.params.SalesOrderID */ };
