@@ -53,8 +53,8 @@ const FinanceMatterScreen = ({navigation}) => {
           .then((response) => {
             return response.json();
           })
-          .then((responseJson) => {
-            setData(responseJson);
+          .then((json) => {
+            setData(json);
             setLoading(false);
           })
           .catch(() => {
@@ -111,18 +111,18 @@ const FinanceMatterScreen = ({navigation}) => {
           <Text style={styles.textBar}>Finance Matter</Text>
         </View>
         <View style={styles.viewObject}>
-          {data.length === 0 ? (
-            <View style={styles.emptyData}>
-              <Image source={assets.emptyIcon} />
-              <Text style={styles.emptyText}>No data is available now</Text>
-            </View>
-          ) : (
+          {data.length !== 0 ? (
             <FlatList
               data={data.Data}
               nestedScrollEnabled={true}
               renderItem={renderListItem}
               keyExtractor={(item) => item.FinanceMatterID}
             />
+          ) : (
+            <View style={styles.emptyData}>
+              <Image source={assets.emptyIcon} />
+              <Text style={styles.emptyText}>No data is available now</Text>
+            </View>
           )}
         </View>
       </KeyboardAvoidingView>

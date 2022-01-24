@@ -49,55 +49,57 @@ const MoreScreen = ({route, navigation}) => {
 
   useEffect(() => {
     setLoading(true);
-    AsyncStorage.getItem('user_id').then((value) => {
-      AESEncryption('decrypt', value).then((res) => {
-        const dataSend = {Token: '' + JSON.parse(res).data.Token};
-        const formBody = [];
-        for (let key in dataSend) {
-          const encodedKey = encodeURIComponent(key);
-          const encodedValue = encodeURIComponent(dataSend[key]);
-          formBody.push(encodedKey + '=' + encodedValue);
-        }
+    (async () => {
+      AsyncStorage.getItem('user_id').then((value) => {
+        AESEncryption('decrypt', value).then((res) => {
+          const dataSend = {Token: '' + JSON.parse(res).data.Token};
+          const formBody = [];
+          for (let key in dataSend) {
+            const encodedKey = encodeURIComponent(key);
+            const encodedValue = encodeURIComponent(dataSend[key]);
+            formBody.push(encodedKey + '=' + encodedValue);
+          }
 
-        const urlFinanceMatterAPI = `${ACCESS_API}/financematterinfo`;
-        const urlMarketSurveyAPI = `${ACCESS_API}/marketsurveyqna`;
-        const urlParams = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-          },
-          body: formBody.join('&'),
-        };
+          const urlFinanceMatterAPI = `${ACCESS_API}/financematterinfo`;
+          const urlMarketSurveyAPI = `${ACCESS_API}/marketsurveyqna`;
+          const urlParams = {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+            },
+            body: formBody.join('&'),
+          };
 
-        const fetchFinanceMatterNumber = fetch(urlFinanceMatterAPI, urlParams)
-          .then((response) => {
-            return response.json();
-          })
-          .then((json) => {
-            setNumberOfFinanceMatter(json.Data.length);
-            setLoading(false);
-          })
-          .catch(() => {
-            setNumberOfFinanceMatter([]);
-            setLoading(false);
-          });
+          const fetchFinanceMatterNumber = fetch(urlFinanceMatterAPI, urlParams)
+            .then((response) => {
+              return response.json();
+            })
+            .then((json) => {
+              setNumberOfFinanceMatter(json.Data.length);
+              setLoading(false);
+            })
+            .catch(() => {
+              setNumberOfFinanceMatter([]);
+              setLoading(false);
+            });
 
-        const fetchMarketSurveyNumber = fetch(urlMarketSurveyAPI, urlParams)
-          .then((response) => {
-            return response.json();
-          })
-          .then((json) => {
-            setNumberOfFinanceMatter(json.length);
-            setLoading(false);
-          })
-          .catch(() => {
-            setNumberOfMarketSurvey([]);
-            setLoading(false);
-          });
-        return [fetchFinanceMatterNumber, fetchMarketSurveyNumber];
+          const fetchMarketSurveyNumber = fetch(urlMarketSurveyAPI, urlParams)
+            .then((response) => {
+              return response.json();
+            })
+            .then((json) => {
+              setNumberOfFinanceMatter(json.length);
+              setLoading(false);
+            })
+            .catch(() => {
+              setNumberOfMarketSurvey([]);
+              setLoading(false);
+            });
+          return [fetchFinanceMatterNumber, fetchMarketSurveyNumber];
+        });
       });
-    });
-    loadMarketUpdates();
+      await loadMarketUpdates();
+    })();
   }, []);
 
   useEffect(() => {
