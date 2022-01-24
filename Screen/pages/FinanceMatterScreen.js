@@ -1,170 +1,165 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+  Text,
+  View,
   Image,
-  Dimensions,
   FlatList,
+  StatusBar,
   StyleSheet,
   SafeAreaView,
-  View,
-  Text,
   TouchableOpacity,
+  KeyboardAvoidingView,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import DeviceInfo from 'react-native-device-info';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-community/async-storage';
 
-import Loader from './../Components/loader';
-import EmptyIcon from 'AnRNApp/Image/svg_logo/emptystate_noresults.svg';
+import {ACCESS_API} from '@env';
+import Loader from '../Components/loader';
+import AESEncryption from '../Components/AESEncryption';
 
-const {width} = Dimensions.get('window');
-const widthMultiplier = width / 400;
-const API = 'https://m.averis.biz/WebApi1/access/api';
+const assets = {
+  arrowLeft: require('../../Image/arrow-left.png'),
+  emptyIcon: require('../../Image/empty-data.png'),
+  topBar: require('../../Image/top-bar.png'),
+};
 
-export const DATA = [
+const DATA = [
   {
-    id: '1',
-    date: '21/12/2021',
-    company: 'PT. Bintang Obormas Jaya',
-    title: '1st Reminder',
-    description: '(Payment overdue statement of November)',
+    FinanceMatterID: '1',
+    OverdueDate: '2020-01-01',
+    Company: 'PT. Bintang Obormas Jaya',
+    Reminder: '1st Reminder',
+    Description: '(Payment overdue statement on January)',
   },
   {
-    id: '2',
-    date: '22/12/2021',
-    company: 'PT. Bintang Obormas Jaya',
-    title: '2nd Reminder',
-    description: '(Payment overdue statement of November)',
+    FinanceMatterID: '2',
+    OverdueDate: '2020-01-02',
+    Company: 'PT. Bintang Obormas Jaya',
+    Reminder: '2nd Reminder',
+    Description: '(Payment overdue statement on January)',
   },
   {
-    id: '3',
-    date: '23/12/2021',
-    company: 'PT. Bintang Obormas Jaya',
-    title: '3rd Reminder',
-    description: '(Payment overdue statement of November)',
+    FinanceMatterID: '3',
+    OverdueDate: '2020-01-03',
+    Company: 'PT. Bintang Obormas Jaya',
+    Reminder: '3rd Reminder',
+    Description: '(Payment overdue statement on January)',
   },
 ];
 
 const FinanceMatterScreen = ({navigation}) => {
-  const [loading, setLoading] = useState(false);
-  const [, setFontScale] = useState(1);
-  const [tokenValue, setTokenValue] = useState('');
-  const [pdfItemName, setPdfItemName] = useState('');
-  const [pdfString, setPdfString] = useState('');
-  const [pdfSource, setPdfSource] = useState({});
-  const [
-    isLoadingPopupSendConfirmation,
-    setLoadingPopupSendConfirmation,
-  ] = useState(false);
+  const [data, setData] = useState([]);
+  const [token, setToken] = useState('');
+  const [isEnable, setEnable] = useState(false);
+  const [isLoading, setLoading] = useState(false);
 
-  DeviceInfo.getFontScale().then((fontScaleTemp) => {
-    setFontScale(fontScaleTemp);
-  });
+  useEffect(() => {
+    setLoading(true);
+    AsyncStorage.getItem('user_id').then((value) => {
+      AESEncryption('decrypt', value).then((res) => {
+        setToken('' + JSON.parse(res).data.Token);
 
-  const goBackToPage = () => {
-    navigation.goBack();
+        const dataSend = {Token: '' + JSON.parse(res).data.Token};
+        const formBody = [];
+        for (let key in dataSend) {
+          const encodedKey = encodeURIComponent(key);
+          const encodedValue = encodeURIComponent(dataSend[key]);
+          formBody.push(encodedKey + '=' + encodedValue);
+        }
+
+        const url = `${ACCESS_API}/financematterinfo`;
+        const urlParams = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+          },
+          body: formBody.join('&'),
+        };
+        console.log('url =>', url);
+        console.log('urlParams =>', urlParams);
+
+        fetch(url, urlParams)
+          .then((response) => response.json())
+          .then(() => {
+            setEnable(true);
+            setData([]);
+            setLoading(false);
+          })
+          .catch((error) => {
+            console.error(error);
+            setLoading(false);
+          });
+      });
+    });
+    setLoading(false);
+  }, []);
+
+  const Item = ({OverdueDate, Company, Reminder, Description}) => {
+    return (
+      <View style={styles.item}>
+        <View style={styles.tagItem} />
+        <Text style={styles.date}>{OverdueDate}</Text>
+        <Text style={styles.company}>{Company}</Text>
+        <Text style={styles.reminder}>{Reminder}</Text>
+        <Text style={styles.description}>{Description}</Text>
+        <View>
+          <TouchableOpacity style={styles.viewPdfButton} onPress={() => {}}>
+            <Ionicons raised name="md-open-outline" size={18} color="#00854F" />
+            <Text style={styles.textPdfButton}>View PDF</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
   };
 
-  const Item = ({date, company, title, description}) => (
-    <View style={styles.item}>
-      <View style={styles.tagItem} />
-      <Text style={styles.date}>{date}</Text>
-      <Text style={styles.company}>{company}</Text>
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.description}>{description}</Text>
-      <View>
-        <TouchableOpacity
-          style={styles.viewPdfButton}
-          onPress={() => {
-            handleViewPdf(Item.ID, Item.title);
-          }}>
-          <Ionicons raised name="md-open-outline" size={18} color="#00854F" />
-          <Text style={styles.textPdfButton}>View PDF</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-
-  const renderFinanceMatterItem = ({item}) => {
+  const renderListItem = ({item}) => {
     return (
       <Item
-        date={item.date}
-        company={item.company}
-        title={item.title}
-        description={item.description}
+        OverdueDate={item.OverdueDate}
+        Company={item.Company}
+        Reminder={item.Reminder}
+        Description={item.Description}
       />
     );
   };
 
-  const handleViewPdf = (id, title) => {
-    setLoading(true);
-    setPdfItemName(title);
-
-    const data = {Token: '' + tokenValue};
-    const body = [];
-    for (let key in data) {
-      const encodedKey = encodeURIComponent(key);
-      const encodedValue = encodeURIComponent(data[key]);
-      body.push(encodedKey + '=' + encodedValue);
-      body.push('ID' + '=' + id);
-    }
-
-    const url = `${API}/productcataloguefile`;
-    fetch(url, {
-      method: 'POST',
-      body: body.join('&'),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-      },
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        setPdfString(json[0].FileData);
-        setPdfSource({uri: 'data:application/pdf;base64,' + json[0].FileData});
-        setLoadingPopupSendConfirmation(true);
-        setLoading(false);
-      })
-      .catch((error) => console.error(error));
-
-    setLoading(false);
-  };
-
   return (
     <SafeAreaView style={styles.container}>
-      <Loader loading={loading} />
-      <Image source={require('AnRNApp/Image/bar.png')} style={styles.imgBar} />
-      <View style={styles.viewOpacity}>
-        <TouchableOpacity style={styles.iconTouch} onPress={goBackToPage}>
-          <Icon raised name="arrow-left" size={30} color="#FDFDFD" />
-        </TouchableOpacity>
-        <Text style={styles.textBar}>Finance Matter</Text>
-      </View>
-      {DATA.length === 0 ? (
-        <View>
-          <EmptyIcon style={styles.emptyIcon} width={300} height={140} />
-          <Text style={styles.emptyText}>No data is available now</Text>
+      <StatusBar translucent backgroundColor="transparent" />
+      <Loader loading={isLoading} />
+      <KeyboardAvoidingView>
+        <Image source={assets.topBar} />
+        <View style={styles.viewOpacity}>
+          <TouchableOpacity
+            style={styles.iconTouch}
+            onPress={() => navigation.goBack()}>
+            <Image source={assets.arrowLeft} />
+          </TouchableOpacity>
+          <Text style={styles.textBar}>Finance Matter</Text>
         </View>
-      ) : (
-        <FlatList
-          data={DATA}
-          nestedScrollEnabled={true}
-          renderItem={renderFinanceMatterItem}
-          keyExtractor={(item) => item.id}
-        />
-      )}
+        <View style={styles.viewObject}>
+          {isEnable && data.length !== 0 ? (
+            <View style={styles.emptyData}>
+              <Image source={assets.emptyIcon} />
+              <Text style={styles.emptyText}>No data is available now</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={data}
+              nestedScrollEnabled={true}
+              renderItem={renderListItem}
+              keyExtractor={(item) => item.FinanceMatterID}
+            />
+          )}
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  imgBar: {
-    width: '100%',
-    height: 100,
-    top: -30,
-    resizeMode: 'contain',
-    borderRadius: 1000,
-    borderTopLeftRadius: 0,
-    borderTopRightRadius: 0,
-    transform: [{scaleX: 8 * widthMultiplier}],
+  container: {
+    flex: 1,
   },
   viewOpacity: {
     alignItems: 'center',
@@ -174,26 +169,23 @@ const styles = StyleSheet.create({
     right: 0,
   },
   iconTouch: {
-    position: 'absolute',
     left: 0,
-    marginLeft: 10,
-    marginTop: 4,
+    marginTop: 28,
+    marginLeft: 28,
+    position: 'absolute',
   },
   textBar: {
-    marginTop: 7,
     color: '#FDFDFD',
-    fontFamily: 'HelveticaNeue-Bold',
+    marginTop: 28,
     fontSize: 20,
-  },
-  container: {
-    flex: 1,
+    fontFamily: 'HelveticaNeue-Bold',
   },
   item: {
     backgroundColor: '#FFFFFF',
+    width: '100%',
     paddingTop: 20,
     paddingBottom: 20,
-    marginVertical: 16,
-    marginHorizontal: 32,
+    marginBottom: 32,
     borderRadius: 16,
     borderWidth: 0.4,
     borderColor: '#75787C',
@@ -223,7 +215,7 @@ const styles = StyleSheet.create({
     paddingLeft: 28,
     paddingRight: 28,
   },
-  title: {
+  reminder: {
     paddingTop: 20,
     fontSize: 14,
     fontFamily: 'HelveticaNeue-Bold',
@@ -247,15 +239,19 @@ const styles = StyleSheet.create({
     flex: 1,
     width: 20,
   },
-  emptyIcon: {
-    marginTop: 64,
-    alignSelf: 'center',
+  viewObject: {
+    paddingTop: 32,
+    paddingLeft: 32,
+    paddingRight: 32,
+  },
+  emptyData: {
+    paddingVertical: '25%',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   emptyText: {
-    paddingTop: 18,
-    alignSelf: 'center',
-    alignItems: 'center',
+    paddingTop: 20,
+    textAlign: 'center',
     color: '#75787C',
   },
   viewPdfButton: {
