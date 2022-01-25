@@ -2,14 +2,22 @@ import React, {useEffect, useState} from 'react';
 import {
   Text,
   View,
+  Alert,
   Image,
   FlatList,
+  Platform,
   StatusBar,
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
+  ActivityIndicator,
+  PermissionsAndroid,
   KeyboardAvoidingView,
+  ToastAndroid,
 } from 'react-native';
+import RNFS from 'react-native-fs';
+import RNFetchBlob from 'rn-fetch-blob';
+import {decode} from 'html-entities';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-community/async-storage';
 
@@ -26,10 +34,17 @@ const assets = {
 const FinanceMatterScreen = ({navigation}) => {
   const [data, setData] = useState([]);
   const [token, setToken] = useState('');
+  const [pdfName, setPdfName] = useState('');
+  const [pdfStream, setPdfStream] = useState('');
+  const [pdfSource, setPdfSource] = useState('');
+  const [isPopup, setIsPopup] = useState(false);
   const [isLoading, setLoading] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+
     AsyncStorage.getItem('user_id').then((value) => {
       AESEncryption('decrypt', value).then((res) => {
         setToken('' + JSON.parse(res).data.Token);
@@ -49,7 +64,7 @@ const FinanceMatterScreen = ({navigation}) => {
           },
           body: formBody.join('&'),
         };
-        const fetchFinanceMatter = fetch(url, urlParams)
+        const fetchFinanceMatterInfo = fetch(url, urlParams)
           .then((response) => {
             return response.json();
           })
@@ -61,7 +76,7 @@ const FinanceMatterScreen = ({navigation}) => {
             setData([]);
             setLoading(false);
           });
-        return fetchFinanceMatter;
+        return fetchFinanceMatterInfo;
       });
     });
     setLoading(false);
@@ -96,6 +111,106 @@ const FinanceMatterScreen = ({navigation}) => {
     );
   };
 
+  const androidPath =
+    Platform.OS === 'android'
+      ? RNFS.DocumentDirectoryPath
+      : RNFS.LibraryDirectoryPath;
+
+  const handleViewPdf = (fileID, fileName) => {
+    setPdfName(fileName);
+    const dataSend = {Token: '' + token};
+    const formBody = [];
+    for (let key in dataSend) {
+      const encodedKey = encodeURIComponent(key);
+      const encodedValue = encodeURIComponent(dataSend[key]);
+      formBody.push(encodedKey + '=' + encodedValue);
+    }
+
+    const url = `${ACCESS_API}/financematterfile`;
+    const urlParams = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+      },
+      body: formBody.join('&'),
+    };
+    const fetchFinanceMatterFile = fetch(url, urlParams)
+      .then((response) => {
+        return response.json();
+      })
+      .then((json) => {
+        setPdfStream(json[0].FileStream);
+        setPdfSource({
+          uri: 'data:application/pdf;base64,' + json[0].FileStream,
+        });
+        setIsPopup(true);
+        setLoading(false);
+      })
+      .catch(() => {
+        setData([]);
+        setLoading(false);
+      });
+    return fetchFinanceMatterFile;
+  };
+
+  const savePdfInAndroid = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'April Connect Permission',
+          message: 'April Connect needs access to your storage to save the PDF',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        RNFS.writeFile(androidPath + '/' + '.pdf', pdfStream, 'base64')
+          .then(() =>
+            ToastAndroid.show(
+              'File ' + pdfName + '.pdf' + 'successfully saved in ',
+              +androidPath,
+              ToastAndroid.LONG,
+            ),
+          )
+          .catch(() => {
+            ToastAndroid.show(
+              'File ' + pdfName + '.pdf' + 'failed to save in ' + androidPath,
+              ToastAndroid.LONG,
+            );
+          });
+        return true;
+      } else {
+        console.log('Permission Denied');
+        return false;
+      }
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  };
+
+  const savePdfInIOS = async () => {
+    const file = RNFetchBlob.fs.dirs.DocumentDir + '/' + pdfName + '.pdf';
+    RNFS.writeFile(file, pdfStream, 'base64').then(() => {
+      Alert.alert('Download', 'Download Successful', [
+        {
+          text: 'OK',
+          onPress: () => {},
+        },
+      ]).catch(() => {
+        Alert.alert('Download', 'Download Failed', [
+          {
+            text: 'OK',
+            onPress: () => {},
+          },
+        ]);
+      });
+    });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
@@ -111,18 +226,24 @@ const FinanceMatterScreen = ({navigation}) => {
           <Text style={styles.textBar}>Finance Matter</Text>
         </View>
         <View style={styles.viewObject}>
-          {data.length !== 0 ? (
+          {isLoading ? (
+            <ActivityIndicator
+              style={styles.activityIndicator}
+              size="large"
+              color="#002369"
+            />
+          ) : data.length > 0 ? (
+            <View style={styles.emptyData}>
+              <Image source={assets.emptyIcon} />
+              <Text style={styles.emptyText}>No data is available now</Text>
+            </View>
+          ) : (
             <FlatList
               data={data.Data}
               nestedScrollEnabled={true}
               renderItem={renderListItem}
               keyExtractor={(item) => item.FinanceMatterID}
             />
-          ) : (
-            <View style={styles.emptyData}>
-              <Image source={assets.emptyIcon} />
-              <Text style={styles.emptyText}>No data is available now</Text>
-            </View>
           )}
         </View>
       </KeyboardAvoidingView>
@@ -216,6 +337,12 @@ const styles = StyleSheet.create({
     paddingTop: 32,
     paddingLeft: 32,
     paddingRight: 32,
+  },
+  activityIndicator: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: '50%',
   },
   emptyData: {
     paddingVertical: '25%',
