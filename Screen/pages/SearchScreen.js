@@ -428,7 +428,9 @@ const SearchScreen = props => {
           blurOnSubmit={false}
         />
         </View> */}
-      <View>
+      <View style={{
+        ...(Platform.OS !== 'android' && {zIndex:12})
+      }}>
         <Autocomplete
           listContainerStyle={{
             flex: 1,
@@ -443,12 +445,12 @@ const SearchScreen = props => {
             marginRight:15,
             marginBottom:5,
             marginTop:8,
-            zIndex:2,
+            ...(Platform.OS !== 'android' ? {zIndex:12, height:200} : {zIndex:2})
           }}
           containerStyle={{
             flex: 1,
             padding: 5,
-            zIndex:2,
+            ...(Platform.OS !== 'android' ? {zIndex:12} : {zIndex:2})
           }}
           inputContainerStyle={{
             height:40,
@@ -474,7 +476,7 @@ const SearchScreen = props => {
                   borderTopWidth:1,
                   borderBottomColor:'grey',
                   borderBottomWidth:1,
-                  zIndex:2,
+                  ...(Platform.OS !== 'android' ? {zIndex:12} : {zIndex:2})
                 }}
                 onPress={() => {
                   setPOOrOrderNumberKeyword(item);
@@ -484,6 +486,7 @@ const SearchScreen = props => {
                 <Text style={{fontSize: 15,margin: 2,}}>{item}</Text>
               </gestureHandler.TouchableOpacity>
             ),
+            ...(Platform.OS !== 'android' && {minHeight:50, maxHeight:250})
           }}
           hideResults={false}
           renderTextInput={()=>{
@@ -497,6 +500,9 @@ const SearchScreen = props => {
                 onChangeText={TextInputValue => setPOOrderNumberChange(TextInputValue)}
                 onSubmitEditing={Keyboard.dismiss}
                 blurOnSubmit={false}
+                style={{
+                  ...(Platform.OS !== 'android' && {padding:10})
+                }}
               />
             );
           }}
@@ -511,7 +517,7 @@ const SearchScreen = props => {
           marginRight:20,
           alignItems:'stretch',
           justifyContent:'flex-start',
-          ...(Platform.OS !== 'android' && {zIndex:10})
+          ...(Platform.OS !== 'android' && {zIndex:11})
         }}
       >
         <Text style={{marginBottom:10,fontFamily:'HelveticaNeue'}}>Product Description</Text>
@@ -525,7 +531,7 @@ const SearchScreen = props => {
             setValue={setPickerValue}
             setItems={setPickerItems}
             listMode="SCROLLVIEW"
-            zIndex ={pickerOpen ? 2 : 1}
+            zIndex={Platform.OS === 'android' ? (pickerOpen ? 2 : 1) : undefined}
             containerProps={{
               marginLeft: -2,
               //...(pickerOpen ? {zIndex:2} : {zIndex:1})
@@ -590,7 +596,7 @@ const SearchScreen = props => {
             setValue={setPickerLocValue}
             setItems={setPickerLocItems}
             listMode="SCROLLVIEW"
-            zIndex ={pickerLocOpen ? 2 : 1}
+            zIndex={Platform.OS === 'android' ? (pickerOpen ? 2 : 1) : undefined}
             containerProps={{
               marginLeft: -2,
               //...(pickerLocOpen ? {zIndex:2} : {zIndex:1})
