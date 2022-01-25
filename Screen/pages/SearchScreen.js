@@ -299,7 +299,7 @@ const SearchScreen = props => {
   };
 
   const getDataAutoCompleteData = (POOrOrderNumberKeywordTemp) => {
-    if (POOrOrderNumberKeywordTemp && POOrOrderNumberKeywordTemp !== '') {
+    if (POOrOrderNumberKeywordTemp && POOrOrderNumberKeywordTemp !== '' && POOrOrderNumberKeywordTemp.length > 3) {
       setIsLoadingAutoSearch(true);
       var dataToSend = {};
       if (!POOrOrderNumber || POOrOrderNumber === '' || POOrOrderNumber === 0) {
@@ -428,7 +428,7 @@ const SearchScreen = props => {
           blurOnSubmit={false}
         />
         </View> */}
-      <View style={{
+       <View style={{
         ...(Platform.OS !== 'android' && {zIndex:12})
       }}>
         <Autocomplete
@@ -445,7 +445,7 @@ const SearchScreen = props => {
             marginRight:15,
             marginBottom:5,
             marginTop:8,
-            ...(Platform.OS !== 'android' ? {zIndex:12, height:200} : {zIndex:2})
+            ...(Platform.OS !== 'android' ? {zIndex:12} : {zIndex:2})
           }}
           containerStyle={{
             flex: 1,
@@ -486,7 +486,15 @@ const SearchScreen = props => {
                 <Text style={{fontSize: 15,margin: 2,}}>{item}</Text>
               </gestureHandler.TouchableOpacity>
             ),
-            ...(Platform.OS !== 'android' && {minHeight:50, maxHeight:250})
+            ...(Platform.OS !== 'android' && {
+              flex: 1,
+              position: 'absolute',
+              left: 10,
+              top: 0,
+              right: 0,
+              minHeight:50,
+              maxHeight:250
+            })
           }}
           hideResults={false}
           renderTextInput={()=>{
@@ -596,7 +604,7 @@ const SearchScreen = props => {
             setValue={setPickerLocValue}
             setItems={setPickerLocItems}
             listMode="SCROLLVIEW"
-            zIndex={Platform.OS === 'android' ? (pickerOpen ? 2 : 1) : undefined}
+            zIndex={Platform.OS === 'android' ? (pickerLocOpen ? 2 : 1) : undefined}
             containerProps={{
               marginLeft: -2,
               //...(pickerLocOpen ? {zIndex:2} : {zIndex:1})
