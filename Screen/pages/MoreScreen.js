@@ -11,10 +11,10 @@ import {
   ScrollView,
 } from 'react-native';
 import {ACCESS_API, CONTACT_US_URL} from '@env';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 
 import LOGOSVG from 'AnRNApp/Image/aprilconnect_horinzontallogo.svg';
 import Loader from './../Components/loader';
@@ -31,10 +31,10 @@ import {
 } from './../Components/marketUpdateUtils';
 
 const MoreScreen = ({route, navigation}) => {
-  const [isLoadingNotification, setIsLoadingNotification] = useState(false);
   const [unreadMarketUpdates, setUnreadMarketUpdates] = useState(0);
   const [numberOfMarketSurvey, setNumberOfMarketSurvey] = useState([]);
   const [numberOfFinanceMatter, setNumberOfFinanceMatter] = useState([]);
+  const [isLoadingNotification, setLoadingNotification] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const goToPage = (targetPage) => {

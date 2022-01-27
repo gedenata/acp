@@ -109,7 +109,7 @@ const FinanceMatterScreen = ({navigation}) => {
       },
       body: formBody.join('&'),
     };
-    const fetchFinanceMatterInfo = fetch(url, urlParams)
+    const fetchFinanceMatterFile = fetch(url, urlParams)
       .then((response) => {
         return response.json();
       })
@@ -124,7 +124,7 @@ const FinanceMatterScreen = ({navigation}) => {
       .catch(() => {
         setLoading(false);
       });
-    return fetchFinanceMatterInfo;
+    return fetchFinanceMatterFile;
   };
 
   const Item = ({
@@ -234,7 +234,6 @@ const FinanceMatterScreen = ({navigation}) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
-      {/* <Loader loading={isLoading} /> */}
       <KeyboardAvoidingView>
         <Modal
           transparent={true}
