@@ -48,7 +48,10 @@ const MoreScreen = ({route, navigation}) => {
   };
 
   useEffect(() => {
-    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+
     (async () => {
       AsyncStorage.getItem('user_id').then((value) => {
         AESEncryption('decrypt', value).then((res) => {

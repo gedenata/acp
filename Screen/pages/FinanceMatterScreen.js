@@ -37,7 +37,7 @@ const FinanceMatterScreen = ({navigation}) => {
   const [pdfName, setPdfName] = useState('');
   const [pdfStream, setPdfStream] = useState('');
   const [pdfSource, setPdfSource] = useState('');
-  const [isPopup, setIsPopup] = useState(false);
+  const [isPopup, setPopup] = useState(false);
   const [isLoading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -82,7 +82,58 @@ const FinanceMatterScreen = ({navigation}) => {
     setLoading(false);
   }, []);
 
-  const Item = ({OverdueDate, Company, Reminder, Description}) => {
+  const handleViewPdf = (financeMatterID, fileName) => {
+    setPdfName(fileName);
+    setLoading(true);
+
+    const formBody = [];
+    const dataSend = {
+      Token: '' + token,
+      FinanceMatterID: '' + financeMatterID,
+    };
+    console.log('dataSend =>', dataSend);
+    for (let key in dataSend) {
+      const encodedKey = encodeURIComponent(key);
+      const encodedValue = encodeURIComponent(dataSend[key]);
+      formBody.push(encodedKey + '=' + encodedValue);
+      formBody.push('FinanceMatterID' + '=' + financeMatterID);
+    }
+
+    const url = `${ACCESS_API}/financematterfile`;
+    const urlParams = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+      },
+      body: formBody.join('&'),
+    };
+    const fetchFinanceMatterInfo = fetch(url, urlParams)
+      .then((response) => {
+        return response.json();
+      })
+      .then((json) => {
+        console.log('json =>', json);
+        setPdfStream(json[0].FileData);
+        setPdfSource({
+          uri: 'data:application/pdf;base64,' + json[0].FileData,
+        });
+        setPopup(true);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+    return fetchFinanceMatterInfo;
+  };
+
+  const Item = ({
+    OverdueDate,
+    Company,
+    Reminder,
+    Description,
+    FileName,
+    FinanceMatterID,
+  }) => {
     return (
       <View style={styles.item}>
         <View style={styles.tagItem} />
@@ -91,7 +142,11 @@ const FinanceMatterScreen = ({navigation}) => {
         <Text style={styles.reminder}>{Reminder}</Text>
         <Text style={styles.description}>{Description}</Text>
         <View>
-          <TouchableOpacity style={styles.viewPdfButton} onPress={() => {}}>
+          <TouchableOpacity
+            style={styles.viewPdfButton}
+            onPress={() => {
+              handleViewPdf(FinanceMatterID, FileName);
+            }}>
             <Ionicons raised name="md-open-outline" size={18} color="#00854F" />
             <Text style={styles.textPdfButton}>View PDF</Text>
           </TouchableOpacity>
@@ -111,105 +166,68 @@ const FinanceMatterScreen = ({navigation}) => {
     );
   };
 
-  const androidPath =
-    Platform.OS === 'android'
-      ? RNFS.DocumentDirectoryPath
-      : RNFS.LibraryDirectoryPath;
+  // const androidPath =
+  //   Platform.OS === 'android'
+  //     ? RNFS.DocumentDirectoryPath
+  //     : RNFS.LibraryDirectoryPath;
 
-  const handleViewPdf = (fileID, fileName) => {
-    setPdfName(fileName);
-    const dataSend = {Token: '' + token};
-    const formBody = [];
-    for (let key in dataSend) {
-      const encodedKey = encodeURIComponent(key);
-      const encodedValue = encodeURIComponent(dataSend[key]);
-      formBody.push(encodedKey + '=' + encodedValue);
-    }
+  // const savePdfInAndroid = async () => {
+  //   try {
+  //     const granted = await PermissionsAndroid.request(
+  //       PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+  //       {
+  //         title: 'April Connect Permission',
+  //         message: 'April Connect needs access to your storage to save the PDF',
+  //         buttonNeutral: 'Ask Me Later',
+  //         buttonNegative: 'Cancel',
+  //         buttonPositive: 'OK',
+  //       },
+  //     );
 
-    const url = `${ACCESS_API}/financematterfile`;
-    const urlParams = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-      },
-      body: formBody.join('&'),
-    };
-    const fetchFinanceMatterFile = fetch(url, urlParams)
-      .then((response) => {
-        return response.json();
-      })
-      .then((json) => {
-        setPdfStream(json[0].FileStream);
-        setPdfSource({
-          uri: 'data:application/pdf;base64,' + json[0].FileStream,
-        });
-        setIsPopup(true);
-        setLoading(false);
-      })
-      .catch(() => {
-        setData([]);
-        setLoading(false);
-      });
-    return fetchFinanceMatterFile;
-  };
+  //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+  //       RNFS.writeFile(androidPath + '/' + '.pdf', pdfStream, 'base64')
+  //         .then(() =>
+  //           ToastAndroid.show(
+  //             'File ' + pdfName + '.pdf' + 'successfully saved in ',
+  //             +androidPath,
+  //             ToastAndroid.LONG,
+  //           ),
+  //         )
+  //         .catch(() => {
+  //           ToastAndroid.show(
+  //             'File ' + pdfName + '.pdf' + 'failed to save in ' + androidPath,
+  //             ToastAndroid.LONG,
+  //           );
+  //         });
+  //       return true;
+  //     } else {
+  //       console.log('Permission Denied');
+  //       return false;
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     return false;
+  //   }
+  // };
 
-  const savePdfInAndroid = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-        {
-          title: 'April Connect Permission',
-          message: 'April Connect needs access to your storage to save the PDF',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        },
-      );
-
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        RNFS.writeFile(androidPath + '/' + '.pdf', pdfStream, 'base64')
-          .then(() =>
-            ToastAndroid.show(
-              'File ' + pdfName + '.pdf' + 'successfully saved in ',
-              +androidPath,
-              ToastAndroid.LONG,
-            ),
-          )
-          .catch(() => {
-            ToastAndroid.show(
-              'File ' + pdfName + '.pdf' + 'failed to save in ' + androidPath,
-              ToastAndroid.LONG,
-            );
-          });
-        return true;
-      } else {
-        console.log('Permission Denied');
-        return false;
-      }
-    } catch (error) {
-      console.log(error);
-      return false;
-    }
-  };
-
-  const savePdfInIOS = async () => {
-    const file = RNFetchBlob.fs.dirs.DocumentDir + '/' + pdfName + '.pdf';
-    RNFS.writeFile(file, pdfStream, 'base64').then(() => {
-      Alert.alert('Download', 'Download Successful', [
-        {
-          text: 'OK',
-          onPress: () => {},
-        },
-      ]).catch(() => {
-        Alert.alert('Download', 'Download Failed', [
-          {
-            text: 'OK',
-            onPress: () => {},
-          },
-        ]);
-      });
-    });
-  };
+  // const savePdfInIOS = async () => {
+  //   const file = RNFetchBlob.fs.dirs.DocumentDir + '/' + pdfName + '.pdf';
+  //   RNFS.writeFile(file, pdfStream, 'base64').then(() => {
+  //     Alert.alert('Download', 'Download Successful', [
+  //       {
+  //         text: 'OK',
+  //         onPress: () => {},
+  //       },
+  //     ]).catch(() => {
+  //       Alert.alert('Download', 'Download Failed', [
+  //         {
+  //           text: 'OK',
+  //           onPress: () => {},
+  //         },
+  //       ]);
+  //     });
+  //   });
+  // };
 
   return (
     <SafeAreaView style={styles.container}>
