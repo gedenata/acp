@@ -15,6 +15,7 @@ import {
   ActivityIndicator,
   PermissionsAndroid,
   KeyboardAvoidingView,
+  Dimensions,
 } from 'react-native';
 import RNFS from 'react-native-fs';
 import Pdf from 'react-native-pdf';
@@ -234,7 +235,7 @@ const FinanceMatterScreen = ({navigation}) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
-      <Loader loading={isLoading} />
+      {/* <Loader loading={isLoading} /> */}
       <KeyboardAvoidingView>
         <Modal
           transparent={true}
@@ -475,9 +476,12 @@ const styles = StyleSheet.create({
     paddingTop: 24,
   },
   pdfPopupFile: {
-    backgroundColor: '#FFFFFF',
+    flex: 1,
     paddingLeft: 24,
     paddingRight: 24,
+    backgroundColor: '#FFFFFF',
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
   },
 });
 
