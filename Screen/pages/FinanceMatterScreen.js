@@ -23,7 +23,6 @@ import RNFetchBlob from 'rn-fetch-blob';
 import AsyncStorage from '@react-native-community/async-storage';
 
 import {ACCESS_API} from '@env';
-import Loader from '../Components/loader';
 import AESEncryption from '../Components/AESEncryption';
 
 const assets = {
