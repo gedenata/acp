@@ -4,21 +4,21 @@ import {
   View,
   Alert,
   Image,
+  Modal,
   FlatList,
   Platform,
   StatusBar,
   StyleSheet,
   SafeAreaView,
+  ToastAndroid,
   TouchableOpacity,
   ActivityIndicator,
   PermissionsAndroid,
   KeyboardAvoidingView,
-  ToastAndroid,
 } from 'react-native';
 import RNFS from 'react-native-fs';
+import Pdf from 'react-native-pdf';
 import RNFetchBlob from 'rn-fetch-blob';
-import {decode} from 'html-entities';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-community/async-storage';
 
 import {ACCESS_API} from '@env';
@@ -26,8 +26,11 @@ import Loader from '../Components/loader';
 import AESEncryption from '../Components/AESEncryption';
 
 const assets = {
+  externalLink: require('../../Image/external-link.png'),
   arrowLeft: require('../../Image/arrow-left.png'),
+  chevronDown: require('../../Image/chevron-down.png'),
   emptyIcon: require('../../Image/empty-data.png'),
+  download: require('../../Image/download.png'),
   topBar: require('../../Image/top-bar.png'),
 };
 
@@ -91,7 +94,6 @@ const FinanceMatterScreen = ({navigation}) => {
       Token: '' + token,
       FinanceMatterID: '' + financeMatterID,
     };
-    console.log('dataSend =>', dataSend);
     for (let key in dataSend) {
       const encodedKey = encodeURIComponent(key);
       const encodedValue = encodeURIComponent(dataSend[key]);
@@ -112,10 +114,9 @@ const FinanceMatterScreen = ({navigation}) => {
         return response.json();
       })
       .then((json) => {
-        console.log('json =>', json);
-        setPdfStream(json[0].FileData);
+        setPdfStream(json.FileData);
         setPdfSource({
-          uri: 'data:application/pdf;base64,' + json[0].FileData,
+          uri: 'data:application/pdf;base64,' + json.FileData,
         });
         setPopup(true);
         setLoading(false);
@@ -147,7 +148,7 @@ const FinanceMatterScreen = ({navigation}) => {
             onPress={() => {
               handleViewPdf(FinanceMatterID, FileName);
             }}>
-            <Ionicons raised name="md-open-outline" size={18} color="#00854F" />
+            <Image source={assets.externalLink} />
             <Text style={styles.textPdfButton}>View PDF</Text>
           </TouchableOpacity>
         </View>
@@ -162,78 +163,128 @@ const FinanceMatterScreen = ({navigation}) => {
         Company={item.Company}
         Reminder={item.Reminder}
         Description={item.Description}
+        FileName={item.FileName}
+        FinanceMatterID={item.FinanceMatterID}
       />
     );
   };
 
-  // const androidPath =
-  //   Platform.OS === 'android'
-  //     ? RNFS.DocumentDirectoryPath
-  //     : RNFS.LibraryDirectoryPath;
+  const androidPath =
+    Platform.OS === 'android'
+      ? RNFS.DocumentDirectoryPath
+      : RNFS.LibraryDirectoryPath;
 
-  // const savePdfInAndroid = async () => {
-  //   try {
-  //     const granted = await PermissionsAndroid.request(
-  //       PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-  //       {
-  //         title: 'April Connect Permission',
-  //         message: 'April Connect needs access to your storage to save the PDF',
-  //         buttonNeutral: 'Ask Me Later',
-  //         buttonNegative: 'Cancel',
-  //         buttonPositive: 'OK',
-  //       },
-  //     );
+  const savePdfInAndroid = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'April Connect Permission',
+          message: 'April Connect needs access to your storage to save the PDF',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
 
-  //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-  //       RNFS.writeFile(androidPath + '/' + '.pdf', pdfStream, 'base64')
-  //         .then(() =>
-  //           ToastAndroid.show(
-  //             'File ' + pdfName + '.pdf' + 'successfully saved in ',
-  //             +androidPath,
-  //             ToastAndroid.LONG,
-  //           ),
-  //         )
-  //         .catch(() => {
-  //           ToastAndroid.show(
-  //             'File ' + pdfName + '.pdf' + 'failed to save in ' + androidPath,
-  //             ToastAndroid.LONG,
-  //           );
-  //         });
-  //       return true;
-  //     } else {
-  //       console.log('Permission Denied');
-  //       return false;
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     return false;
-  //   }
-  // };
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        RNFS.writeFile(androidPath + '/' + '.pdf', pdfStream, 'base64')
+          .then(() =>
+            ToastAndroid.show(
+              'File ' + pdfName + ' successfully saved in ' + androidPath,
+              ToastAndroid.LONG,
+            ),
+          )
+          .catch(() => {
+            ToastAndroid.show(
+              'File ' + pdfName + 'failed to save in ' + androidPath,
+              ToastAndroid.LONG,
+            );
+          });
+        return true;
+      } else {
+        console.log('Permission Denied');
+        return false;
+      }
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  };
 
-  // const savePdfInIOS = async () => {
-  //   const file = RNFetchBlob.fs.dirs.DocumentDir + '/' + pdfName + '.pdf';
-  //   RNFS.writeFile(file, pdfStream, 'base64').then(() => {
-  //     Alert.alert('Download', 'Download Successful', [
-  //       {
-  //         text: 'OK',
-  //         onPress: () => {},
-  //       },
-  //     ]).catch(() => {
-  //       Alert.alert('Download', 'Download Failed', [
-  //         {
-  //           text: 'OK',
-  //           onPress: () => {},
-  //         },
-  //       ]);
-  //     });
-  //   });
-  // };
+  const savePdfInIOS = async () => {
+    const file = RNFetchBlob.fs.dirs.DocumentDir + '/' + pdfName + '.pdf';
+    RNFS.writeFile(file, pdfStream, 'base64').then(() => {
+      Alert.alert('Download', 'Download Successful', [
+        {
+          text: 'OK',
+          onPress: () => {},
+        },
+      ]).catch(() => {
+        Alert.alert('Download', 'Download Failed', [
+          {
+            text: 'OK',
+            onPress: () => {},
+          },
+        ]);
+      });
+    });
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
       <Loader loading={isLoading} />
       <KeyboardAvoidingView>
+        <Modal
+          transparent={true}
+          animationType="none"
+          visible={isPopup}
+          onRequestClose={() => {
+            setPopup(false);
+          }}>
+          <View style={styles.pdfPopup}>
+            <View style={styles.pdfPopupHeader}>
+              <TouchableOpacity
+                style={styles.pdfPopupClose}
+                onPress={() => {
+                  setPopup(false);
+                }}>
+                <Image source={assets.chevronDown} />
+              </TouchableOpacity>
+              <View style={styles.pdfPopupHeaderContent}>
+                <Text style={styles.pdfPopupTitle}>{pdfName} (Pdf File)</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.pdfPopupDownload}
+                onPress={() => {
+                  Platform.OS === 'android'
+                    ? savePdfInAndroid()
+                    : savePdfInIOS();
+                }}>
+                <Image source={assets.download} />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.pdfPopupBody}>
+              <Pdf
+                style={styles.pdfPopupFile}
+                source={pdfSource}
+                onLoadComplete={(numberOfPages, filePath) => {
+                  console.log(`Number of pages: ${numberOfPages}`, filePath);
+                }}
+                onPageChanged={(page, numberOfPages) => {
+                  console.log(`Current page: ${page}`, numberOfPages);
+                }}
+                onError={(error) => {
+                  console.log(error);
+                }}
+                onPressLink={(uri) => {
+                  console.log(`Link pressed: ${uri}`);
+                }}
+              />
+            </View>
+          </View>
+        </Modal>
         <Image source={assets.topBar} />
         <View style={styles.viewOpacity}>
           <TouchableOpacity
@@ -384,6 +435,49 @@ const styles = StyleSheet.create({
     color: '#00854F',
     paddingLeft: 4,
     fontFamily: 'HelveticaNeue',
+  },
+  pdfPopup: {
+    flex: 2,
+    marginTop: 60,
+  },
+  pdfPopupHeader: {
+    flex: 3,
+    borderTopRightRadius: 10,
+    borderTopLeftRadius: 10,
+    backgroundColor: '#FFFFFF',
+  },
+  pdfPopupBody: {
+    flex: 24,
+    height: 9,
+    backgroundColor: '#C4C4C4',
+  },
+  pdfPopupClose: {
+    position: 'absolute',
+    left: 32,
+    paddingTop: 24,
+  },
+  pdfPopupHeaderContent: {
+    paddingTop: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    textAlign: 'center',
+    flexWrap: 'wrap',
+  },
+  pdfPopupTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    fontFamily: 'HelveticaNeue',
+  },
+  pdfPopupDownload: {
+    position: 'absolute',
+    right: 32,
+    paddingTop: 24,
+  },
+  pdfPopupFile: {
+    backgroundColor: '#FFFFFF',
+    paddingLeft: 24,
+    paddingRight: 24,
   },
 });
 
