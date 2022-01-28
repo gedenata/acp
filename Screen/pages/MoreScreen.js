@@ -32,8 +32,8 @@ import {
 
 const MoreScreen = ({route, navigation}) => {
   const [unreadMarketUpdates, setUnreadMarketUpdates] = useState(0);
-  const [numberOfMarketSurvey, setNumberOfMarketSurvey] = useState([]);
-  const [numberOfFinanceMatter, setNumberOfFinanceMatter] = useState([]);
+  const [numberOfMarketSurvey, setNumberOfMarketSurvey] = useState(0);
+  const [numberOfFinanceMatter, setNumberOfFinanceMatter] = useState(0);
   const [isLoadingNotification, setLoadingNotification] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -82,7 +82,7 @@ const MoreScreen = ({route, navigation}) => {
               setLoading(false);
             })
             .catch(() => {
-              setNumberOfFinanceMatter([]);
+              setNumberOfFinanceMatter(0);
               setLoading(false);
             });
 
@@ -91,11 +91,11 @@ const MoreScreen = ({route, navigation}) => {
               return response.json();
             })
             .then((json) => {
-              setNumberOfFinanceMatter(json.length);
+              setNumberOfMarketSurvey(json.length);
               setLoading(false);
             })
             .catch(() => {
-              setNumberOfMarketSurvey([]);
+              setNumberOfMarketSurvey(0);
               setLoading(false);
             });
           return [fetchFinanceMatterNumber, fetchMarketSurveyNumber];
