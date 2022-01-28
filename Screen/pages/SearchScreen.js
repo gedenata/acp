@@ -276,6 +276,8 @@ const SearchScreen = props => {
     setAutoSearchData([]);
     setPickerLocOpen(false);
     setPickerOpen(false);
+    setPickerLocValue('');
+    setPickerValue('');
 
     if(controller)
       controller.selectItem('Choose Product Description Category');
