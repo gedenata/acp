@@ -358,7 +358,6 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     marginBottom: 32,
     borderRadius: 12,
-    borderWidth: 0.1,
     borderColor: '#75787C',
   },
   bar: {
