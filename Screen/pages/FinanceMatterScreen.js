@@ -220,7 +220,7 @@ const FinanceMatterScreen = ({navigation}) => {
 
   const savePdfInIOS = async () => {
     const file = RNFetchBlob.fs.dirs.DocumentDir + '/' + pdfName + '.pdf';
-    RNFS.writeFile(file, pdfStream, 'base64').then(() => {
+    RNFetchBlob.fs.writeFile(file, pdfStream, 'base64').then(() => {
       Alert.alert('Download', 'Download Successful', [
         {
           text: 'OK',
