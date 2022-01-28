@@ -107,11 +107,6 @@ const App = () => {
           .then((json) => {
             setNumberOfFinanceMatter(json.Data.length);
           });
-        if (!fromMoreStack) {
-          await fetchMarketUpdates(JSON.parse(respp).data.Token);
-          const marketUpdatesCount = await checkUnreadMarketUpdates();
-          setUnreadMarketUpdates(marketUpdatesCount);
-        }
       });
     });
   };
