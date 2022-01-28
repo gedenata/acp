@@ -17,7 +17,7 @@ import {
   KeyboardAvoidingView,
   Dimensions,
 } from 'react-native';
-import RNFS from 'react-native-fs';
+var RNFS = require('react-native-fs');
 import Pdf from 'react-native-pdf';
 import RNFetchBlob from 'rn-fetch-blob';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -32,7 +32,11 @@ const assets = {
   emptyIcon: require('../../Image/empty-data.png'),
   download: require('../../Image/download.png'),
   topBar: require('../../Image/top-bar.png'),
+  bar: require('../../Image/bar.png'),
 };
+
+const {width} = Dimensions.get('window');
+const widthMultiplier = width / 400;
 
 const FinanceMatterScreen = ({navigation}) => {
   const [data, setData] = useState([]);
@@ -188,18 +192,24 @@ const FinanceMatterScreen = ({navigation}) => {
       );
 
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        RNFS.writeFile(androidPath + '/' + '.pdf', pdfStream, 'base64')
+        RNFS.writeFile(
+          androidPath + '/' + pdfName + '.pdf',
+          pdfStream,
+          'base64',
+        )
           .then(() =>
             ToastAndroid.show(
-              'File ' + pdfName + ' successfully saved in ' + androidPath,
+              'File ' +
+                pdfName +
+                '.pdf' +
+                ' successfully saved in ' +
+                androidPath,
               ToastAndroid.LONG,
             ),
           )
-          .catch(() => {
-            ToastAndroid.show(
-              'File ' + pdfName + 'failed to save in ' + androidPath,
-              ToastAndroid.LONG,
-            );
+          .catch((error) => {
+            console.log(error.message);
+            ToastAndroid.show('Failed to save file', ToastAndroid.LONG);
           });
         return true;
       } else {
@@ -207,7 +217,7 @@ const FinanceMatterScreen = ({navigation}) => {
         return false;
       }
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
       return false;
     }
   };
@@ -252,7 +262,9 @@ const FinanceMatterScreen = ({navigation}) => {
                 <Image source={assets.chevronDown} />
               </TouchableOpacity>
               <View style={styles.pdfPopupHeaderContent}>
-                <Text style={styles.pdfPopupTitle}>{pdfName} (Pdf File)</Text>
+                <Text style={styles.pdfPopupTitle} numberOfLines={1}>
+                  {pdfName} (Pdf File)
+                </Text>
               </View>
               <TouchableOpacity
                 style={styles.pdfPopupDownload}
@@ -284,7 +296,7 @@ const FinanceMatterScreen = ({navigation}) => {
             </View>
           </View>
         </Modal>
-        <Image source={assets.topBar} />
+        <Image style={styles.bar} source={assets.bar} />
         <View style={styles.viewOpacity}>
           <TouchableOpacity
             style={styles.iconTouch}
@@ -348,13 +360,25 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 20,
     marginBottom: 32,
-    borderRadius: 16,
-    borderWidth: 0.4,
+    borderRadius: 12,
+    borderWidth: 0.1,
     borderColor: '#75787C',
   },
+  bar: {
+    width: '100%',
+    height: 120,
+    top: -30,
+    resizeMode: 'contain',
+    borderRadius: 1000,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+    transform: [{scaleX: 8 * widthMultiplier}],
+  },
   tagItem: {
+    left: 0,
     position: 'absolute',
     height: 30,
+    width: 3,
     marginTop: 22,
     borderBottomRightRadius: 2,
     borderTopRightRadius: 2,
@@ -397,10 +421,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.4,
     borderBottomColor: '#75787C',
   },
-  pdf: {
-    flex: 1,
-    width: 20,
-  },
   viewObject: {
     paddingTop: 32,
     paddingLeft: 32,
@@ -436,19 +456,18 @@ const styles = StyleSheet.create({
     fontFamily: 'HelveticaNeue',
   },
   pdfPopup: {
-    flex: 2,
-    marginTop: 60,
+    flex: 1,
+    marginTop: 50,
   },
   pdfPopupHeader: {
-    flex: 3,
+    flex: 1,
+    paddingBottom: 20,
     borderTopRightRadius: 10,
     borderTopLeftRadius: 10,
     backgroundColor: '#FFFFFF',
   },
   pdfPopupBody: {
-    flex: 24,
-    height: 9,
-    backgroundColor: '#C4C4C4',
+    flex: 10,
   },
   pdfPopupClose: {
     position: 'absolute',
@@ -461,9 +480,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
     textAlign: 'center',
-    flexWrap: 'wrap',
   },
   pdfPopupTitle: {
+    width: 250,
     fontSize: 14,
     fontWeight: 'bold',
     fontFamily: 'HelveticaNeue',
@@ -475,9 +494,10 @@ const styles = StyleSheet.create({
   },
   pdfPopupFile: {
     flex: 1,
-    paddingLeft: 24,
-    paddingRight: 24,
-    backgroundColor: '#FFFFFF',
+    padding: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#C4C4C4',
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
   },
