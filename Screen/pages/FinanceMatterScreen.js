@@ -175,7 +175,7 @@ const FinanceMatterScreen = ({navigation}) => {
 
   const androidPath =
     Platform.OS === 'android'
-      ? RNFS.DocumentDirectoryPath
+      ? RNFS.DownloadDirectoryPath
       : RNFS.LibraryDirectoryPath;
 
   const savePdfInAndroid = async () => {
@@ -199,11 +199,7 @@ const FinanceMatterScreen = ({navigation}) => {
         )
           .then(() =>
             ToastAndroid.show(
-              'File ' +
-                pdfName +
-                '.pdf' +
-                ' successfully saved in ' +
-                androidPath,
+              'File ' + pdfName + ' successfully saved in ' + androidPath,
               ToastAndroid.LONG,
             ),
           )
@@ -290,6 +286,7 @@ const FinanceMatterScreen = ({navigation}) => {
                   console.log(error);
                 }}
                 onPressLink={(uri) => {
+                  console.log('uri =>', uri);
                   console.log(`Link pressed: ${uri}`);
                 }}
               />
