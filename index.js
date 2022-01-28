@@ -7,5 +7,12 @@ import App from './App';
 import {name as appName} from './app.json';
 import JailMonkey from 'jail-monkey';
 import RNExitApp from 'react-native-exit-app';
+// import FinanceMatterScreen from './Screen/pages/FinanceMatterScreen';
 
-AppRegistry.registerComponent(appName, () => (JailMonkey.isJailBroken() ? ((Platform.OS === 'android') ? BackHandler.exitApp() : RNExitApp.exitApp()) : App));
+AppRegistry.registerComponent(appName, () =>
+  JailMonkey.isJailBroken()
+    ? Platform.OS === 'android'
+      ? BackHandler.exitApp()
+      : RNExitApp.exitApp()
+    : App,
+);
