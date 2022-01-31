@@ -333,12 +333,7 @@ const FinanceMatterScreen = ({navigation}) => {
             )}
           </View>
         ) : (
-          <View style={styles.emptyData}>
-            <Image source={assets.emptyIcon} />
-            <Text style={styles.emptyText}>
-              There is no statement available
-            </Text>
-          </View>
+          <></>
         )}
       </KeyboardAvoidingView>
     </SafeAreaView>
