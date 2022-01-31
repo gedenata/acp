@@ -34,6 +34,7 @@ const MoreScreen = ({route, navigation}) => {
   const [unreadMarketUpdates, setUnreadMarketUpdates] = useState(0);
   const [numberOfMarketSurvey, setNumberOfMarketSurvey] = useState(0);
   const [numberOfFinanceMatter, setNumberOfFinanceMatter] = useState(0);
+  const [financeMatterEnabled, setFinanceMatterEnabled] = useState(false);
   const [isLoadingNotification, setLoadingNotification] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -63,8 +64,6 @@ const MoreScreen = ({route, navigation}) => {
             formBody.push(encodedKey + '=' + encodedValue);
           }
 
-          const urlFinanceMatterAPI = `${ACCESS_API}/financematterinfo`;
-          const urlMarketSurveyAPI = `${ACCESS_API}/marketsurveyqna`;
           const urlParams = {
             method: 'POST',
             headers: {
@@ -73,11 +72,18 @@ const MoreScreen = ({route, navigation}) => {
             body: formBody.join('&'),
           };
 
+          const urlFinanceMatterAPI = `${ACCESS_API}/financematterinfo`;
           const fetchFinanceMatterNumber = fetch(urlFinanceMatterAPI, urlParams)
             .then((response) => {
               return response.json();
             })
             .then((json) => {
+              if (json.FinanceMatterEnabled === true) {
+                setFinanceMatterEnabled(true);
+                setNumberOfFinanceMatter(true);
+              } else {
+                setFinanceMatterEnabled(false);
+              }
               setNumberOfFinanceMatter(json.Data.length);
               setLoading(false);
             })
@@ -86,6 +92,7 @@ const MoreScreen = ({route, navigation}) => {
               setLoading(false);
             });
 
+          const urlMarketSurveyAPI = `${ACCESS_API}/marketsurveyqna`;
           const fetchMarketSurveyNumber = fetch(urlMarketSurveyAPI, urlParams)
             .then((response) => {
               return response.json();
@@ -206,33 +213,37 @@ const MoreScreen = ({route, navigation}) => {
           </TouchableOpacity>
 
           {/* Finance Matter */}
-          <TouchableOpacity
-            style={styles.menuChildLabel}
-            onPress={goToPage.bind(this, 'FinanceMatter')}>
-            <View style={styles.viewChildIconLabel}>
-              <Ionicons
-                raised
-                name="receipt-outline"
-                size={25}
-                color="#00854F"
-              />
-            </View>
-            <View style={styles.viewChildLabel}>
-              <Text style={styles.textChildLabel}>Finance Matter</Text>
-            </View>
-            {numberOfFinanceMatter > 0 ? (
-              <View style={styles.viewChildBadge}>
-                <Text style={styles.textChildBadge}>
-                  {numberOfFinanceMatter}
-                </Text>
+          {financeMatterEnabled ? (
+            <TouchableOpacity
+              style={styles.menuChildLabel}
+              onPress={goToPage.bind(this, 'FinanceMatter')}>
+              <View style={styles.viewChildIconLabel}>
+                <Ionicons
+                  raised
+                  name="receipt-outline"
+                  size={25}
+                  color="#00854F"
+                />
               </View>
-            ) : (
-              <></>
-            )}
-            <View style={styles.viewChildIconNavigate}>
-              <Icon raised name="navigate-next" size={21} />
-            </View>
-          </TouchableOpacity>
+              <View style={styles.viewChildLabel}>
+                <Text style={styles.textChildLabel}>Finance Matter</Text>
+              </View>
+              {numberOfFinanceMatter > 0 ? (
+                <View style={styles.viewChildBadge}>
+                  <Text style={styles.textChildBadge}>
+                    {numberOfFinanceMatter}
+                  </Text>
+                </View>
+              ) : (
+                <></>
+              )}
+              <View style={styles.viewChildIconNavigate}>
+                <Icon raised name="navigate-next" size={21} />
+              </View>
+            </TouchableOpacity>
+          ) : (
+            <></>
+          )}
 
           {/* Market Survey */}
           <TouchableOpacity

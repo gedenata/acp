@@ -29,7 +29,7 @@ const assets = {
   externalLink: require('../../Image/external-link.png'),
   arrowLeft: require('../../Image/arrow-left.png'),
   chevronDown: require('../../Image/chevron-down.png'),
-  emptyIcon: require('../../Image/empty-data.png'),
+  emptyIcon: require('../../Image/empty-file.png'),
   download: require('../../Image/download.png'),
   topBar: require('../../Image/top-bar.png'),
   bar: require('../../Image/bar.png'),
@@ -46,6 +46,7 @@ const FinanceMatterScreen = ({navigation}) => {
   const [pdfSource, setPdfSource] = useState('');
   const [isPopup, setPopup] = useState(false);
   const [isLoading, setLoading] = useState(false);
+  const [financeMatterEnabled, setFinanceMatterEnabled] = useState(false);
 
   useEffect(() => {
     setTimeout(() => {
@@ -76,6 +77,11 @@ const FinanceMatterScreen = ({navigation}) => {
             return response.json();
           })
           .then((json) => {
+            if (json.FinanceMatterEnabled === true) {
+              setFinanceMatterEnabled(true);
+            } else {
+              setFinanceMatterEnabled(false);
+            }
             setData(json);
             setLoading(false);
           })
@@ -302,27 +308,38 @@ const FinanceMatterScreen = ({navigation}) => {
           </TouchableOpacity>
           <Text style={styles.textBar}>Finance Matter</Text>
         </View>
-        <View style={styles.viewObject}>
-          {isLoading ? (
-            <ActivityIndicator
-              style={styles.activityIndicator}
-              size="large"
-              color="#002369"
-            />
-          ) : data.length > 0 ? (
-            <View style={styles.emptyData}>
-              <Image source={assets.emptyIcon} />
-              <Text style={styles.emptyText}>No data is available now</Text>
-            </View>
-          ) : (
-            <FlatList
-              data={data.Data}
-              nestedScrollEnabled={true}
-              renderItem={renderListItem}
-              keyExtractor={(item) => item.FinanceMatterID}
-            />
-          )}
-        </View>
+        {financeMatterEnabled ? (
+          <View style={styles.viewObject}>
+            {isLoading ? (
+              <ActivityIndicator
+                style={styles.activityIndicator}
+                size="large"
+                color="#002369"
+              />
+            ) : data.length > 0 ? (
+              <FlatList
+                data={data.Data}
+                nestedScrollEnabled={true}
+                renderItem={renderListItem}
+                keyExtractor={(item) => item.FinanceMatterID}
+              />
+            ) : (
+              <View style={styles.emptyData}>
+                <Image source={assets.emptyIcon} />
+                <Text style={styles.emptyText}>
+                  There is no statement available
+                </Text>
+              </View>
+            )}
+          </View>
+        ) : (
+          <View style={styles.emptyData}>
+            <Image source={assets.emptyIcon} />
+            <Text style={styles.emptyText}>
+              There is no statement available
+            </Text>
+          </View>
+        )}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
