@@ -13,3 +13,5 @@
 -keep class com.proyecto26.** {*;}
 -keep class com.facebook.hermes.** { *; }
 -keep class com.facebook.jni.** { *; }
+-keep class com.swmansion.reanimated.** { *; }
+-keep class com.facebook.react.turbomodule.** { *; }
