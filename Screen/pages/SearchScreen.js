@@ -195,7 +195,10 @@ const SearchScreen = props => {
     setInputColorTextPONumber("#000000");
     setPOOrOrderNumber(RadioValue);
     setPOOrOrderNumberTemporary(RadioValue);
-    setPOOrOrderNumberKeyword(POOrOrderNumberKeywordTemporary);
+    //setPOOrOrderNumberKeyword(POOrOrderNumberKeywordTemporary);
+    setPOOrOrderNumberKeyword('');
+    setPOOrOrderNumberKeywordTemporary('');
+    setAutoSearchData([]);
   }
 
   function setFocusOrderNumber(){
@@ -334,6 +337,7 @@ const SearchScreen = props => {
       })
         .then((response) => response.json())
         .then((json) => {
+          //console.log(json);
           setAutoSearchData(json);
           setIsLoadingAutoSearch(false);
         })
