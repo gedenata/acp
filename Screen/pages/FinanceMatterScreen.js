@@ -46,7 +46,7 @@ const FinanceMatterScreen = ({navigation}) => {
   const [pdfSource, setPdfSource] = useState('');
   const [isPopup, setPopup] = useState(false);
   const [isLoading, setLoading] = useState(false);
-  const [financeMatterEnabled, setFinanceMatterEnabled] = useState(false);
+  const [, setFinanceMatterEnabled] = useState(false);
 
   useEffect(() => {
     setTimeout(() => {
@@ -308,33 +308,29 @@ const FinanceMatterScreen = ({navigation}) => {
           </TouchableOpacity>
           <Text style={styles.textBar}>Finance Matter</Text>
         </View>
-        {financeMatterEnabled ? (
-          <View style={styles.viewObject}>
-            {isLoading ? (
-              <ActivityIndicator
-                style={styles.activityIndicator}
-                size="large"
-                color="#002369"
-              />
-            ) : data.length > 0 ? (
-              <FlatList
-                data={data.Data}
-                nestedScrollEnabled={true}
-                renderItem={renderListItem}
-                keyExtractor={(item) => item.FinanceMatterID}
-              />
-            ) : (
-              <View style={styles.emptyData}>
-                <Image source={assets.emptyIcon} />
-                <Text style={styles.emptyText}>
-                  There is no statement available
-                </Text>
-              </View>
-            )}
-          </View>
-        ) : (
-          <></>
-        )}
+        <View style={styles.viewObject}>
+          {isLoading ? (
+            <ActivityIndicator
+              style={styles.activityIndicator}
+              size="large"
+              color="#002369"
+            />
+          ) : data.FinanceMatterEnabled === true && data.Data.length === 0 ? (
+            <View style={styles.emptyData}>
+              <Image source={assets.emptyIcon} />
+              <Text style={styles.emptyText}>
+                There is no statement available
+              </Text>
+            </View>
+          ) : (
+            <FlatList
+              data={data.Data}
+              nestedScrollEnabled={true}
+              renderItem={renderListItem}
+              keyExtractor={(item) => item.FinanceMatterID}
+            />
+          )}
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
