@@ -49,7 +49,8 @@ const MoreScreen = ({route, navigation}) => {
   };
 
   useEffect(() => {
-    setTimeout(() => {
+    const timeoutCounter = setTimeout(() => {
+      setNumberOfMarketSurvey(0);
       setLoading(false);
     }, 3000);
 
@@ -98,10 +99,22 @@ const MoreScreen = ({route, navigation}) => {
               return response.json();
             })
             .then((json) => {
+              clearTimeout(timeoutCounter);
               setNumberOfMarketSurvey(json.length);
               setLoading(false);
+              if (route.params) {
+                if (route.params.notificationText !== '') {
+                  setLoadingNotification(true);
+                  const timeoutCounter2 = setTimeout(() => {
+                    setLoadingNotification(false);
+                    setLoading(false);
+                    clearTimeout(timeoutCounter2);
+                  }, 3000);
+                }
+              }
             })
             .catch(() => {
+              clearTimeout(timeoutCounter);
               setNumberOfMarketSurvey(0);
               setLoading(false);
             });
@@ -110,7 +123,7 @@ const MoreScreen = ({route, navigation}) => {
       });
       await loadMarketUpdates();
     })();
-  }, []);
+  }, [route.params]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
