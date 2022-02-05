@@ -325,7 +325,6 @@ const FinanceMatterScreen = ({navigation}) => {
           ) : (
             <FlatList
               data={data.Data}
-              nestedScrollEnabled={true}
               renderItem={renderListItem}
               keyExtractor={(item) => item.FinanceMatterID}
             />
@@ -426,9 +425,11 @@ const styles = StyleSheet.create({
     borderBottomColor: '#75787C',
   },
   viewObject: {
+    marginBottom: 32,
     paddingTop: 32,
     paddingLeft: 32,
     paddingRight: 32,
+    paddingBottom: 200,
   },
   activityIndicator: {
     flex: 1,
