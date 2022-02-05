@@ -29,6 +29,11 @@ import {
   checkUnreadMarketUpdates,
   markReadMarketUpdates,
 } from './../Components/marketUpdateUtils';
+import {
+  fetchFinanceMatter,
+  checkUnreadFinanceMatter,
+  markReadFinanceMatter,
+} from './../Components/financeMatterUtils';
 
 const MoreScreen = ({route, navigation}) => {
   const [unreadMarketUpdates, setUnreadMarketUpdates] = useState(0);
@@ -121,27 +126,57 @@ const MoreScreen = ({route, navigation}) => {
           return [fetchFinanceMatterNumber, fetchMarketSurveyNumber];
         });
       });
+      await loadFinanceMatter();
       await loadMarketUpdates();
     })();
   }, [route.params]);
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', async () => {
-      await loadMarketUpdates();
-    });
+    const unsubscribeMarketUpdates = navigation.addListener(
+      'focus',
+      async () => {
+        await loadMarketUpdates();
+      },
+    );
 
-    return unsubscribe;
+    const unsubscribeFinanceMatter = navigation.addListener(
+      'focus',
+      async () => {
+        await loadFinanceMatter();
+      },
+    );
+
+    return [unsubscribeMarketUpdates, unsubscribeFinanceMatter];
   }, [navigation]);
 
   const loadMarketUpdates = async () => {
     const value = await AsyncStorage.getItem('user_id');
+    console.log('valueLoadMarketUpdates =>', value);
     if (value) {
-      const respp = await AESEncryption('decrypt', value);
-      if (respp) {
+      const res = await AESEncryption('decrypt', value);
+      console.log('responseLoadMarketUpdates =>', res);
+      if (res) {
         await markReadMarketUpdates();
-        await fetchMarketUpdates(JSON.parse(respp).data.Token);
+        await fetchMarketUpdates(JSON.parse(res).data.Token);
         const marketUpdatesCount = await checkUnreadMarketUpdates();
+        console.log('marketUpdatesCount =>', marketUpdatesCount);
         setUnreadMarketUpdates(marketUpdatesCount);
+      }
+    }
+  };
+
+  const loadFinanceMatter = async () => {
+    const value = await AsyncStorage.getItem('user_id');
+    console.log('valueLoadFinanceMatter =>', value);
+    if (value) {
+      const res = await AESEncryption('decrypt', value);
+      console.log('responseLoadFinanceMatter =>', res);
+      if (res) {
+        await markReadFinanceMatter();
+        await fetchFinanceMatter(JSON.parse(res).data.Token);
+        const financeMatterCount = await checkUnreadFinanceMatter();
+        console.log('financeMatterCount =>', financeMatterCount);
+        setNumberOfFinanceMatter(financeMatterCount);
       }
     }
   };
