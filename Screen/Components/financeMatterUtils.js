@@ -17,7 +17,7 @@ const fetchFinanceMatter = async (token) => {
 
     if (jsonResponse && jsonResponse.length > 0) {
       const financeMatterIds = jsonResponse.map((x) => {
-        return x.FinanceMatterId;
+        return x.FinanceMatterID;
       });
       await AsyncStorage.setItem(
         'synced_finance_matter',
