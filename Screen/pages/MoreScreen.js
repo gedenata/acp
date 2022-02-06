@@ -151,15 +151,12 @@ const MoreScreen = ({route, navigation}) => {
 
   const loadMarketUpdates = async () => {
     const value = await AsyncStorage.getItem('user_id');
-    console.log('valueLoadMarketUpdates =>', value);
     if (value) {
       const res = await AESEncryption('decrypt', value);
-      console.log('responseLoadMarketUpdates =>', res);
       if (res) {
         await markReadMarketUpdates();
         await fetchMarketUpdates(JSON.parse(res).data.Token);
         const marketUpdatesCount = await checkUnreadMarketUpdates();
-        console.log('marketUpdatesCount =>', marketUpdatesCount);
         setUnreadMarketUpdates(marketUpdatesCount);
       }
     }
@@ -167,15 +164,12 @@ const MoreScreen = ({route, navigation}) => {
 
   const loadFinanceMatter = async () => {
     const value = await AsyncStorage.getItem('user_id');
-    console.log('valueLoadFinanceMatter =>', value);
     if (value) {
       const res = await AESEncryption('decrypt', value);
-      console.log('responseLoadFinanceMatter =>', res);
       if (res) {
         await markReadFinanceMatter();
         await fetchFinanceMatter(JSON.parse(res).data.Token);
         const financeMatterCount = await checkUnreadFinanceMatter();
-        console.log('financeMatterCount =>', financeMatterCount);
         setNumberOfFinanceMatter(financeMatterCount);
       }
     }
