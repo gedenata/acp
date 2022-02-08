@@ -2,8 +2,8 @@ import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 
 const MyInputSpinner = (props) => {
-    const {min, max} = props;
-    const [year, setYear] = useState(new Date().getFullYear());
+    const {min, max, year, setYear} = props;
+    //const [year, setYear] = useState(new Date().getFullYear());
 
     function handleChange(event) {
         let y = year;
@@ -11,7 +11,7 @@ const MyInputSpinner = (props) => {
         if (event === 'FORWARD' && year < max) {
             y = y + 1;
             setYear(y);
-        } else if (event === 'BACKWORD' && year > min){ 
+        } else if (event === 'BACKWORD' && year > min){
             y = y - 1;
             setYear(y);
         }

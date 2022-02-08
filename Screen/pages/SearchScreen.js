@@ -169,8 +169,13 @@ const SearchScreen = props => {
     setProductDescriptionCategory('');
     setProductDescriptionKeyword('');
     setSearchLocation('');
-    setMonth(0);
-    setYear(0);
+    setMonth('');
+    //setYear(0);
+    setAutoSearchData([]);
+    setPickerLocOpen(false);
+    setPickerOpen(false);
+    setPickerLocValue('');
+    setPickerValue('');
 
     setPOOrOrderNumberTemporary(POOrderNumberTemporary2);
     setPOOrOrderNumberKeywordTemporary(POOrOrderNumberKeywordTemporary2);
@@ -252,7 +257,7 @@ const SearchScreen = props => {
     handleClick(monthTemp);
     setYear(num);
     setYearTemp(num);
-    setMonth(monthTemp)
+    setMonth(monthTemp);
   }
 
   const handleClick = (buttonNumber) => {
@@ -266,7 +271,7 @@ const SearchScreen = props => {
     setInputColorSpinner("#000000");
     setMonth(buttonNumber);
     setMonthTemp(buttonNumber);
-    setYear(yearTemp);
+    setYearTemp(year);
   }
 
   function clearSelection(){
@@ -275,13 +280,14 @@ const SearchScreen = props => {
     setPOOrOrderNumberKeywordTemporary('');
     setProductDescriptionKeywordTemporary('');
     setProductDescriptionCategoryTemporary('');
-    setMonthTemp('');
     setAutoSearchData([]);
     setPickerLocOpen(false);
     setPickerOpen(false);
     setPickerLocValue('');
     setPickerValue('');
-
+    setMonth('');
+    setMonthTemp('');
+    //setYear(0);
     if(controller)
       controller.selectItem('Choose Product Description Category');
   }
@@ -625,7 +631,7 @@ const SearchScreen = props => {
         <Text style={{marginLeft:20, marginBottom:10, marginTop:20,fontWeight:'bold',fontSize:15}}>Estimated Time Arrival</Text>
       </View>
       <View style={{alignItems:'center',justifyContent:'center',resizeMode:'contain'}}>
-        <MyInputSpinner max={2050} min={2000} value={year} onChange={(num) => setSpinnerChange(num)}/>
+        <MyInputSpinner max={2050} min={2000} year={year} setYear={setYear} onChange={(num) => setSpinnerChange(num)}/>
       </View>
       <View style={{marginTop:8, alignItems:'stretch',justifyContent:'flex-start', flexDirection:'row'}}>
       <TouchableOpacity style={[styles.monthFirstRow, {backgroundColor:colourOne}]} onPress={handleClick.bind(this,'1')}><Text style={{color:'#c97d7d', fontFamily:'HelveticaNeue'}}>January</Text></TouchableOpacity>

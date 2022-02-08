@@ -52,7 +52,7 @@ const SearchOrdersResultETAProductDescScreen = ({route, navigation}) => {
           dataToSend = { LocationName: route.params.SearchedLocation, Token: route.params.TokenValue, Skip:skipValue };
         } else if (route.params.year != "" && route.params.month != ""){
             APITarget = `${ACCESS_API}/eta`;
-            dataToSend = { month: ((route.params.month.length == 1) ? "0" + route.params.month : route.params.month), year: route.params.year, Token: route.params.TokenValue, Skip:skipValue /* route.params.SalesOrderID */ };
+            dataToSend = { month: ((route.params.month.toString().length == 1) ? "0" + route.params.month : route.params.month), year: route.params.year.toString(), Token: route.params.TokenValue, Skip:skipValue /* route.params.SalesOrderID */ };
         }
 
         var formBody = [];
