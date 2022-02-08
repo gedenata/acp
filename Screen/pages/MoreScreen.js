@@ -70,7 +70,7 @@ const MoreScreen = ({route, navigation}) => {
             formBody.push(encodedKey + '=' + encodedValue);
           }
 
-          const urlParams = {
+          const params = {
             method: 'POST',
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
@@ -79,7 +79,7 @@ const MoreScreen = ({route, navigation}) => {
           };
 
           const urlFinanceMatterAPI = `${ACCESS_API}/financematterinfo`;
-          const fetchFinanceMatterNumber = fetch(urlFinanceMatterAPI, urlParams)
+          const fetchFinanceMatterEnabled = fetch(urlFinanceMatterAPI, params)
             .then((response) => {
               return response.json();
             })
@@ -99,7 +99,7 @@ const MoreScreen = ({route, navigation}) => {
             });
 
           const urlMarketSurveyAPI = `${ACCESS_API}/marketsurveyqna`;
-          const fetchMarketSurveyNumber = fetch(urlMarketSurveyAPI, urlParams)
+          const fetchMarketSurveyNumber = fetch(urlMarketSurveyAPI, params)
             .then((response) => {
               return response.json();
             })
@@ -123,30 +123,24 @@ const MoreScreen = ({route, navigation}) => {
               setNumberOfMarketSurvey(0);
               setLoading(false);
             });
-          return [fetchFinanceMatterNumber, fetchMarketSurveyNumber];
+          return [fetchFinanceMatterEnabled, fetchMarketSurveyNumber];
         });
       });
-      await loadFinanceMatter();
       await loadMarketUpdates();
+      await loadFinanceMatter();
     })();
   }, [route.params]);
 
   useEffect(() => {
-    const unsubscribeMarketUpdates = navigation.addListener(
-      'focus',
-      async () => {
-        await loadMarketUpdates();
-      },
-    );
-
     const unsubscribeFinanceMatter = navigation.addListener(
       'focus',
       async () => {
         await loadFinanceMatter();
+        await loadMarketUpdates();
       },
     );
 
-    return [unsubscribeMarketUpdates, unsubscribeFinanceMatter];
+    return unsubscribeFinanceMatter;
   }, [navigation]);
 
   const loadMarketUpdates = async () => {

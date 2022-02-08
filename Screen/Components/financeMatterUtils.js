@@ -3,27 +3,25 @@ import {ACCESS_API} from '@env';
 
 const fetchFinanceMatter = async (token) => {
   const url = `${ACCESS_API}/financematterinfo`;
-  const urlParams = {
+  const params = {
     method: 'POST',
     body: `Token=${encodeURIComponent(token)}`,
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
     },
   };
-  const response = await fetch(url, urlParams);
-
+  const response = await fetch(url, params);
   if (response) {
-    const jsonResponse = await response.json();
-
-    if (jsonResponse && jsonResponse.length > 0) {
-      const financeMatterIds = jsonResponse.map((x) => {
-        return x.FinanceMatterID;
+    const json = await response.json();
+    if (json.Data && json.Data.length > 0) {
+      let financeMatterIds = json.Data.map((item) => {
+        return item.FinanceMatterID;
       });
       await AsyncStorage.setItem(
         'synced_finance_matter',
         JSON.stringify(financeMatterIds),
       );
-      return jsonResponse;
+      return json;
     } else {
       return [];
     }
@@ -33,101 +31,85 @@ const fetchFinanceMatter = async (token) => {
 };
 
 const checkUnreadFinanceMatter = async () => {
-  const syncedFinanceMatter = await AsyncStorage.getItem(
-    'synced_finance_matter',
-  );
-  const readFinanceMatter = await AsyncStorage.getItem('read_finance_matter');
-
-  if (syncedFinanceMatter) {
-    const syncedFinanceMatterIds = JSON.parse(syncedFinanceMatter);
-
-    if (syncedFinanceMatterIds.length > 0) {
-      if (readFinanceMatter) {
-        const readFinanceMatterIds = JSON.parse(readFinanceMatter);
-        if (readFinanceMatterIds.length > 0) {
-          const filteredReadFinanceMatterIds = readFinanceMatterIds.filter(
-            (n) => {
-              return syncedFinanceMatterIds.indexOf(n) !== -1;
-            },
-          );
+  const syncedItems = await AsyncStorage.getItem('synced_finance_matter');
+  const readItem = await AsyncStorage.getItem('read_finance_matter');
+  if (syncedItems) {
+    const syncedItemId = JSON.parse(syncedItems);
+    if (syncedItemId.length > 0) {
+      if (readItem) {
+        const readItemId = JSON.parse(readItem);
+        if (readItemId.length > 0) {
+          const filteredItemId = readItemId.filter(function (n) {
+            return syncedItemId.indexOf(n) !== -1;
+          });
           await AsyncStorage.setItem(
             'read_finance_matter',
-            JSON.stringify(filteredReadFinanceMatterIds),
+            JSON.stringify(filteredItemId),
           );
-          const unreadFinanceMatterIds = syncedFinanceMatterIds.filter((n) => {
-            return readFinanceMatterIds.indexOf(n) === -1;
+          const unreadUpdates = syncedItemId.filter(function (n) {
+            return readItemId.indexOf(n) === -1;
           });
-          return unreadFinanceMatterIds.length;
+          return unreadUpdates.length;
         }
       }
-      return syncedFinanceMatterIds.length;
+      return syncedItemId.length;
     }
   }
   return 0;
 };
 
 const readFinanceMatter = async (ids) => {
-  var readFinanceMatterId = [];
-  const syncFinanceMatters = await AsyncStorage.getItem('read_finance_matter');
-
-  if (syncFinanceMatters) {
-    readFinanceMatterId = JSON.parse(syncFinanceMatters);
-    if (readFinanceMatterId && readFinanceMatterId.length > 0) {
-      ids.map((id) => {
-        if (readFinanceMatterId.indexOf(id) === -1) {
-          readFinanceMatterId.push(id);
+  let readItemId = [];
+  const readItem = await AsyncStorage.getItem('read_finance_matter');
+  if (readItem) {
+    readItemId = JSON.parse(readItem);
+    if (readItemId && readItemId.length > 0) {
+      ids.map(async (id) => {
+        if (readItemId.indexOf(id) === -1) {
+          readItemId.push(id);
         }
       });
     } else {
-      readFinanceMatterId = ids;
+      readItemId = ids;
     }
   } else {
-    readFinanceMatterId = ids;
+    readItemId = ids;
   }
-
-  await AsyncStorage.setItem(
-    'read_finance_matter',
-    JSON.stringify(readFinanceMatterId),
-  );
+  await AsyncStorage.setItem('read_finance_matter', JSON.stringify(readItemId));
 };
 
-const readTemplateFinanceMatter = async (id) => {
-  var readFinanceMatterId = [];
-  const syncFinanceMatters = await AsyncStorage.getItem(
-    'read_template_finance_matter',
-  );
-
-  if (syncFinanceMatters) {
-    readFinanceMatterId = JSON.parse(syncFinanceMatters);
-    if (readFinanceMatterId && readFinanceMatterId.length > 0) {
-      if (readFinanceMatterId.indexOf(id) === -1) {
-        readFinanceMatterId.push(id);
+const readTempFinanceMatter = async (id) => {
+  let readItemId = [];
+  const readItem = await AsyncStorage.getItem('read_temp_finance_matter');
+  if (readItem) {
+    readItemId = JSON.parse(readItem);
+    if (readItemId && readItemId.length > 0) {
+      if (readItemId.indexOf(id) === -1) {
+        readItemId.push(id);
       }
     } else {
-      readFinanceMatterId.push(id);
+      readItemId.push(id);
     }
   } else {
-    readFinanceMatterId.push(id);
+    readItemId.push(id);
   }
-
   await AsyncStorage.setItem(
-    'read_template_finance_matter',
-    JSON.stringify(readFinanceMatterId),
+    'read_temp_finance_matter',
+    JSON.stringify(readItemId),
   );
 };
 
 const markReadFinanceMatter = async () => {
-  var readFinanceMatterId = [];
-  const syncFinanceMatters = await AsyncStorage.getItem(
-    'read_template_finance_matter',
+  let readItemId = [];
+  const readTemplateItem = await AsyncStorage.getItem(
+    'read_temp_finance_matter',
   );
-
-  if (syncFinanceMatters) {
-    readFinanceMatterId = JSON.parse(syncFinanceMatters);
-    if (readFinanceMatterId.length > 0) {
-      await readFinanceMatter(readFinanceMatterId);
-      await AsyncStorage.removeItem(
-        'read_template_finance_matter',
+  if (readTemplateItem) {
+    readItemId = JSON.parse(readTemplateItem);
+    if (readItemId.length > 0) {
+      await readFinanceMatter(readItemId);
+      await AsyncStorage.setItem(
+        'read_temp_finance_matter',
         JSON.stringify([]),
       );
     }
@@ -138,6 +120,6 @@ export {
   fetchFinanceMatter,
   checkUnreadFinanceMatter,
   readFinanceMatter,
-  readTemplateFinanceMatter,
+  readTempFinanceMatter,
   markReadFinanceMatter,
 };

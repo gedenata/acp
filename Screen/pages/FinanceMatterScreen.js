@@ -24,6 +24,10 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 import {ACCESS_API} from '@env';
 import AESEncryption from '../Components/AESEncryption';
+import {
+  fetchFinanceMatter,
+  readTempFinanceMatter,
+} from '../Components/financeMatterUtils';
 
 const assets = {
   externalLink: require('../../Image/external-link.png'),
@@ -54,7 +58,7 @@ const FinanceMatterScreen = ({navigation}) => {
     }, 3000);
 
     AsyncStorage.getItem('user_id').then((value) => {
-      AESEncryption('decrypt', value).then((res) => {
+      AESEncryption('decrypt', value).then(async (res) => {
         setToken('' + JSON.parse(res).data.Token);
         const dataSend = {Token: '' + JSON.parse(res).data.Token};
         const formBody = [];
@@ -63,6 +67,10 @@ const FinanceMatterScreen = ({navigation}) => {
           const encodedValue = encodeURIComponent(dataSend[key]);
           formBody.push(encodedKey + '=' + encodedValue);
         }
+
+        // const json = await fetchFinanceMatter(JSON.parse(res).data.Token);
+        // setData(json.Data);
+        // setLoading(false);
 
         const url = `${ACCESS_API}/financematterinfo`;
         const urlParams = {
@@ -82,6 +90,7 @@ const FinanceMatterScreen = ({navigation}) => {
             } else {
               setFinanceMatterEnabled(false);
             }
+
             setData(json);
             setLoading(false);
           })
@@ -95,7 +104,8 @@ const FinanceMatterScreen = ({navigation}) => {
     setLoading(false);
   }, []);
 
-  const handleViewPdf = (financeMatterID, fileName) => {
+  const handleViewPdf = async (financeMatterID, fileName) => {
+    await readTempFinanceMatter(financeMatterID);
     setPdfName(fileName);
     setLoading(true);
 
