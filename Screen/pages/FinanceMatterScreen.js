@@ -24,10 +24,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 import {ACCESS_API} from '@env';
 import AESEncryption from '../Components/AESEncryption';
-import {
-  fetchFinanceMatter,
-  readTempFinanceMatter,
-} from '../Components/financeMatterUtils';
+import {readTempFinanceMatter} from '../Components/financeMatterUtils';
 
 const assets = {
   externalLink: require('../../Image/external-link.png'),
@@ -67,10 +64,6 @@ const FinanceMatterScreen = ({navigation}) => {
           const encodedValue = encodeURIComponent(dataSend[key]);
           formBody.push(encodedKey + '=' + encodedValue);
         }
-
-        // const json = await fetchFinanceMatter(JSON.parse(res).data.Token);
-        // setData(json.Data);
-        // setLoading(false);
 
         const url = `${ACCESS_API}/financematterinfo`;
         const urlParams = {
