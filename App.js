@@ -80,7 +80,7 @@ const App = () => {
         for (let key in dataSend) {
           const encodedKey = encodeURIComponent(key);
           const encodedValue = encodeURIComponent(dataSend[key]);
-          [].push(encodedKey + '=' + encodedValue);
+          formBody.push(encodedKey + '=' + encodedValue);
         }
 
         const urlFinanceMatterAPI = `${ACCESS_API}/financematterinfo`;
