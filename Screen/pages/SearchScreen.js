@@ -174,8 +174,8 @@ const SearchScreen = props => {
     setAutoSearchData([]);
     setPickerLocOpen(false);
     setPickerOpen(false);
-    setPickerLocValue('');
-    setPickerValue('');
+    //setPickerLocValue('');
+    //setPickerValue('');
 
     setPOOrOrderNumberTemporary(POOrderNumberTemporary2);
     setPOOrOrderNumberKeywordTemporary(POOrOrderNumberKeywordTemporary2);
@@ -294,8 +294,8 @@ const SearchScreen = props => {
 
   const handleSubmitPress = () => {
     //console.log("year => " + year + "::month => " + month + ":: POOrOrderNumber => " + POOrOrderNumber + ":: POOrOrderNumberKeyword => " + POOrOrderNumberKeyword + ":: productDescriptionCategory => " + productDescriptionCategory + ":: productDescriptionKeyword => " + productDescriptionKeyword + ":: searchLocation => " + searchLocation);
-    let navigateToScreen = ((productDescriptionCategory == "" || !productDescriptionCategory) && (year == "" || year == '0') && (month == "" || month == '0') && (searchLocation == "" || !searchLocation)) ? 'SearchResult' : 'SearchResultETAProductDesc';
-    console.log(navigateToScreen);
+    let navigateToScreen = ((productDescriptionCategory == "" || !productDescriptionCategory) /*&& (year == "" || year == '0')*/ && (month == "" || month == '0') && (searchLocation == "" || !searchLocation)) ? 'SearchResult' : 'SearchResultETAProductDesc';
+    //console.log(navigateToScreen);
     props.navigation.navigate(navigateToScreen, {
         year:year,
         month:month,
