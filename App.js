@@ -52,6 +52,10 @@ import {
   fetchMarketUpdates,
   checkUnreadMarketUpdates,
 } from './Screen/Components/marketUpdateUtils';
+import {
+  fetchFinanceMatter,
+  checkUnreadFinanceMatter,
+} from './Screen/Components/financeMatterUtils';
 
 const navigationRef = React.createRef();
 
@@ -101,12 +105,10 @@ const App = () => {
           await fetchMarketUpdates(JSON.parse(respp).data.Token);
           const marketUpdatesCount = await checkUnreadMarketUpdates();
           setUnreadMarketUpdates(marketUpdatesCount);
+          await fetchFinanceMatter(JSON.parse(respp).data.Token);
+          const financeMaterCount = await checkUnreadFinanceMatter();
+          setNumberOfFinanceMatter(financeMaterCount);
         }
-        fetch(urlFinanceMatterAPI, urlParams)
-          .then((response) => response.json())
-          .then((json) => {
-            setNumberOfFinanceMatter(json.Data.length);
-          });
       });
     });
   };
