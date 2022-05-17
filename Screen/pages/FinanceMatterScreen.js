@@ -49,6 +49,9 @@ const FinanceMatterScreen = ({navigation}) => {
   const [isLoading, setLoading] = useState(false);
   const [, setFinanceMatterEnabled] = useState(false);
 
+  const [hasViewPdf, setHasViewPdf] = useState(true);
+  const [color, setColor] = useState('white');
+
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
@@ -102,6 +105,13 @@ const FinanceMatterScreen = ({navigation}) => {
     setPdfName(fileName);
     setLoading(true);
 
+    setHasViewPdf(false);
+    if (hasViewPdf) {
+      setColor('green');
+    } else {
+      setColor('blue');
+    }
+
     const formBody = [];
     const dataSend = {
       Token: '' + token,
@@ -150,6 +160,7 @@ const FinanceMatterScreen = ({navigation}) => {
   }) => {
     return (
       <View style={styles.item}>
+        {hasViewPdf ? <View style={styles.viewBadge} /> : <></>}
         <View style={styles.tagItem} />
         <Text style={styles.date}>{OverdueDate}</Text>
         <Text style={styles.company}>{Company}</Text>
@@ -330,6 +341,7 @@ const FinanceMatterScreen = ({navigation}) => {
               data={data.Data}
               renderItem={renderListItem}
               keyExtractor={(item) => item.FinanceMatterID}
+              showsVerticalScrollIndicator={false}
             />
           )}
         </View>
@@ -508,6 +520,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#C4C4C4',
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
+  },
+  viewBadge: {
+    height: 10,
+    width: 10,
+    borderRadius: 24,
+    // backgroundColor: '#FF3A3A',
+    justifyContent: 'center',
+    top: 8,
+    right: 20,
+    marginTop: 10,
+    marginBottom: 10,
+    position: 'absolute',
   },
 });
 
