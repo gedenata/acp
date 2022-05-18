@@ -24,7 +24,10 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 import {ACCESS_API} from '@env';
 import AESEncryption from '../Components/AESEncryption';
-import {readTempFinanceMatter} from '../Components/financeMatterUtils';
+import {
+  readTempFinanceMatter,
+  checkIfReadOrUnreadFinMtr,
+} from '../Components/financeMatterUtils';
 
 const assets = {
   externalLink: require('../../Image/external-link.png'),
@@ -160,7 +163,11 @@ const FinanceMatterScreen = ({navigation}) => {
   }) => {
     return (
       <View style={styles.item}>
-        {hasViewPdf ? <View style={styles.viewBadge} /> : <></>}
+        {checkIfReadOrUnreadFinMtr(FinanceMatterID) ? (
+          <View style={styles.viewBadge} />
+        ) : (
+          <></>
+        )}
         <View style={styles.tagItem} />
         <Text style={styles.date}>{OverdueDate}</Text>
         <Text style={styles.company}>{Company}</Text>

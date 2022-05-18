@@ -116,10 +116,26 @@ const markReadFinanceMatter = async () => {
   }
 };
 
+const checkIfReadOrUnreadFinMtr = async (id) => {
+  let result = false;
+  let readItemId = [];
+  const readItem = await AsyncStorage.getItem('read_finance_matter');
+  if (readItem) {
+    readItemId = JSON.parse(readItem);
+    if (readItemId && readItemId.length > 0) {
+      if (readItemId.indexOf(id) !== -1) {
+        result = true;
+      }
+    }
+  }
+  return result;
+};
+
 export {
   fetchFinanceMatter,
   checkUnreadFinanceMatter,
   readFinanceMatter,
   readTempFinanceMatter,
   markReadFinanceMatter,
+  checkIfReadOrUnreadFinMtr,
 };
