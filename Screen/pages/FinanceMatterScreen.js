@@ -52,8 +52,8 @@ const FinanceMatterScreen = ({navigation}) => {
   const [isLoading, setLoading] = useState(false);
   const [, setFinanceMatterEnabled] = useState(false);
 
-  const [hasViewPdf, setHasViewPdf] = useState(true);
-  const [color, setColor] = useState('white');
+  const [show] = useState('red');
+  const [selected, setSelected] = useState([]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -108,13 +108,6 @@ const FinanceMatterScreen = ({navigation}) => {
     setPdfName(fileName);
     setLoading(true);
 
-    setHasViewPdf(false);
-    if (hasViewPdf) {
-      setColor('green');
-    } else {
-      setColor('blue');
-    }
-
     const formBody = [];
     const dataSend = {
       Token: '' + token,
@@ -163,10 +156,10 @@ const FinanceMatterScreen = ({navigation}) => {
   }) => {
     return (
       <View style={styles.item}>
-        {checkIfReadOrUnreadFinMtr(FinanceMatterID) ? (
-          <View style={styles.viewBadge} />
-        ) : (
+        {selected.indexOf(FinanceMatterID) !== -1 ? (
           <></>
+        ) : (
+          <View style={[styles.badge, {backgroundColor: show}]} />
         )}
         <View style={styles.tagItem} />
         <Text style={styles.date}>{OverdueDate}</Text>
@@ -177,6 +170,15 @@ const FinanceMatterScreen = ({navigation}) => {
           <TouchableOpacity
             style={styles.viewPdfButton}
             onPress={() => {
+              const updatedItems = [...selected];
+              const selectedIndex = updatedItems.indexOf(FinanceMatterID);
+
+              if (selectedIndex === -1) {
+                updatedItems.push(FinanceMatterID);
+              } else {
+                updatedItems.splice(selectedIndex, 1);
+              }
+              setSelected(updatedItems);
               handleViewPdf(FinanceMatterID, FileName);
             }}>
             <Image source={assets.externalLink} />
@@ -528,7 +530,7 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
   },
-  viewBadge: {
+  badge: {
     height: 10,
     width: 10,
     borderRadius: 24,
