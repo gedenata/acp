@@ -26,7 +26,7 @@ import {ACCESS_API} from '@env';
 import AESEncryption from '../Components/AESEncryption';
 import {
   readTempFinanceMatter,
-  checkIfReadOrUnreadFinMtr,
+  getReadFinanceMatter,
 } from '../Components/financeMatterUtils';
 
 const assets = {
@@ -100,6 +100,10 @@ const FinanceMatterScreen = ({navigation}) => {
         return fetchFinanceMatterInfo;
       });
     });
+
+    getReadFinanceMatter().then((res) => {
+      setSelected(res);
+    });
     setLoading(false);
   }, []);
 
@@ -156,7 +160,7 @@ const FinanceMatterScreen = ({navigation}) => {
   }) => {
     return (
       <View style={styles.item}>
-        {selected.indexOf(FinanceMatterID) !== -1 ? (
+        {selected && selected.indexOf(FinanceMatterID) !== -1 ? (
           <></>
         ) : (
           <View style={[styles.badge, {backgroundColor: show}]} />
